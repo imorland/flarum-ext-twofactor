@@ -4,6 +4,10 @@
 
 A [Flarum](http://flarum.org) extension. 2FA for Flarum
 
+## Features
+
+TODO
+
 ## Installation
 
 Install with composer:
@@ -20,8 +24,21 @@ php flarum migrate
 php flarum cache:clear
 ```
 
+## Usage
+
+TODO
+
+## Screenshots
+##### Security tab integration
+![security tab integration](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/f0247afe-16f4-4ccf-b09c-0637d7b9c783)
+
+##### Enabled/Disabled notifications
+![notifications](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/d5c052e2-bb08-4c3a-a24d-ac8c4b9e3f57)
+
+##### Admin user list status icon
+![userlist](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/9c1a58c9-919b-4552-ad1f-f022a5240f17)
 ## Links
 
 - [Packagist](https://packagist.org/packages/ianm/twofactor)
-- [GitHub](https://github.com/ianm/twofactor)
+- [GitHub](https://github.com/imorland/flarum-ext-twofactor)
 - [Discuss](https://discuss.flarum.org/d/PUT_DISCUSS_SLUG_HERE)
