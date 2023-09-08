@@ -1,0 +1,82 @@
+{
+    "name": "ianm/twofactor",
+    "description": "2FA for Flarum",
+    "keywords": [
+        "flarum"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "require": {
+        "php": "^8.0",
+        "flarum/core": "^1.8.0",
+        "spomky-labs/otphp": "^11.2",
+        "endroid/qr-code": "^4.8"
+    },
+    "authors": [
+        {
+            "name": "IanM",
+            "email": "ian@flarum.one",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "IanM\\TwoFactor\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "2FA",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-shield-alt",
+                "color": "#fff",
+                "backgroundColor": "#0072e3"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "admin": true,
+                "forum": true,
+                "js": true,
+                "jsCommon": true,
+                "css": true,
+                "locale": true,
+                "gitConf": true,
+                "githubActions": true,
+                "prettier": true,
+                "typescript": true,
+                "bundlewatch": false,
+                "backendTesting": true,
+                "editorConfig": true,
+                "styleci": true
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload-dev": {
+        "psr-4": {
+            "IanM\\TwoFactor\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "flarum/testing": "^1.8.0",
+        "fof/oauth": "*"
+    }
+}
