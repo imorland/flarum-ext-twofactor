@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Notification;
 
 use Carbon\Carbon;
@@ -14,7 +23,6 @@ class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInt
 {
     public function __construct(public Enabled|Disabled $event)
     {
-        
     }
 
     public function getFromUser()
@@ -48,7 +56,7 @@ class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInt
             'generated' => Carbon::now()->toIso8601String(),
         ];
     }
-    
+
     public function getEmailView()
     {
         return [

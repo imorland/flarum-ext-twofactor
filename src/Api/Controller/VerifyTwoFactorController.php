@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
@@ -19,7 +28,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class VerifyTwoFactorController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
-    
+
     public function __construct(protected TotpInterface $totp, protected BackupCodeGenerator $backupCodeGenerator, protected Dispatcher $events)
     {
     }
@@ -31,16 +40,16 @@ class VerifyTwoFactorController implements RequestHandlerInterface
         $reVerify = (bool) Arr::get($request->getParsedBody(), 'reVerify', false);
 
         $twoFactor = TwoFactor::getForUser($actor);
-        
+
         if ($this->isTokenActive($token, $actor)) {
             $backupCodes = [];
-            if (!$reVerify) {
+            if (! $reVerify) {
                 $twoFactor->is_active = true;
                 $twoFactor->save();
 
                 $backupCodes = $this->backupCodeGenerator->generate($actor);
 
-                $this->events->dispatch(new Enabled($actor, !empty($backupCodes)));
+                $this->events->dispatch(new Enabled($actor, ! empty($backupCodes)));
             }
 
             return new JsonResponse([

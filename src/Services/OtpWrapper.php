@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Services;
 
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -29,12 +38,11 @@ class OtpWrapper implements TotpInterface
 
     public function getProvisioningUri(string $label, string $secret = null): string
     {
-        if (!empty($secret)) {
+        if (! empty($secret)) {
             $this->createFromSecret($secret);
         }
 
         $this->setLabel($label);
-
 
         return $this->totp->getProvisioningUri();
     }

@@ -1,23 +1,32 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\OAuth;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\User\LoginProvider;
 use Flarum\User\User;
-use Psr\Http\Message\ServerRequestInterface;
-use League\OAuth2\Client\Token\AccessTokenInterface;
-use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Session\Store;
 use Illuminate\Support\MessageBag;
 use Laminas\Diactoros\Response\RedirectResponse;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class TwoFactorOAuthCheck
 {
     use TwoFactorAuthenticationTrait;
-    
+
     public function __construct(protected TotpInterface $totp, protected UrlGenerator $url)
     {
     }
@@ -26,7 +35,7 @@ class TwoFactorOAuthCheck
     {
         $user = $this->getUserFromProvider($provider, $resourceOwner);
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -34,7 +43,6 @@ class TwoFactorOAuthCheck
         $session = $request->getAttribute('session');
 
         if ($this->twoFactorActive($user)) {
-            
             if ($session->has('twoFactorToken')) {
                 return $this->handle2FASubmission($session);
             } else {
@@ -45,7 +53,7 @@ class TwoFactorOAuthCheck
                     'userId' => $user->id,
                     'requestUri' => $request->getUri(),
                 ]);
-    
+
                 // Redirect to a 2FA form
                 return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
             }
@@ -56,11 +64,12 @@ class TwoFactorOAuthCheck
     {
         $token = $this->retrieveTwoFactorTokenFrom($session->get('twoFactorToken'));
         $oauthData = $session->get('oauth_data');
-        
+
         $user = $this->getUserFromProvider($oauthData['provider'], $oauthData['resourceOwner']);
 
-        if (!$this->isTokenActive($token, $user)) {
+        if (! $this->isTokenActive($token, $user)) {
             $session->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
+
             return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
         }
 

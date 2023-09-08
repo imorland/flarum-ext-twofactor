@@ -1,16 +1,24 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Services;
 
 use Flarum\Group\Group;
 use Flarum\User\User;
-use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 
 class TwoFactorRestrictor
 {
     use TwoFactorAuthenticationTrait;
-    
+
     /**
      * Determines if the given user can disable 2FA.
      *
@@ -19,7 +27,7 @@ class TwoFactorRestrictor
      */
     public function canDisable2FA(User $user): bool
     {
-        return !$this->hasRestrictedGroup($user);
+        return ! $this->hasRestrictedGroup($user);
     }
 
     /**
@@ -38,12 +46,12 @@ class TwoFactorRestrictor
 
     /**
      * Determines if the given user should/must enable 2FA.
-     * 
+     *
      * @param User $user
      * @return bool
      */
     public function mustEnableTwoFactor(User $user): bool
     {
-        return $this->hasRestrictedGroup($user) && !$this->twoFactorActive($user);
+        return $this->hasRestrictedGroup($user) && ! $this->twoFactorActive($user);
     }
 }

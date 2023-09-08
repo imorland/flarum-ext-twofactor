@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Forum\Controller\SavePasswordController;
@@ -22,7 +31,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class TwoFactorSavePasswordController extends SavePasswordController
 {
     use TwoFactorAuthenticationTrait;
-    
+
     public function __construct(protected TotpInterface $totp, UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory, Dispatcher $events)
     {
         parent::__construct($url, $authenticator, $validator, $validatorFactory, $events);
@@ -57,7 +66,7 @@ class TwoFactorSavePasswordController extends SavePasswordController
 
         // Check if the user has 2FA enabled
         if ($this->twoFactorActive($token->user)) {
-            if (!$this->isTokenActive($twoFactorToken, $token->user)) {
+            if (! $this->isTokenActive($twoFactorToken, $token->user)) {
                 $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
 
                 return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));

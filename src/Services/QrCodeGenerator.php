@@ -1,10 +1,18 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Services;
 
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
 use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -15,7 +23,7 @@ use Illuminate\Contracts\Filesystem\Factory;
 class QrCodeGenerator
 {
     protected Cloud $assetsFilesystem;
-    
+
     public function __construct(protected SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
@@ -40,7 +48,6 @@ class QrCodeGenerator
             //->labelAlignment(new LabelAlignmentCenter())
             ->validateResult(false)
             ->build();
-
 
         if ($asDataUri) {
             return $result->getDataUri();

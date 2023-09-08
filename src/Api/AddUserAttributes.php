@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Api;
 
 use Flarum\Api\Serializer\BasicUserSerializer;
@@ -11,11 +20,11 @@ use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 class AddUserAttributes
 {
     use TwoFactorAuthenticationTrait;
-    
+
     public function __construct(protected TwoFactorRestrictor $restrictor, protected BackupCodeGenerator $backupCodeGenerator)
     {
     }
-    
+
     public function __invoke(BasicUserSerializer $serializer, User $user, array $attributes): array
     {
         // These attributes are added to all users, based on permission.

@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Services;
 
 use Flarum\User\User;
@@ -11,7 +20,7 @@ class BackupCodeGenerator
     public function __construct(protected Hasher $hash)
     {
     }
-    
+
     public function generate(User $user, $count = 5)
     {
         $codes = [];
@@ -31,7 +40,7 @@ class BackupCodeGenerator
 
     protected function saveBackupCodesToDatabase(User $user, array $codes, bool $alreadyHashed = false)
     {
-        if (!$alreadyHashed) {
+        if (! $alreadyHashed) {
             // Hash each backup code
             $hashedCodes = array_map(function ($code) {
                 return $this->hash->make($code);
@@ -39,7 +48,7 @@ class BackupCodeGenerator
         } else {
             $hashedCodes = $codes;
         }
-        
+
         $twoFactor = TwoFactor::getForUser($user);
         $twoFactor->backup_codes = json_encode($hashedCodes);
         $twoFactor->save();
@@ -67,7 +76,7 @@ class BackupCodeGenerator
     public function getRemainingBackupCodes(User $user): int
     {
         $twoFactor = $user->twoFactor ?? TwoFactor::getForUser($user);
-        
+
         $hashedBackupCodes = json_decode($twoFactor->backup_codes, true);
 
         return $hashedBackupCodes ? count($hashedBackupCodes) : 0;

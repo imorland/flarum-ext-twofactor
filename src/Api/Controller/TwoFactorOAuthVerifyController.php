@@ -1,13 +1,17 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Api\Controller;
 
-use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\User\Exception\NotAuthenticatedException;
-use Flarum\User\User;
-use IanM\TwoFactor\Contracts\TotpInterface;
-use IanM\TwoFactor\Model\TwoFactor;
 use Illuminate\Session\Store;
 use Illuminate\Support\Arr;
 use Illuminate\Support\MessageBag;
@@ -30,7 +34,7 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
         // Get the provided 2FA token from the request body
         $twoFactorToken = Arr::get($request->getParsedBody(), 'twoFactorToken');
 
-        if (!empty($twoFactorToken)) {
+        if (! empty($twoFactorToken)) {
             /** @var \Psr\Http\Message\UriInterface */
             $oauthUri = Arr::get($session->get('oauth_data'), 'requestUri');
             $session->put('fastTrack', true);

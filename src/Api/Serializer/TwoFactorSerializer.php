@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
@@ -14,9 +23,9 @@ class TwoFactorSerializer extends AbstractSerializer
 
     protected function getDefaultAttributes($model): array
     {
-        if (!($model instanceof TwoFactor)) {
+        if (! ($model instanceof TwoFactor)) {
             throw new InvalidArgumentException(
-                get_class($this) . ' can only serialize instances of ' . TwoFactor::class
+                get_class($this).' can only serialize instances of '.TwoFactor::class
             );
         }
 

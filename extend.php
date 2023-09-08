@@ -24,14 +24,14 @@ use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js')
-        ->css(__DIR__ . '/less/forum.less'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/less/forum.less'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js')
-        ->css(__DIR__ . '/less/admin.less'),
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->css(__DIR__.'/less/admin.less'),
 
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Routes('api'))
         ->get('/users/{id}/twofactor/qrcode', 'user.twofactor.get-qr', Api\Controller\ShowQrCodeController::class)
@@ -80,7 +80,7 @@ return [
         ->listen(GroupSaving::class, Listener\SaveGroup2FASetting::class),
 
     (new Extend\View())
-        ->namespace('ianm-two-factor', __DIR__ . '/views'),
+        ->namespace('ianm-two-factor', __DIR__.'/views'),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-oauth', [
@@ -91,6 +91,5 @@ return [
                 ->get('/twofactor/oauth/verify', 'twoFactor.oauth', Api\Controller\TwoFactorOAuthController::class)
                 ->post('/twofactor/oauth/verify', 'twoFactor.oauth.verify', Api\Controller\TwoFactorOAuthVerifyController::class),
         ]),
-
 
 ];

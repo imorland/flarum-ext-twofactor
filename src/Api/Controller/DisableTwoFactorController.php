@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Http\RequestUtil;
@@ -19,7 +28,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class DisableTwoFactorController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
-    
+
     public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor)
     {
     }
@@ -30,7 +39,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
         $actor->assertRegistered();
 
         // Check if the actor can disable 2FA
-        if (!$this->restrictor->canDisable2FA($actor)) {
+        if (! $this->restrictor->canDisable2FA($actor)) {
             // Return a response indicating that this user cannot disable 2FA
             throw new PermissionDeniedException('You are not allowed to disable 2FA.');
         }
@@ -41,7 +50,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
             throw new PermissionDeniedException('You cannot manage 2FA for another user.');
         }
 
-        if (!$this->twoFactorActive($user)) {
+        if (! $this->twoFactorActive($user)) {
             return new ModelNotFoundException();
         }
 
