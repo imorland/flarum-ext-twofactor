@@ -6,7 +6,14 @@ A [Flarum](http://flarum.org) extension. 2FA for Flarum
 
 ## Features
 
-TODO
+- Enforces `admin` accounts to have 2FA enabled for increased security
+- Configure which additional user groups should also be enforced
+- Supports all common authentication apps
+- Protects `login`, `forgot password` endpoints
+- Integrates with `fof/oauth` to protect OAuth logins to protected accounts
+- 2FA Enabled/Disabled notifications
+- 2FA Status page
+- Backup/recovery codes
 
 ## Installation
 
@@ -29,6 +36,10 @@ php flarum cache:clear
 TODO
 
 ## Screenshots
+##### QR Code setup
+![QR code setup](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/b1358a23-757d-493d-8923-ada730d7cafe)
+##### Manual setup
+![manual setup](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/555078cc-041d-4ac3-a0c9-b3ed87ca181b)
 ##### Security tab integration
 ![security tab integration](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/f0247afe-16f4-4ccf-b09c-0637d7b9c783)
 
