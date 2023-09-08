@@ -7,6 +7,10 @@ ianm-twofactor:
     permissions:
       see_two_factor_status_label: View 2FA status of other users
       manage_others_label: Manage 2FA for other users
+    settings:
+      groups:
+        title: 2FA Required Groups
+        help: Require members of these groups to enable Two-Factor Authentication (2FA) for their account. A user in a required group cannot disable 2FA.
 
   forum:
     user_2fa.alert_message: You must enable 2FA to continue accessing your account.

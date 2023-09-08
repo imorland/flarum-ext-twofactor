@@ -1,12 +1,14 @@
 import app from 'flarum/admin/app';
 import extendUserListPage from './extendUserListPage';
 import extendEditGroupModal from './extendEditGroupModal';
+import SettingsPage from './components/SettingsPage';
 
 export { default as extend } from './extend';
 
 app.initializers.add('ianm/twofactor', () => {
   app.extensionData
     .for('ianm-twofactor')
+    .registerPage(SettingsPage)
     .registerPermission(
       {
         icon: 'fas fa-shield-alt',
