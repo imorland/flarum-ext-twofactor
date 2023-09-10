@@ -12,10 +12,11 @@
 namespace IanM\TwoFactor\Services;
 
 use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
-use Endroid\QrCode\Writer\SvgWriter;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -31,23 +32,26 @@ class QrCodeGenerator
 
     public function generate(string $text, bool $asDataUri = false): string
     {
-        $result = Builder::create()
-            ->writer(new SvgWriter())
+        $builder = Builder::create()
+            ->writer(new Writer\PngWriter())
             ->writerOptions([])
             ->data($text)
             ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(new ErrorCorrectionLevelLow())
+            ->errorCorrectionLevel(new ErrorCorrectionLevel\ErrorCorrectionLevelQuartile())
             ->size(300)
             ->margin(10)
-            ->roundBlockSizeMode(new RoundBlockSizeModeMargin())
-            //->logoPath($this->getLogoUrl())
-            //->logoResizeToWidth(100)
-            //->logoPunchoutBackground(true)
-            //->labelText('This is the label')
-            //->labelFont(new NotoSans(20))
-            //->labelAlignment(new LabelAlignmentCenter())
+            ->roundBlockSizeMode(new RoundBlockSizeMode\RoundBlockSizeModeMargin())
             ->validateResult(false)
-            ->build();
+            ->backgroundColor(new Color(255, 255, 255, 1));
+
+        if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr')) {
+            $builder
+                ->logoPath($this->getLogoUrl())
+                ->logoResizeToWidth(200)
+                ->logoPunchoutBackground(true);
+        }
+
+        $result = $builder->build();
 
         if ($asDataUri) {
             return $result->getDataUri();
