@@ -9,7 +9,7 @@
     "support": {
         "issues": "https://github.com/imorland/flarum-ext-twofactor/issues",
         "source": "https://github.com/imorland/flarum-ext-twofactor",
-        "forum": "https://discuss.flarum.org"
+        "forum": "https://discuss.flarum.org/d/33339"
     },
     "require": {
         "php": "^8.0",

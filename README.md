@@ -52,4 +52,4 @@ TODO
 
 - [Packagist](https://packagist.org/packages/ianm/twofactor)
 - [GitHub](https://github.com/imorland/flarum-ext-twofactor)
-- [Discuss](https://discuss.flarum.org/d/PUT_DISCUSS_SLUG_HERE)
+- [Discuss](https://discuss.flarum.org/d/33339)
