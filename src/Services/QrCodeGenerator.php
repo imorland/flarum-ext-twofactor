@@ -47,7 +47,7 @@ class QrCodeGenerator
         if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr')) {
             $builder
                 ->logoPath($this->getLogoUrl())
-                ->logoResizeToWidth(200)
+                ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
                 ->logoPunchoutBackground(true);
         }
 

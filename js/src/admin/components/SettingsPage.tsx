@@ -19,6 +19,13 @@ export default class SettingsPage extends ExtensionPage {
               label: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr'),
               help: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr_help'),
             })}
+            {this.buildSettingComponent({
+              setting: 'ianm-twofactor.admin.settings.forum_logo_qr_width',
+              type: 'number',
+              label: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr_width'),
+              help: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr_width_help'),
+              max: 200,
+            })}
             {this.submitButton()}
           </div>
         </div>
