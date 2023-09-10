@@ -11,6 +11,8 @@ ianm-twofactor:
       groups:
         title: 2FA Required Groups
         help: Require members of these groups to enable Two-Factor Authentication (2FA) for their account. A user in a required group cannot disable 2FA.
+      forum_logo_qr: Embed Forum Logo on QR Code
+      forum_logo_qr_help: Embed the forum logo on the QR code displayed when enabling 2FA. This may help users identify the correct QR code to scan.
 
   forum:
     user_2fa.alert_message: You must enable 2FA to continue accessing your account.

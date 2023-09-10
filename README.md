@@ -37,7 +37,7 @@ TODO
 
 ## Screenshots
 ##### QR Code setup
-![QR code setup](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/b1358a23-757d-493d-8923-ada730d7cafe)
+![qr-code-setup](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/dbf6c4d1-ac1f-4de9-b966-0065529e8edf)
 ##### Manual setup
 ![manual setup](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/555078cc-041d-4ac3-a0c9-b3ed87ca181b)
 ##### Security tab integration
@@ -52,4 +52,4 @@ TODO
 
 - [Packagist](https://packagist.org/packages/ianm/twofactor)
 - [GitHub](https://github.com/imorland/flarum-ext-twofactor)
-- [Discuss](https://discuss.flarum.org/d/PUT_DISCUSS_SLUG_HERE)
+- [Discuss](https://discuss.flarum.org/d/33339)

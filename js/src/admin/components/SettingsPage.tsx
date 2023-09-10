@@ -13,6 +13,12 @@ export default class SettingsPage extends ExtensionPage {
               <p className="helpText">{app.translator.trans('ianm-twofactor.admin.settings.groups.help')}</p>
               <ExtractedGroupBar />
             </div>
+            {this.buildSettingComponent({
+              setting: 'ianm-twofactor.admin.settings.forum_logo_qr',
+              type: 'boolean',
+              label: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr'),
+              help: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr_help'),
+            })}
             {this.submitButton()}
           </div>
         </div>

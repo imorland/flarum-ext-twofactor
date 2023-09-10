@@ -78,7 +78,7 @@ export default class TwoFactorEnableModal extends Modal {
 
             {this.activeTab === 'qrcode' && (
               <div className="qrSection">
-                <img src={this.qrCodeUrl} alt={app.translator.trans('ianm-twofactor.forum.security.qr_code_alt')} />
+                <img className="qrImage" src={this.qrCodeUrl} alt={app.translator.trans('ianm-twofactor.forum.security.qr_code_alt')} />
                 <p className="helpText">{app.translator.trans('ianm-twofactor.forum.security.scan_qr_instruction')}</p>
               </div>
             )}
