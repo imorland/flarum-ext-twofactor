@@ -24,7 +24,15 @@ export default function alertTwoFactorAuthentication(app) {
     }
 
     onclick() {
-      app.modal.show(TwoFactorEnableModal, { user });
+      app.modal.show(TwoFactorEnableModal, { onEnabled: this.onTwoFactorEnabled.bind(this), user });
+    }
+
+    onTwoFactorEnabled() {
+      user.mustEnable2FA(false);
+      m.redraw();
+
+      // Unmount the ContainedAlert
+      m.mount(alertContainer, null);
     }
   }
 
@@ -35,7 +43,9 @@ export default function alertTwoFactorAuthentication(app) {
     }
   }
 
-  m.mount($('<div className="App-notices"/>').insertBefore('#content')[0], {
+  const alertContainer = $('<div className="App-notices"/>').insertBefore('#content')[0];
+
+  m.mount(alertContainer, {
     view: () => (
       <ContainedAlert dismissible={false} controls={[<Enable2FAButton />]} className="Alert--2faEnable">
         {app.translator.trans('ianm-twofactor.forum.user_2fa.alert_message')}

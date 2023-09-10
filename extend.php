@@ -83,7 +83,8 @@ return [
         ->namespace('ianm-two-factor', __DIR__.'/views'),
 
     (new Extend\Settings())
-        ->default('ianm-twofactor.admin.settings.forum_logo_qr', true),
+        ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
+        ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-oauth', [
