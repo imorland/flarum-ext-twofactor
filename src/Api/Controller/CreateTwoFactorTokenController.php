@@ -52,7 +52,7 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
         $user = $this->users->findByIdentification($identification);
 
         if (! $user || ! $user->checkPassword($password)) {
-            throw new NotAuthenticatedException;
+            throw new NotAuthenticatedException();
         }
 
         if ($this->twoFactorActive($user)) {

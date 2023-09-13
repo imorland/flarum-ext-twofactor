@@ -15,6 +15,8 @@ ianm-twofactor:
       forum_logo_qr_help: Embed the forum logo on the QR code displayed when enabling 2FA. This may help users identify the correct QR code to scan.
       forum_logo_qr_width: Forum Logo QR Code Width
       forum_logo_qr_width_help: The width of the forum logo embedded on the QR code displayed when enabling 2FA. Max 200.
+      logo_qr: Logo on QR Code
+      logo_qr_help: If logo has been uploaded, this logo will be embedded on the QR code. Leave blank to use the forum logo.
 
   forum:
     user_2fa.alert_message: You must enable 2FA to continue accessing your account.
@@ -56,7 +58,7 @@ ianm-twofactor:
       status_changed: |
         Hello {recipient_display_name},
 
-        Two-Factor Authentication has been {type} for your account on {forum_url}. 
+        Two-Factor Authentication has been {type} for your account on {forum_url}.
 
         If you initiated this action, no further steps are necessary. If you did not authorize this change, please contact the forum administrators immediately.
   views:

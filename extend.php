@@ -14,6 +14,7 @@ namespace IanM\TwoFactor;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Extend;
 use Flarum\Group\Event\Saving as GroupSaving;
@@ -24,21 +25,23 @@ use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less'),
+        ->js(__DIR__ . '/js/dist/forum.js')
+        ->css(__DIR__ . '/less/forum.less'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js')
-        ->css(__DIR__.'/less/admin.less'),
+        ->js(__DIR__ . '/js/dist/admin.js')
+        ->css(__DIR__ . '/less/admin.less'),
 
-    new Extend\Locales(__DIR__.'/locale'),
+    new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\Routes('api'))
         ->get('/users/{id}/twofactor/qrcode', 'user.twofactor.get-qr', Api\Controller\ShowQrCodeController::class)
         ->post('/users/twofactor/verify', 'user.twofactor.verify', Api\Controller\VerifyTwoFactorController::class)
         ->delete('/users/{id}/twofactor/disable', 'user.twofactor.disable', Api\Controller\DisableTwoFactorController::class)
         ->remove('token')
-        ->post('/token', 'token', Api\Controller\CreateTwoFactorTokenController::class),
+        ->post('/token', 'token', Api\Controller\CreateTwoFactorTokenController::class)
+        ->post('/ianm_twofactor_logo', 'ianm_twofactor.logo', Api\Controller\UploadLogoController::class)
+        ->delete('/ianm_twofactor_logo', 'ianm_twofactor.logo.delete', Api\Controller\DeleteLogoController::class),
 
     (new Extend\Routes('forum'))
         ->remove('login')
@@ -66,6 +69,9 @@ return [
     (new Extend\ApiSerializer(GroupSerializer::class))
         ->attributes(Api\AddGroupAttributes::class),
 
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attributes(Api\AddForumAttributes::class),
+
     (new Extend\ApiController(ShowUserController::class))
         ->addInclude('twoFactor'),
 
@@ -80,7 +86,7 @@ return [
         ->listen(GroupSaving::class, Listener\SaveGroup2FASetting::class),
 
     (new Extend\View())
-        ->namespace('ianm-two-factor', __DIR__.'/views'),
+        ->namespace('ianm-two-factor', __DIR__ . '/views'),
 
     (new Extend\Settings())
         ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
