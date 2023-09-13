@@ -34,11 +34,9 @@ class AddForumAttributes
     {
         $actor = $serializer->getActor();
 
-        if (! $actor->isAdmin()) {
-            return $attributes;
+        if ($actor->isAdmin()) {
+            $attributes['ianm_twofactor_logoUrl'] = $this->getLogoUrl();
         }
-
-        $attributes['ianm_twofactor_logoUrl'] = $this->getLogoUrl();
 
         return $attributes;
     }
