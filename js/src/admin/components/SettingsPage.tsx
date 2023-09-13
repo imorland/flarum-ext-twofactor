@@ -5,7 +5,6 @@ import ExtractedGroupBar from './ExtractedGroupBar';
 
 export default class SettingsPage extends ExtensionPage {
   content() {
-    console.log(app.forum);
 
     return (
       <div className="container">
