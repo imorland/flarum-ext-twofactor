@@ -5,7 +5,6 @@ import ExtractedGroupBar from './ExtractedGroupBar';
 
 export default class SettingsPage extends ExtensionPage {
   content() {
-
     return (
       <div className="container">
         <div className="TwoFactorSettingsPage">
