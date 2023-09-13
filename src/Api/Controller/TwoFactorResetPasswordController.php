@@ -35,7 +35,7 @@ class TwoFactorResetPasswordController extends ResetPasswordController
         $token = PasswordToken::findOrFail($token);
 
         if ($token->created_at < new DateTime('-1 day')) {
-            throw new InvalidConfirmationTokenException;
+            throw new InvalidConfirmationTokenException();
         }
 
         $hasTwoFactorEnabled = $this->twoFactorActive($token->user);

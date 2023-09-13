@@ -14,6 +14,7 @@ namespace IanM\TwoFactor;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Extend;
 use Flarum\Group\Event\Saving as GroupSaving;
@@ -38,7 +39,9 @@ return [
         ->post('/users/twofactor/verify', 'user.twofactor.verify', Api\Controller\VerifyTwoFactorController::class)
         ->delete('/users/{id}/twofactor/disable', 'user.twofactor.disable', Api\Controller\DisableTwoFactorController::class)
         ->remove('token')
-        ->post('/token', 'token', Api\Controller\CreateTwoFactorTokenController::class),
+        ->post('/token', 'token', Api\Controller\CreateTwoFactorTokenController::class)
+        ->post('/ianm_twofactor_logo', 'ianm_twofactor.logo', Api\Controller\UploadLogoController::class)
+        ->delete('/ianm_twofactor_logo', 'ianm_twofactor.logo.delete', Api\Controller\DeleteLogoController::class),
 
     (new Extend\Routes('forum'))
         ->remove('login')
@@ -65,6 +68,9 @@ return [
 
     (new Extend\ApiSerializer(GroupSerializer::class))
         ->attributes(Api\AddGroupAttributes::class),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attributes(Api\AddForumAttributes::class),
 
     (new Extend\ApiController(ShowUserController::class))
         ->addInclude('twoFactor'),

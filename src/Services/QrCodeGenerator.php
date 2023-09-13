@@ -44,7 +44,7 @@ class QrCodeGenerator
             ->validateResult(false)
             ->backgroundColor(new Color(255, 255, 255, 1));
 
-        if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr')) {
+        if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr') && $this->getLogoUrl()) {
             $builder
                 ->logoPath($this->getLogoUrl())
                 ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
@@ -62,7 +62,7 @@ class QrCodeGenerator
 
     protected function getLogoUrl(): ?string
     {
-        $logoPath = $this->settings->get('logo_path');
+        $logoPath = $this->settings->get('ianm_twofactor_logo_path') ?? $this->settings->get('logo_path');
 
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }
