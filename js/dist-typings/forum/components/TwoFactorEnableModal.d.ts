@@ -11,8 +11,10 @@ export default class TwoFactorEnableModal extends Modal<import("flarum/common/co
     activeTab: string | undefined;
     title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     oncreate(vnode: any): void;
+    onupdate(): void;
     content(): JSX.Element;
     verifyToken(): void;
     finish(): void;
+    onSubmit(e: any): void;
 }
 import Modal from "flarum/common/components/Modal";
