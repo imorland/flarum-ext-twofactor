@@ -32,6 +32,12 @@ class AddForumAttributes
 
     public function __invoke(ForumSerializer $serializer, $object, array $attributes): array
     {
+        $actor = $serializer->getActor();
+
+        if(! $actor->isAdmin()) {
+            return $attributes;
+        }
+
         $attributes['ianm_twofactor_logoUrl'] = $this->getLogoUrl();
 
         return $attributes;
