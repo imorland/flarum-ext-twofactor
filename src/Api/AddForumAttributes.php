@@ -34,7 +34,7 @@ class AddForumAttributes
     {
         $actor = $serializer->getActor();
 
-        if(! $actor->isAdmin()) {
+        if (! $actor->isAdmin()) {
             return $attributes;
         }
 
