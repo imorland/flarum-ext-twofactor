@@ -43,6 +43,13 @@ export default class TwoFactorEnableModal extends Modal {
       });
   }
 
+  onupdate() {
+    const tokenInput = document.querySelector('.TwoFactorEnableModal [name=token]');
+    if (tokenInput && document.activeElement !== tokenInput) {
+      tokenInput.focus();
+    }
+  }
+
   content() {
     return (
       <div className="Modal-body">
@@ -91,14 +98,21 @@ export default class TwoFactorEnableModal extends Modal {
             )}
 
             <div className="Form">
-              <div className="Form-group">
-                <input className="FormControl" bidi={this.token} placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_token')} />
-              </div>
-              <div className="Form-group">
-                <Button className="Button Button--primary" onclick={this.verifyToken.bind(this)}>
-                  {app.translator.trans('ianm-twofactor.forum.security.verify_button')}
-                </Button>
-              </div>
+              <form onsubmit={this.onSubmit.bind(this)}>
+                <div className="Form-group">
+                  <input
+                    className="FormControl"
+                    name="token"
+                    bidi={this.token}
+                    placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_token')}
+                  />
+                </div>
+                <div className="Form-group">
+                  <Button type="submit" className="Button Button--primary" onclick={this.verifyToken.bind(this)}>
+                    {app.translator.trans('ianm-twofactor.forum.security.verify_button')}
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -154,12 +168,18 @@ export default class TwoFactorEnableModal extends Modal {
         m.redraw();
       })
       .catch((error) => {
-        alert('Verification failed. Please try again.');
+        //alert('Verification failed. Please try again.');
+        //error.alert.content = 'Verification failed. Please try again.';
       });
   }
 
   finish() {
     this.attrs.onEnabled();
     this.hide();
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.verifyToken();
   }
 }

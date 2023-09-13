@@ -56,7 +56,7 @@ class BackupCodeGenerator
 
     public function validateBackupCode(User $user, string $code): bool
     {
-        $hashedBackupCodes = json_decode($user->twoFactor->backup_codes, true);
+        $hashedBackupCodes = json_decode($user->twoFactor->backup_codes, true) ?? [];
 
         foreach ($hashedBackupCodes as $index => $hashedCode) {
             if ($this->hash->check($code, $hashedCode)) {
