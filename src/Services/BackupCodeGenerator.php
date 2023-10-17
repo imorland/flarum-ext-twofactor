@@ -40,7 +40,7 @@ class BackupCodeGenerator
 
     protected function saveBackupCodesToDatabase(User $user, array $codes, bool $alreadyHashed = false)
     {
-        if (!$alreadyHashed) {
+        if (! $alreadyHashed) {
             // Hash each backup code
             $hashedCodes = array_map(function ($code) {
                 return $this->hash->make($code);
@@ -82,6 +82,7 @@ class BackupCodeGenerator
         }
 
         $hashedBackupCodes = json_decode($twoFactor->backup_codes, true);
+
         return count($hashedBackupCodes);
     }
 }
