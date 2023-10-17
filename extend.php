@@ -94,7 +94,7 @@ return [
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-oauth', [
-            class_exists(\FoF\Extend\Extend\OAuthController) ? (new \FoF\Extend\Extend\OAuthController())
+            class_exists(\FoF\Extend\Extend\OAuthController::class) ? (new \FoF\Extend\Extend\OAuthController())
                 ->afterOAuthSuccess(TwoFactorOAuthCheck::class) : null,
 
             (new Extend\Routes('forum'))
