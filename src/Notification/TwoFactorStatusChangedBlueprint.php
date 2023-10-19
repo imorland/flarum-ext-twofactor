@@ -67,7 +67,7 @@ class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInt
     public function getEmailSubject(TranslatorInterface $translator): string
     {
         return $translator->trans('ianm-twofactor.email.subject.status_changed', [
-            '{type}' => $this->type(),
+            '{type}' => $translator->trans('ianm-twofactor.email.status_type.' . $this->type()),
         ]);
     }
 }
