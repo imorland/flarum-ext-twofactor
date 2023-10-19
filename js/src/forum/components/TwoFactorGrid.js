@@ -58,12 +58,12 @@ export default class TwoFactorGrid extends Component {
       'backupCodes',
       <TwoFactorGridItem
         icon="fas fa-key"
-        title="Backup Codes Remaining:"
+        title={app.translator.trans('ianm-twofactor.forum.security.backup_codes_remaining')}
         value={this.backupCodesRemaining}
         // action={
         //   this.backupCodesRemaining < 2 ? (
         //     <Button className="Button Button--primary" onclick={this.generateBackupCodes.bind(this)}>
-        //       Generate More
+        //       {app.translator.trans('ianm-twofactor.forum.security.generate_backup_codes_button')}
         //     </Button>
         //   ) : null
         // }
