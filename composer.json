@@ -86,6 +86,6 @@
     "require-dev": {
         "flarum/testing": "^1.8.0",
         "fof/oauth": "*",
-        "flarum/phpstan": "1.8"
+        "flarum/phpstan": "^1.8"
     }
 }
