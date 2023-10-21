@@ -14,6 +14,7 @@ namespace IanM\TwoFactor\Model;
 use Flarum\Database\AbstractModel;
 use Flarum\Group\Group;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TwoFactor extends AbstractModel
 {
@@ -29,14 +30,14 @@ class TwoFactor extends AbstractModel
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $fillable = ['user_id', 'secret', 'backup_codes', 'is_active'];  // Add other fields as necessary
 
     /**
      * Get the user that owns this 2FA entry.
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

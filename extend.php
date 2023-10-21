@@ -18,6 +18,7 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Extend;
 use Flarum\Group\Event\Saving as GroupSaving;
+use Flarum\Group\Group;
 use Flarum\User\User;
 use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
@@ -33,6 +34,8 @@ return [
         ->css(__DIR__.'/less/admin.less'),
 
     new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Model(Group::class))->cast('tfa_required', 'bool'),
 
     (new Extend\Routes('api'))
         ->get('/users/{id}/twofactor/qrcode', 'user.twofactor.get-qr', Api\Controller\ShowQrCodeController::class)
