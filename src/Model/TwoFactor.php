@@ -11,7 +11,6 @@
 
 namespace IanM\TwoFactor\Model;
 
-use DateTime;
 use Flarum\Database\AbstractModel;
 use Flarum\Group\Group;
 use Flarum\User\User;
