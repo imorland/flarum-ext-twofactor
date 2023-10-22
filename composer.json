@@ -14,7 +14,7 @@
     "require": {
         "php": "^8.0",
         "flarum/core": "^1.8.3",
-        "spomky-labs/otphp": "^11.2",
+        "spomky-labs/otphp": "^10.0 || ^11.2",
         "endroid/qr-code": "^4.8"
     },
     "authors": [
