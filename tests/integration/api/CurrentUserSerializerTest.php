@@ -17,7 +17,7 @@ use Flarum\Testing\integration\TestCase;
 class CurrentUserSerializerTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
-    
+
     public function setUp(): void
     {
         parent::setUp();
