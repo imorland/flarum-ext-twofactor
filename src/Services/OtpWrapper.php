@@ -59,7 +59,7 @@ class OtpWrapper implements TotpInterface
      * @param non-empty-string $secret
      * @param non-empty-string $inputCode
      * @param User $user
-     * @return boolean
+     * @return bool
      */
     public function verify(string $secret, string $inputCode, User $user): bool
     {

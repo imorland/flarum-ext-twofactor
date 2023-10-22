@@ -36,7 +36,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
     /**
      * @param ServerRequestInterface $request
      * @return ResponseInterface
-     * 
+     *
      * @throws PermissionDeniedException
      * @throws ModelNotFoundException
      */

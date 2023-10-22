@@ -18,7 +18,7 @@ use IanM\TwoFactor\Model\TwoFactor;
 trait TwoFactorAuthenticationTrait
 {
     protected TotpInterface $totp;
-    
+
     protected function twoFactorActive(User &$user): bool
     {
         if ($user->isGuest()) {

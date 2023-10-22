@@ -26,14 +26,14 @@ use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js')
-        ->css(__DIR__ . '/less/forum.less'),
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/less/forum.less'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js')
-        ->css(__DIR__ . '/less/admin.less'),
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->css(__DIR__.'/less/admin.less'),
 
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Model(Group::class))->cast('tfa_required', 'bool'),
 
@@ -89,7 +89,7 @@ return [
         ->listen(GroupSaving::class, Listener\SaveGroup2FASetting::class),
 
     (new Extend\View())
-        ->namespace('ianm-two-factor', __DIR__ . '/views'),
+        ->namespace('ianm-two-factor', __DIR__.'/views'),
 
     (new Extend\Settings())
         ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
