@@ -16,6 +16,15 @@ use Flarum\Group\Group;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $secret
+ * @property string $backup_codes
+ * @property bool $is_active
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class TwoFactor extends AbstractModel
 {
     /**
