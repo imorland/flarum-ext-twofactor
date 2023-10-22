@@ -96,9 +96,9 @@ return [
         ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100),
 
     (new Extend\Conditional())
-        ->whenExtensionEnabled('fof-oauth', [
-            class_exists(\FoF\Extend\Extend\OAuthController::class) ? (new \FoF\Extend\Extend\OAuthController())
-                ->afterOAuthSuccess(TwoFactorOAuthCheck::class) : null,
+        ->whenExtensionEnabled('fof-oauth', fn () => [
+            (new \FoF\Extend\Extend\OAuthController())
+                ->afterOAuthSuccess(TwoFactorOAuthCheck::class),
 
             (new Extend\Routes('forum'))
                 ->get('/twofactor/oauth/verify', 'twoFactor.oauth', Api\Controller\TwoFactorOAuthController::class)

@@ -33,6 +33,13 @@ class DisableTwoFactorController implements RequestHandlerInterface
     {
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface
+     *
+     * @throws PermissionDeniedException
+     * @throws ModelNotFoundException
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
@@ -51,7 +58,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
         }
 
         if (! $this->twoFactorActive($user)) {
-            return new ModelNotFoundException();
+            throw new ModelNotFoundException();
         }
 
         $user->twoFactor->delete();
