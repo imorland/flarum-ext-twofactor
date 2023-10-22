@@ -4,6 +4,10 @@
 
 A [Flarum](http://flarum.org) extension. 2FA for Flarum
 
+## Requirements
+
+This extension requires a minimum of PHP 8.1, due to a 3rd party library constraint.
+
 ## Features
 
 - Enforces `admin` accounts to have 2FA enabled for increased security
