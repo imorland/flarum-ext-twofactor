@@ -11,6 +11,7 @@
 
 namespace IanM\TwoFactor\Api\Controller;
 
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\User\Exception\NotAuthenticatedException;
@@ -29,17 +30,8 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    protected $users;
-    protected $bus;
-    protected $events;
-    protected $totp;
-
-    public function __construct(TotpInterface $totp, UserRepository $users, BusDispatcher $bus, EventDispatcher $events)
+    public function __construct(protected TotpInterface $totp, protected UserRepository $users, protected BusDispatcher $bus, protected EventDispatcher $events)
     {
-        $this->users = $users;
-        $this->bus = $bus;
-        $this->events = $events;
-        $this->totp = $totp;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -59,7 +51,7 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
             $token = $this->retrieveTwoFactorTokenFrom(Arr::get($body, 'twoFactorToken'));
 
             if (! $this->isTokenActive($token, $user)) {
-                throw new NotAuthenticatedException('two_factor_required');
+                throw new ValidationException(['twoFactorToken' => 'two_factor_required']);
             }
         }
 

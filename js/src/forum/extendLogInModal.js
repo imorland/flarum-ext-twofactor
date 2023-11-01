@@ -16,13 +16,21 @@ export default function extendLogInModal() {
       items.add(
         'twoFactor',
         <div className="Form-group TwoFactorInput">
+          <legend>{app.translator.trans('ianm-twofactor.forum.log_in.two_factor_required_message')}</legend>
           <input
             className="FormControl"
             name="twoFactorToken"
             type="text"
             placeholder={app.translator.trans('ianm-twofactor.forum.log_in.two_factor_placeholder')}
-            bidi={this.twoFactorToken}
+            value={this.twoFactorToken()}
             disabled={this.loading}
+            oninput={(e) => {
+              this.twoFactorToken(e.currentTarget.value);
+
+              if (e.target.value.length === 6) {
+                this.onsubmit(new Event('submit')); // Trigger the onsubmit method
+              }
+            }}
           />
         </div>,
         19
@@ -41,18 +49,32 @@ export default function extendLogInModal() {
     return data;
   });
 
+  override(LogInModal.prototype, 'body', function (original) {
+    if (this.twoFactorRequired) {
+      return <div className="Form Form--centered">{this.fields().toArray()}</div>;
+    }
+
+    return original();
+  });
+
+  override(LogInModal.prototype, 'footer', function (original) {
+    if (this.twoFactorRequired) {
+      return null;
+    }
+
+    return original();
+  });
+
   override(LogInModal.prototype, 'onerror', function (original, error) {
-    if (error.status === 401) {
+    if (error.status === 422) {
       const errors = error.response && error.response.errors;
       const firstErrorDetail = (errors && errors[0] && errors[0].detail) || '';
 
       if (firstErrorDetail.includes('two_factor_required')) {
         // If the error indicates that 2FA is required, show the 2FA input field
         this.twoFactorRequired = true;
-        error.alert.content = app.translator.trans('ianm-twofactor.forum.log_in.two_factor_required_message');
-        this.alertAttrs = error.alert;
       } else {
-        // Handle other types of 401 errors here
+        // Handle other types of 422 errors here
         error.alert.content = app.translator.trans('core.forum.log_in.invalid_login_message');
         this.alertAttrs = error.alert;
       }
