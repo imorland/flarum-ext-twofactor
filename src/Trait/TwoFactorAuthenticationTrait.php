@@ -27,6 +27,7 @@ trait TwoFactorAuthenticationTrait
 
         /** @var TwoFactor|null $twoFactor */
         $twoFactor = $user->twoFactor;
+
         return $twoFactor?->is_active;
     }
 
