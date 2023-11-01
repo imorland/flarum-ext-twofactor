@@ -70,3 +70,10 @@ ianm-twofactor:
       two_factor_token_label: 2FA Token
     two_factor_token:
       submit_button: Submit Token
+
+blomstra-gdpr:
+  lib:
+    data:
+      twofactordata:
+        export_description: Exports 2FA status and encrypted backup codes.
+        delete_description: Deletes all data related to 2FA.

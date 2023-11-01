@@ -11,6 +11,7 @@
 
 namespace IanM\TwoFactor;
 
+use Blomstra\Gdpr\Extend\UserData;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
@@ -35,7 +36,8 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    (new Extend\Model(Group::class))->cast('tfa_required', 'bool'),
+    (new Extend\Model(Group::class))
+        ->cast('tfa_required', 'bool'),
 
     (new Extend\Routes('api'))
         ->get('/users/{id}/twofactor/qrcode', 'user.twofactor.get-qr', Api\Controller\ShowQrCodeController::class)
@@ -59,9 +61,6 @@ return [
 
     (new Extend\Model(User::class))
         ->hasOne('twoFactor', TwoFactor::class, 'user_id'),
-
-    (new Extend\Model(TwoFactor::class))
-        ->cast('is_active', 'bool'),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attributes(Api\AddCurrentUserAttributes::class),
@@ -103,6 +102,10 @@ return [
             (new Extend\Routes('forum'))
                 ->get('/twofactor/oauth/verify', 'twoFactor.oauth', Api\Controller\TwoFactorOAuthController::class)
                 ->post('/twofactor/oauth/verify', 'twoFactor.oauth.verify', Api\Controller\TwoFactorOAuthVerifyController::class),
+        ])
+        ->whenExtensionEnabled('blomstra-gdpr', fn () => [
+            (new UserData())
+                ->addType(Data\TwoFactorData::class),
         ]),
 
 ];
