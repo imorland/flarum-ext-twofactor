@@ -19,20 +19,15 @@ trait TwoFactorAuthenticationTrait
 {
     protected TotpInterface $totp;
 
-    protected function twoFactorActive(User &$user): bool
+    protected function twoFactorActive(User &$user): ?bool
     {
         if ($user->isGuest()) {
             return false;
         }
 
-        $twoFactor = $user->twoFactor ?? TwoFactor::getForUser($user);
-        $active = $twoFactor->is_active;
-
-        if ($active === null) {
-            $active = false;
-        }
-
-        return $active;
+        /** @var TwoFactor|null $twoFactor */
+        $twoFactor = $user->twoFactor;
+        return $twoFactor?->is_active;
     }
 
     protected function retrieveTwoFactorTokenFrom(?string $source): ?string
