@@ -43,6 +43,10 @@ class TwoFactor extends AbstractModel
      */
     protected $fillable = ['user_id', 'secret', 'backup_codes', 'is_active'];  // Add other fields as necessary
 
+    public $casts = [
+        'is_active' => 'boolean',
+    ];
+
     /**
      * Get the user that owns this 2FA entry.
      */
