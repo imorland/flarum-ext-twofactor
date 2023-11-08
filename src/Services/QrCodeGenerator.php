@@ -39,8 +39,7 @@ class QrCodeGenerator
 
         try {
             $result = $builder->build();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('[ianm/twofactor] Could not add logo to QR code: '.$e->getMessage());
             $builder = $this->buildQrOptions($text);
             $result = $builder->build();
