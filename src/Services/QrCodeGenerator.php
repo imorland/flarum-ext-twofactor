@@ -12,6 +12,7 @@
 namespace IanM\TwoFactor\Services;
 
 use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Builder\BuilderInterface;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
@@ -33,37 +34,50 @@ class QrCodeGenerator
 
     public function generate(string $text, bool $asDataUri = false): string
     {
-        $builder = Builder::create()
-            ->writer(new Writer\PngWriter())
-            ->writerOptions([])
-            ->data($text)
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(new ErrorCorrectionLevel\ErrorCorrectionLevelQuartile())
-            ->size(300)
-            ->margin(10)
-            ->roundBlockSizeMode(new RoundBlockSizeMode\RoundBlockSizeModeMargin())
-            ->validateResult(false)
-            ->backgroundColor(new Color(255, 255, 255, 1));
+        $builder = $this->buildQrOptions($text);
+        $builder = $this->addLogoToBuilder($builder);
 
         try {
-            if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr') && $this->getLogoUrl()) {
-                $builder
-                    ->logoPath($this->getLogoUrl())
-                    ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
-                    ->logoPunchoutBackground(true);
-            }
+            $result = $builder->build();
         }
         catch (\Exception $e) {
             $this->logger->error('[ianm/twofactor] Could not add logo to QR code: '.$e->getMessage());
+            $builder = $this->buildQrOptions($text);
+            $result = $builder->build();
         }
-
-        $result = $builder->build();
 
         if ($asDataUri) {
             return $result->getDataUri();
         }
 
         return $result->getString();
+    }
+
+    protected function buildQrOptions(string $text): BuilderInterface
+    {
+        return Builder::create()
+        ->writer(new Writer\PngWriter())
+        ->writerOptions([])
+        ->data($text)
+        ->encoding(new Encoding('UTF-8'))
+        ->errorCorrectionLevel(new ErrorCorrectionLevel\ErrorCorrectionLevelQuartile())
+        ->size(300)
+        ->margin(10)
+        ->roundBlockSizeMode(new RoundBlockSizeMode\RoundBlockSizeModeMargin())
+        ->validateResult(false)
+        ->backgroundColor(new Color(255, 255, 255, 1));
+    }
+
+    protected function addLogoToBuilder(BuilderInterface $builder): BuilderInterface
+    {
+        if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr') && $this->getLogoUrl()) {
+            $builder
+                ->logoPath($this->getLogoUrl())
+                ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
+                ->logoPunchoutBackground(true);
+        }
+
+        return $builder;
     }
 
     protected function getLogoUrl(): ?string
