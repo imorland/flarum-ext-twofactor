@@ -1,9 +1,17 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use IanM\TwoFactor\Model\TwoFactor;
