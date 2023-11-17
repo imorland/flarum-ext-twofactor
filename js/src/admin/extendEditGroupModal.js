@@ -11,10 +11,11 @@ export default function extendEditGroupModal() {
   });
 
   extend(EditGroupModal.prototype, 'fields', function (items) {
+    const isAdmin = this.group.id() === Group.ADMINISTRATOR_ID;
     items.add(
       '2fa',
       <div className="Form-group">
-        {this.group.id() === Group.ADMINISTRATOR_ID ? (
+        {isAdmin ? (
           <p>
             {app.translator.trans('ianm-twofactor.admin.edit_group.admin_2fa_help', {
               adminName: this.group.nameSingular(),
@@ -25,7 +26,7 @@ export default function extendEditGroupModal() {
             {app.translator.trans('ianm-twofactor.admin.edit_group.2fa_label')}
           </Switch>
         )}
-        <p className="helpText">{app.translator.trans('ianm-twofactor.admin.edit_group.2fa_help')}</p>
+        {!isAdmin && <p className="helpText">{app.translator.trans('ianm-twofactor.admin.edit_group.2fa_help')}</p>}
       </div>,
       10
     );
