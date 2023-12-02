@@ -16,6 +16,7 @@ export default class TwoFactorEnableModal extends Modal {
     this.token = Stream('');
     this.code = null;
     this.activeTab = 'qrcode';
+    this.loading = false;
   }
 
   className() {
@@ -108,7 +109,11 @@ export default class TwoFactorEnableModal extends Modal {
                   />
                 </div>
                 <div className="Form-group">
-                  <Button type="submit" className="Button Button--primary" onclick={this.verifyToken.bind(this)}>
+                  <Button
+                    type="submit"
+                    className="Button Button--primary" onclick={this.verifyToken.bind(this)}
+                    loading={this.loading}
+                  >
                     {app.translator.trans('ianm-twofactor.forum.security.verify_button')}
                   </Button>
                 </div>
@@ -153,6 +158,8 @@ export default class TwoFactorEnableModal extends Modal {
   }
 
   verifyToken() {
+    this.loading = true;
+
     app
       .request({
         method: 'POST',
@@ -165,6 +172,7 @@ export default class TwoFactorEnableModal extends Modal {
         this.backupCodes = response.backupCodes;
         this.status = 'displayBackupCodes';
         this.user.twoFactorEnabled(true);
+        this.loading = false;
         m.redraw();
       })
       .catch((error) => {
