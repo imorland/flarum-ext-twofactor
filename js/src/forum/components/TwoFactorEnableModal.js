@@ -172,12 +172,14 @@ export default class TwoFactorEnableModal extends Modal {
         this.backupCodes = response.backupCodes;
         this.status = 'displayBackupCodes';
         this.user.twoFactorEnabled(true);
-        this.loading = false;
         m.redraw();
       })
       .catch((error) => {
         //alert('Verification failed. Please try again.');
         //error.alert.content = 'Verification failed. Please try again.';
+      })
+      .finally(() => {
+        this.loading = false;
       });
   }
 
