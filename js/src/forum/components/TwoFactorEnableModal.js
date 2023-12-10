@@ -109,11 +109,7 @@ export default class TwoFactorEnableModal extends Modal {
                   />
                 </div>
                 <div className="Form-group">
-                  <Button
-                    type="submit"
-                    className="Button Button--primary" onclick={this.verifyToken.bind(this)}
-                    loading={this.loading}
-                  >
+                  <Button type="submit" className="Button Button--primary" onclick={this.verifyToken.bind(this)} loading={this.loading}>
                     {app.translator.trans('ianm-twofactor.forum.security.verify_button')}
                   </Button>
                 </div>
