@@ -102,10 +102,14 @@ export default class TwoFactorEnableModal extends Modal {
               <form onsubmit={this.onSubmit.bind(this)}>
                 <div className="Form-group">
                   <input
+                    type="text"
                     className="FormControl"
                     name="token"
                     bidi={this.token}
                     placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_token')}
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    autocomplete="one-time-code"
                   />
                 </div>
                 <div className="Form-group">

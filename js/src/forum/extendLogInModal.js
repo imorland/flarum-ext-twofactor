@@ -24,6 +24,9 @@ export default function extendLogInModal() {
             placeholder={app.translator.trans('ianm-twofactor.forum.log_in.two_factor_placeholder')}
             value={this.twoFactorToken()}
             disabled={this.loading}
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="one-time-code"
             oninput={(e) => {
               this.twoFactorToken(e.currentTarget.value);
 
