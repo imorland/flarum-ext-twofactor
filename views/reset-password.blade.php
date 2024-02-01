@@ -28,7 +28,7 @@
 
     @if ($hasTwoFactorEnabled)
     <p class="form-group">
-        <input type="text" class="form-control" name="twoFactorToken" placeholder="{{ $translator->trans('ianm-twofactor.views.reset_password.two_factor_token_label') }}">
+        <input type="text" class="form-control" name="twoFactorToken" placeholder="{{ $translator->trans('ianm-twofactor.views.reset_password.two_factor_token_label') }}" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
     </p>
     @endif
 

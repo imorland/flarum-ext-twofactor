@@ -45,6 +45,8 @@ class TwoFactor extends AbstractModel
 
     public $casts = [
         'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
