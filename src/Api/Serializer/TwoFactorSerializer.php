@@ -30,9 +30,9 @@ class TwoFactorSerializer extends AbstractSerializer
         }
 
         return [
-            'is_active'      => $model->is_active,
-            'createdAt'      => $this->formatDate($model->created_at),
-            'updatedAt'      => $this->formatDate($model->updated_at),
+            'is_active' => $model->is_active,
+            'createdAt' => $this->formatDate($model->created_at),
+            'updatedAt' => $this->formatDate($model->updated_at),
         ];
     }
 
