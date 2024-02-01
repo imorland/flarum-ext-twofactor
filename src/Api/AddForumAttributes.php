@@ -13,6 +13,7 @@ namespace IanM\TwoFactor\Api;
 
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 
 class AddForumAttributes
@@ -22,6 +23,9 @@ class AddForumAttributes
      */
     protected $settings;
 
+    /**
+     * @var Cloud
+     */
     protected $assetsFilesystem;
 
     public function __construct(Factory $filesystemFactory, SettingsRepositoryInterface $settings)
