@@ -42,7 +42,10 @@
                 "name": "fas fa-shield-alt",
                 "color": "#fff",
                 "backgroundColor": "#0072e3"
-            }
+            },
+            "optional-dependencies": [
+                "sycho-flarum-private-facade"
+            ]
         },
         "flarum-cli": {
             "modules": {

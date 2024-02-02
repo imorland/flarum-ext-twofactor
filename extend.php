@@ -24,6 +24,7 @@ use Flarum\User\User;
 use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
+use SychO\PrivateFacade\Extend\FacadeExclusions;
 
 return [
     (new Extend\Frontend('forum'))
@@ -34,7 +35,7 @@ return [
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/admin.less'),
 
-    new Extend\Locales(__DIR__.'/locale'),
+    new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\Model(Group::class))
         ->cast('tfa_required', 'bool'),
@@ -102,10 +103,17 @@ return [
             (new Extend\Routes('forum'))
                 ->get('/twofactor/oauth/verify', 'twoFactor.oauth', Api\Controller\TwoFactorOAuthController::class)
                 ->post('/twofactor/oauth/verify', 'twoFactor.oauth.verify', Api\Controller\TwoFactorOAuthVerifyController::class),
+
+            (new Extend\Conditional())
+                // Not using `->whenExtensionEnabled` here so that we can support older versions of the facade extension (but without oauth support)
+                ->when(class_exists(FacadeExclusions::class), fn () => [
+                    (new FacadeExclusions())
+                        ->addBackendRouteExclusion('twoFactor.oauth')
+                        ->addBackendRouteExclusion('twoFactor.oauth.verify')
+                ])
         ])
         ->whenExtensionEnabled('blomstra-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
         ]),
-
 ];
