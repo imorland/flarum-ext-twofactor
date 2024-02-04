@@ -44,7 +44,7 @@
                 "backgroundColor": "#0072e3"
             },
             "optional-dependencies": [
-                "sycho-flarum-private-facade"
+                "sycho-private-facade"
             ]
         },
         "flarum-cli": {
@@ -95,6 +95,7 @@
         "flarum/testing": "^1.8.0",
         "fof/oauth": "*",
         "flarum/phpstan": "^1.8",
-        "blomstra/gdpr": "@beta"
+        "blomstra/gdpr": "@beta",
+        "sycho/flarum-private-facade": "*"
     }
 }

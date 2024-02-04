@@ -24,7 +24,6 @@ use Flarum\User\User;
 use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
-use SychO\PrivateFacade\Extend\FacadeExclusions;
 
 return [
     (new Extend\Frontend('forum'))
@@ -105,12 +104,11 @@ return [
                 ->post('/twofactor/oauth/verify', 'twoFactor.oauth.verify', Api\Controller\TwoFactorOAuthVerifyController::class),
 
             (new Extend\Conditional())
-                // Not using `->whenExtensionEnabled` here so that we can support older versions of the facade extension (but without oauth support)
-                ->when(class_exists(FacadeExclusions::class), fn () => [
-                    (new FacadeExclusions())
+                ->whenExtensionEnabled('sycho-private-facade', fn () => [
+                    (new \SychO\PrivateFacade\Extend\FacadeExclusions())
                         ->addBackendRouteExclusion('twoFactor.oauth')
                         ->addBackendRouteExclusion('twoFactor.oauth.verify')
-                ])
+                ]),
         ])
         ->whenExtensionEnabled('blomstra-gdpr', fn () => [
             (new UserData())
