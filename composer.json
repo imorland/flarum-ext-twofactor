@@ -42,10 +42,7 @@
                 "name": "fas fa-shield-alt",
                 "color": "#fff",
                 "backgroundColor": "#0072e3"
-            },
-            "optional-dependencies": [
-                "sycho-private-facade"
-            ]
+            }
         },
         "flarum-cli": {
             "modules": {
@@ -96,6 +93,6 @@
         "fof/oauth": "*",
         "flarum/phpstan": "^1.8",
         "blomstra/gdpr": "@beta",
-        "sycho/flarum-private-facade": "*"
+        "sycho/flarum-private-facade": "^0.1.16"
     }
 }
