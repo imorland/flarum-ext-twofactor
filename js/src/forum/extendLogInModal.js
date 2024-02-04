@@ -62,7 +62,7 @@ export default function extendLogInModal() {
 
   override(LogInModal.prototype, 'footer', function (original) {
     if (this.twoFactorRequired) {
-      return null;
+      return <div />;
     }
 
     return original();

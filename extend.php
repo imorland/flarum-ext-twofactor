@@ -102,10 +102,16 @@ return [
             (new Extend\Routes('forum'))
                 ->get('/twofactor/oauth/verify', 'twoFactor.oauth', Api\Controller\TwoFactorOAuthController::class)
                 ->post('/twofactor/oauth/verify', 'twoFactor.oauth.verify', Api\Controller\TwoFactorOAuthVerifyController::class),
+
+            (new Extend\Conditional())
+                ->whenExtensionEnabled('sycho-private-facade', fn () => [
+                    (new \SychO\PrivateFacade\Extend\FacadeExclusions())
+                        ->addBackendRouteExclusion('twoFactor.oauth')
+                        ->addBackendRouteExclusion('twoFactor.oauth.verify')
+                ]),
         ])
         ->whenExtensionEnabled('blomstra-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
         ]),
-
 ];
