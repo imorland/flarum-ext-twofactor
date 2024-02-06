@@ -11,32 +11,46 @@
 
 namespace IanM\TwoFactor\Api\Controller;
 
+use Flarum\Api\Client;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Forum\Controller\LogInController;
+use Flarum\Forum\LogInValidator;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RememberAccessToken;
+use Flarum\Http\Rememberer;
+use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
+use Flarum\User\UserRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class TwoFactorLogInController extends LogInController
 {
+    public function __construct(
+        UserRepository $users,
+        Client $apiClient,
+        SessionAuthenticator $authenticator,
+        Dispatcher $events,
+        Rememberer $rememberer,
+        LogInValidator $validator,
+        protected ExtensionManager $extensions
+    )
+    {
+        parent::__construct($users, $apiClient, $authenticator, $events, $rememberer, $validator);
+    }
+    
     public function handle(Request $request): ResponseInterface
     {
         $body = $request->getParsedBody();
-        $identification = Arr::get($body, 'identification');
-        $password = Arr::get($body, 'password');
-        $remember = Arr::get($body, 'remember');
-        $twoFactorToken = Arr::get($body, 'twoFactorToken');
 
-        $this->validator->assertValid($body);
+        if (! $this->extensions->isEnabled('blomstra-turnstile') && empty(Arr::get($body, 'twoFactorToken'))) {
+            $this->validator->assertValid($body);
+        }
 
         $response = $this->apiClient->withParentRequest($request)
-            ->withBody([
-                'identification' => $identification,
-                'password' => $password,
-                'remember' => $remember,
-                'twoFactorToken' => $twoFactorToken])
+            ->withBody($body)
             ->post('/token');
 
         if ($response->getStatusCode() === 200) {

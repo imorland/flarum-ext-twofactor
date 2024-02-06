@@ -30,8 +30,12 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(protected TotpInterface $totp, protected UserRepository $users, protected BusDispatcher $bus, protected EventDispatcher $events)
-    {
+    public function __construct(
+        protected TotpInterface $totp,
+        protected UserRepository $users,
+        protected BusDispatcher $bus,
+        protected EventDispatcher $events
+    ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -50,8 +54,12 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
         if ($this->twoFactorActive($user)) {
             $token = $this->retrieveTwoFactorTokenFrom(Arr::get($body, 'twoFactorToken'));
 
-            if (! $this->isTokenActive($token, $user)) {
+            if (! $token) {
                 throw new ValidationException(['twoFactorToken' => 'two_factor_required']);
+            }
+
+            if (! $this->isTokenActive($token, $user)) {
+                throw new ValidationException(['twoFactorToken' => 'two_factor_incorrect']);
             }
         }
 
