@@ -36,11 +36,10 @@ class TwoFactorLogInController extends LogInController
         Rememberer $rememberer,
         LogInValidator $validator,
         protected ExtensionManager $extensions
-    )
-    {
+    ) {
         parent::__construct($users, $apiClient, $authenticator, $events, $rememberer, $validator);
     }
-    
+
     public function handle(Request $request): ResponseInterface
     {
         $body = $request->getParsedBody();
