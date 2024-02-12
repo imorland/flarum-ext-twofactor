@@ -1,22 +1,44 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/common/components/Modal';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import User from 'flarum/common/models/User';
+import type Mithril from 'mithril';
 
-export default class TwoFactorEnableModal extends Modal {
-  oninit(vnode) {
+export interface TwoFactorEnableModalAttrs extends IInternalModalAttrs {
+  user: User;
+  forced: boolean;
+  onEnabled: () => void|null;
+}
+
+export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttrs> {
+  user!: User;
+  // Statuses: 'loading', 'displayQR', 'displayBackupCodes', 'final'
+  status: string = 'loading';
+  qrCodeUrl: string|null = null;
+  backupCodes: Array<string> = [];
+  token: Stream<string>;
+  code: string|null = null;
+  activeTab: string = 'qrcode';
+  loading: boolean = false;
+
+  protected static isDismissibleViaCloseButton: boolean = true;
+  protected static isDismissibleViaEscKey: boolean = true;
+  protected static isDismissibleViaBackdropClick: boolean = true;
+  
+  oninit(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>) {
     super.oninit(vnode);
 
     this.user = this.attrs.user;
-    // Statuses: 'loading', 'displayQR', 'displayBackupCodes', 'final'
-    this.status = 'loading';
-    this.qrCodeUrl = null;
-    this.backupCodes = [];
+    
     this.token = Stream('');
-    this.code = null;
-    this.activeTab = 'qrcode';
-    this.loading = false;
+    
+    if (this.attrs.forced) {
+      TwoFactorEnableModal.isDismissibleViaCloseButton = false;
+      TwoFactorEnableModal.isDismissibleViaEscKey = false;
+      TwoFactorEnableModal.isDismissibleViaBackdropClick = false;
+    }
   }
 
   className() {
@@ -27,7 +49,7 @@ export default class TwoFactorEnableModal extends Modal {
     return app.translator.trans('ianm-twofactor.forum.security.two_factor_heading');
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>) {
     super.oncreate(vnode);
 
     const userId = this.user.id();
@@ -36,7 +58,7 @@ export default class TwoFactorEnableModal extends Modal {
         method: 'GET',
         url: app.forum.attribute('apiUrl') + `/users/${userId}/twofactor/qrcode`,
       })
-      .then((response) => {
+      .then((response: any) => {
         this.qrCodeUrl = response.svg;
         this.code = response.code;
         this.status = 'displayQR';
@@ -45,7 +67,7 @@ export default class TwoFactorEnableModal extends Modal {
   }
 
   onupdate() {
-    const tokenInput = document.querySelector('.TwoFactorEnableModal [name=token]');
+    const tokenInput = document.querySelector('.TwoFactorEnableModal [name=token]') as HTMLInputElement;
     if (tokenInput && document.activeElement !== tokenInput) {
       tokenInput.focus();
     }
@@ -63,6 +85,11 @@ export default class TwoFactorEnableModal extends Modal {
 
         {this.status === 'displayQR' && (
           <div>
+            {this.attrs.forced && (
+              <div>
+                <p>{app.translator.trans('ianm-twofactor.forum.user_2fa.alert_message')}</p>
+              </div>
+            )}
             <div className="tabs">
               <Button
                 className={this.activeTab === 'qrcode' ? 'active' : ''}
@@ -168,10 +195,10 @@ export default class TwoFactorEnableModal extends Modal {
           token: this.token(),
         },
       })
-      .then((response) => {
-        this.backupCodes = response.backupCodes;
+      .then((response: unknown) => {
+        const { backupCodes } = response as { backupCodes: string[] };
+        this.backupCodes = backupCodes;
         this.status = 'displayBackupCodes';
-        this.user.twoFactorEnabled(true);
         m.redraw();
       })
       .catch((error) => {
@@ -184,11 +211,11 @@ export default class TwoFactorEnableModal extends Modal {
   }
 
   finish() {
-    this.attrs.onEnabled();
+    this.attrs.onEnabled?.()
     this.hide();
   }
 
-  onSubmit(e) {
+  onSubmit(e: any) {
     e.preventDefault();
     this.verifyToken();
   }
