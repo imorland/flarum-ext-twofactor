@@ -9,31 +9,31 @@ import type Mithril from 'mithril';
 export interface TwoFactorEnableModalAttrs extends IInternalModalAttrs {
   user: User;
   forced: boolean;
-  onEnabled: () => void|null;
+  onEnabled: () => void | null;
 }
 
 export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttrs> {
   user!: User;
   // Statuses: 'loading', 'displayQR', 'displayBackupCodes', 'final'
   status: string = 'loading';
-  qrCodeUrl: string|null = null;
+  qrCodeUrl: string | null = null;
   backupCodes: Array<string> = [];
   token: Stream<string>;
-  code: string|null = null;
+  code: string | null = null;
   activeTab: string = 'qrcode';
   loading: boolean = false;
 
   protected static isDismissibleViaCloseButton: boolean = true;
   protected static isDismissibleViaEscKey: boolean = true;
   protected static isDismissibleViaBackdropClick: boolean = true;
-  
+
   oninit(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>) {
     super.oninit(vnode);
 
     this.user = this.attrs.user;
-    
+
     this.token = Stream('');
-    
+
     if (this.attrs.forced) {
       TwoFactorEnableModal.isDismissibleViaCloseButton = false;
       TwoFactorEnableModal.isDismissibleViaEscKey = false;
@@ -211,7 +211,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
   }
 
   finish() {
-    this.attrs.onEnabled?.()
+    this.attrs.onEnabled?.();
     this.hide();
   }
 
