@@ -1,7 +1,16 @@
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import icon from 'flarum/common/helpers/icon';
+import type Mithril from 'mithril';
 
-export default class TwoFactorGridItem extends Component {
+export interface TwoFactorGridItemAttrs extends ComponentAttrs {
+  icon: string;
+  title: string;
+  value: string;
+  action?: Mithril.Children;
+  helpText?: string;
+}
+
+export default class TwoFactorGridItem extends Component<TwoFactorGridItemAttrs> {
   view() {
     const { icon: iconName, title, value, action, helpText } = this.attrs;
 
