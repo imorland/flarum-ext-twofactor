@@ -4,6 +4,7 @@ import Button from 'flarum/common/components/Button';
 import User from 'flarum/common/models/User';
 import { ILoginModalAttrs } from 'flarum/forum/components/LogInModal';
 import type Mithril from 'mithril';
+import username from 'flarum/common/helpers/username';
 
 export interface TwoFactorDisableConfirmModalAttrs extends ILoginModalAttrs {
   user: User;
@@ -26,9 +27,16 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
   }
 
   content() {
+    const isSelf = app.session.user?.id() === this.attrs.user.id();
+    const thisUser = this.attrs.user;
     return (
       <div className="Modal-body">
-        <p>{app.translator.trans('ianm-twofactor.forum.security.confirm_disable_2fa_text')}</p>
+        <p>
+          {app.translator.trans(
+            isSelf ? 'ianm-twofactor.forum.security.confirm_disable_2fa_text' : 'ianm-twofactor.forum.security.confirm_disable_2fa_text_other_user',
+            { username: username(thisUser) }
+          )}
+        </p>
         <div className="Form-group">
           <Button className="Button Button--danger" onclick={this.disable.bind(this)} loading={this.loading}>
             {app.translator.trans('ianm-twofactor.forum.security.disable_2fa_button')}
