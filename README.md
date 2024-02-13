@@ -19,6 +19,10 @@ This extension requires a minimum of PHP 8.1, due to a 3rd party library constra
 - 2FA Status page
 - Backup/recovery codes
 
+## Permissions
+
+This extension provides the ability to view the status of 2FA of other users (intended for admin and/or moderator use). In order for this to function correctly, you must also set the permission `Moderate Access Tokens` to at least the same group as you require for `View 2FA status of other users`.
+
 ## Installation
 
 Install with composer:
