@@ -1,9 +1,10 @@
-export default class TwoFactorSettings extends Component<any, undefined> {
-    constructor();
-    oninit(vnode: any): void;
-    twoFactorEnabled: any;
-    canDisableTwoFactor: any;
-    loading: boolean | undefined;
+import Component, { ComponentAttrs } from 'flarum/common/Component';
+import type Mithril from 'mithril';
+import User from 'flarum/common/models/User';
+export interface TwoFactorSettingsAttrs extends ComponentAttrs {
+    user: User;
+}
+export default class TwoFactorSettings extends Component<TwoFactorSettingsAttrs> {
+    oninit(vnode: Mithril.Vnode<ComponentAttrs, this>): void;
     view(): JSX.Element;
 }
-import Component from "flarum/common/Component";

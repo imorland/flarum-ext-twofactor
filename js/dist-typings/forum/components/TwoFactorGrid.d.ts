@@ -1,12 +1,18 @@
-export default class TwoFactorGrid extends Component<any, undefined> {
-    constructor();
-    oninit(vnode: any): void;
-    user: any;
-    twoFactorEnabled: any;
-    canDisableTwoFactor: any;
-    backupCodesRemaining: any;
+import Component, { ComponentAttrs } from 'flarum/common/Component';
+import ItemList from 'flarum/common/utils/ItemList';
+import type Mithril from 'mithril';
+import User from 'flarum/common/models/User';
+export interface TwoFactorGridAttrs extends ComponentAttrs {
+    user: User;
+}
+export default class TwoFactorGrid extends Component<TwoFactorGridAttrs> {
+    user: User;
+    twoFactorEnabled: boolean;
+    canDisableTwoFactor: boolean;
+    backupCodesRemaining: number;
+    oninit(vnode: Mithril.Vnode<ComponentAttrs, this>): void;
     view(): JSX.Element;
-    twoFactorItems(): ItemList<any>;
+    twoFactorItems(): ItemList<unknown>;
     getDisableAction(): JSX.Element;
     enableTwoFactor(): void;
     onTwoFactorEnabled(): void;
@@ -14,5 +20,3 @@ export default class TwoFactorGrid extends Component<any, undefined> {
     onTwoFactorDisabled(): void;
     generateBackupCodes(): void;
 }
-import Component from "flarum/common/Component";
-import ItemList from "flarum/common/utils/ItemList";
