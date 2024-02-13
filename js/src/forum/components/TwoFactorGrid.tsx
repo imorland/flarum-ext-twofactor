@@ -1,5 +1,5 @@
 import app from 'flarum/forum/app';
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
 import listItems from 'flarum/common/helpers/listItems';
@@ -7,9 +7,20 @@ import TwoFactorGridItem from './TwoFactorGridItem';
 import Tooltip from 'flarum/common/components/Tooltip';
 import TwoFactorEnableModal from './TwoFactorEnableModal';
 import TwoFactorDisableConfirmModal from './TwoFactorDisableConfirmModal ';
+import type Mithril from 'mithril';
+import User from 'flarum/common/models/User';
 
-export default class TwoFactorGrid extends Component {
-  oninit(vnode) {
+export interface TwoFactorGridAttrs extends ComponentAttrs {
+  user: User;
+}
+
+export default class TwoFactorGrid extends Component<TwoFactorGridAttrs> {
+  user!: User;
+  twoFactorEnabled!: boolean;
+  canDisableTwoFactor!: boolean;
+  backupCodesRemaining!: number;
+
+  oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
     super.oninit(vnode);
 
     this.user = this.attrs.user;
