@@ -30,7 +30,7 @@ class KillInactiveTokensCommand extends Command
     public function handle(): void
     {
         $age = (int) $this->settings->get('ianm-twofactor.kill_inactive_tokens_age_days');
-        $maxAge = Carbon::now()->subdays($age);
+        $maxAge = Carbon::now()->subDays($age);
 
         $query = AccessToken::query()
             ->where('last_activity_at', '<', $maxAge);
