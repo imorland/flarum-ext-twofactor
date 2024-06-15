@@ -32,6 +32,27 @@ export default class SettingsPage extends ExtensionPage {
               help: app.translator.trans('ianm-twofactor.admin.settings.forum_logo_qr_width_help'),
               max: 200,
             })}
+            <h3>{app.translator.trans('ianm-twofactor.admin.settings.tokens.heading')}</h3>
+            <p className="helpText">{app.translator.trans('ianm-twofactor.admin.settings.tokens.help')}</p>
+            {this.buildSettingComponent({
+              setting: 'ianm-twofactor.kill_inactive_tokens',
+              type: 'boolean',
+              label: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens'),
+              help: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens_help'),
+            })}
+            {this.buildSettingComponent({
+              setting: 'ianm-twofactor.kill_inactive_tokens_age_days',
+              type: 'number',
+              min: 1,
+              label: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens_age_days'),
+              help: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens_age_days_help'),
+            })}
+            {this.buildSettingComponent({
+              setting: 'ianm-twofactor.also_kill_developer_tokens',
+              type: 'boolean',
+              label: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens'),
+              help: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens_help'),
+            })}
             {this.submitButton()}
           </div>
         </div>

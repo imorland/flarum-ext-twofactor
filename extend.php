@@ -17,6 +17,7 @@ use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Console\Schedule;
 use Flarum\Extend;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
@@ -24,6 +25,7 @@ use Flarum\User\User;
 use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
+use Illuminate\Console\Scheduling\Event;
 
 return [
     (new Extend\Frontend('forum'))
@@ -92,7 +94,14 @@ return [
 
     (new Extend\Settings())
         ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
-        ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100),
+        ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100)
+        ->default('ianm-twofactor.kill_inactive_tokens', true)
+        ->default('ianm-twofactor.kill_inactive_tokens_age_days', 30)
+        ->default('ianm-twofactor.also_kill_developer_tokens', false),
+
+    (new Extend\Console())
+        ->command(Console\KillInactiveTokensCommand::class)
+        ->schedule(Console\KillInactiveTokensCommand::class, Console\InactiveTokensSchedule::class),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-oauth', fn () => [
