@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of ianm/twofactor.
+ *
+ * Copyright (c) 2023 IanM.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace IanM\TwoFactor\Console;
 
 use Carbon\Carbon;
@@ -22,7 +31,7 @@ class KillInactiveTokensCommand extends Command
     {
         $age = (int) $this->settings->get('ianm-twofactor.kill_inactive_tokens_age_days');
         $maxAge = Carbon::now()->subdays($age);
-        
+
         $query = AccessToken::query()
             ->where('last_activity_at', '<', $maxAge);
 
@@ -35,6 +44,7 @@ class KillInactiveTokensCommand extends Command
 
         if ($count === 0) {
             $this->info("No tokens found which have not been used in $age+ days.");
+
             return;
         }
 
