@@ -92,7 +92,14 @@ return [
 
     (new Extend\Settings())
         ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
-        ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100),
+        ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100)
+        ->default('ianm-twofactor.kill_inactive_tokens', true)
+        ->default('ianm-twofactor.kill_inactive_tokens_age_days', 30)
+        ->default('ianm-twofactor.also_kill_developer_tokens', false),
+
+    (new Extend\Console())
+        ->command(Console\KillInactiveTokensCommand::class)
+        ->schedule(Console\KillInactiveTokensCommand::class, Console\InactiveTokensSchedule::class),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-oauth', fn () => [
