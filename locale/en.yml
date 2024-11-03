@@ -83,7 +83,7 @@ ianm-twofactor:
       title: Two-Factor Authentication
       submit_button: Submit Token
 
-blomstra-gdpr:
+flarum-gdpr:
   lib:
     data:
       twofactordata:
