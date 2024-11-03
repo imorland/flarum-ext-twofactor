@@ -95,7 +95,7 @@
         "flarum/testing": "^1.8.0",
         "fof/oauth": "*",
         "flarum/phpstan": "^1.8",
-        "blomstra/gdpr": "@beta",
+        "flarum/gdpr": "dev-main",
         "sycho/flarum-private-facade": "^0.1.16",
         "blomstra/turnstile": "*"
     }
