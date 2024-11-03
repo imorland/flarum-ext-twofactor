@@ -11,13 +11,13 @@
 
 namespace IanM\TwoFactor;
 
-use Flarum\Gdpr\Extend\UserData;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Extend;
+use Flarum\Gdpr\Extend\UserData;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
 use Flarum\User\User;
