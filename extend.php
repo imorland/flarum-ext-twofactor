@@ -11,7 +11,7 @@
 
 namespace IanM\TwoFactor;
 
-use Blomstra\Gdpr\Extend\UserData;
+use Flarum\Gdpr\Extend\UserData;
 use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
@@ -117,7 +117,7 @@ return [
                         ->addBackendRouteExclusion('twoFactor.oauth.verify')
                 ]),
         ])
-        ->whenExtensionEnabled('blomstra-gdpr', fn () => [
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
         ]),

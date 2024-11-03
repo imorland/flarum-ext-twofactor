@@ -11,7 +11,7 @@
 
 namespace IanM\TwoFactor\Data;
 
-use Blomstra\Gdpr\Data\Type;
+use Flarum\Gdpr\Data\Type;
 use IanM\TwoFactor\Model\TwoFactor;
 use Illuminate\Support\Arr;
 
