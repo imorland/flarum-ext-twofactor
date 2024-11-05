@@ -1,0 +1,91 @@
+ianm-twofactor:
+  admin:
+    edit_group:
+      2fa_label: 2FA richiesto
+      2fa_help: Richiedi ai membri di questo gruppo di abilitare l'autenticazione a due fattori (2FA) per il proprio account.
+      admin_2fa_help: "I membri di {adminName} devono sempre avere la 2FA abilitata."
+    permissions:
+      see_two_factor_status_label: Visualizzare stato 2FA di altri utenti
+      manage_others_label: Gestisce 2FA di altri utenti
+    settings:
+      groups:
+        title: Gruppi richiesti 2FA
+        help: Richiedi ai membri di questi gruppi di abilitare l'autenticazione a due fattori (2FA) per il proprio account. Un utente in un gruppo richiesto non può disabilitare 2FA.
+      forum_logo_qr: Incorpora il logo del forum nel codice QR
+      forum_logo_qr_help: Incorpora il logo del forum nel codice QR visualizzato quando abiliti 2FA. Ciò può aiutare gli utenti a identificare il codice QR corretto da scansionare.
+      forum_logo_qr_width: Larghezza del codice QR del logo del forum
+      forum_logo_qr_width_help: La larghezza del logo del forum incorporato nel codice QR visualizzato quando si abilita 2FA. Massimo 200.
+      logo_qr: Logo sul codice QR
+      logo_qr_help: Se è stato caricato il logo, questo logo verrà incorporato nel codice QR. Lascia vuoto per utilizzare il logo del forum.
+      tokens:
+        heading: Tokens di accesso
+        help: Per una sicurezza estesa, puoi gestire qui comportamenti aggiuntivi relativi ai token di accesso.
+        kill_inactive_tokens: Cancella i Tokens inattivi
+        kill_inactive_tokens_help: Cancella automaticamente i token di accesso che sono rimasti inattivi per un periodo di tempo specificato.
+        kill_inactive_tokens_age_days: Cancella i Tokens inattivi (Giorni)
+        kill_inactive_tokens_age_days_help: Il numero di giorni di inattività dopo i quali i token di accesso verranno eliminati.
+        also_kill_developer_tokens: Cancella anche i codici sviluppatore
+        also_kill_developer_tokens_help: Elimina anche i token di accesso degli sviluppatori che sono rimasti inattivi per il periodo di tempo specificato.
+
+
+  forum:
+    user_2fa.alert_message: Devi abilitare 2FA per continuare ad accedere al tuo account.
+    security:
+      two_factor_heading: 2FA
+      two_factor_help: Autenticazione a due fattori (2FA) fornisce un ulteriore livello di sicurezza al tuo account. Una volta abilitato, oltre alla password, ti verrà richiesto di inserire un token dalla tua app di autenticazione quando accedi o esegui determinate altre azioni. Ciò garantisce che il tuo account rimanga sicuro, anche se la tua password è compromessa, poiché anche gli aggressori avrebbero bisogno di un codice (che cambia ogni 30 secondi) per accedere al tuo account.
+      two_factor_apps: "App come {google}, {authy}, {microsoft} e altre sono disponibili gratuitamente."
+      two_factor_enabled: 2FA è attiva in questo account.
+      two_factor_disabled: 2FA è disattivata in questo account.
+      two_factor_title: "Stato:"
+      enable_2fa_button: Attiva 2FA
+      disable_2fa_button: Disattiva 2FA
+      enable_2fa_modal_text: Scansiona il codice QR di seguito con la tua app di autenticazione, quindi inserisci il token fornito per abilitare autenticazione a due fattori.
+      qr_code_alt: Codice QR per autenticazione a due fattori
+      enter_token: Inserire Token
+      verify_button: Verifica
+      loading_qr: Caricamento QR Code...
+      backup_codes: I tuoi codici di backup
+      backup_codes_instruction: Si prega di salvare questi codici in un luogo sicuro. Possono essere utilizzati per accedere al tuo account se perdi il metodo di autenticazione principale. Non verranno visualizzati nuovamente.
+      saved_backup_codes_button: Ho salvato i codici
+      backup_codes_remaining: "Codici di backup rimanenti:"
+      two_factor_enabled_confirmation: L'autenticazione a due fattori è stata abilitata con successo per il tuo account.
+      ok_button: Ok
+      confirm_disable_2fa_title: Conferma la disabilitazione dell'autenticazione a due fattori
+      confirm_disable_2fa_text: Sicuri di voler disattivare autenticazione a due fattori?
+      confirm_disable_2fa_text_other_user: Sicuri di voler disattivare autenticazione a due fattori per {nomeutente}? Ciò rimuoverà tutti i codici di backup e disabiliterà la 2FA per il loro account.
+      cannot_disable: La configurazione attuale impone che non sia possibile disabilitare l'autenticazione a due fattori.
+      cannot_disable_tooltip: Impossibile disattivare 2FA
+      cancel_button: Annulla
+      qr_tab: Scasiona codice QR
+      manual_tab: Setup Manuale
+      scan_qr_instruction: Scansiona il codice QR qui sopra con la tua app di autenticazione, quindi inserisci il token fornito per abilitare autenticazione a due fattori.
+      manual_entry_instruction: Inserisci il codice fornito nell'app di autenticazione, quindi inserisci il token generato per abilitare autenticazione a due fattori.
+    log_in:
+      two_factor_placeholder: "2FA Token, e.s., 123456"
+      two_factor_required_message: "Per continuare è necessario un token 2FA valido."
+  email:
+    subject:
+      status_changed: Autenticazione a due fattori {tipo} per il tuo account
+    body:
+      status_changed: |
+        Ciao {recipient_display_name},
+
+        L'autenticazione a due fattori è stata {type} per il tuo account su {forum_url}.
+
+        Se hai avviato tu questa azione, non sono necessari ulteriori passaggi. Se non hai autorizzato questa modifica, contatta immediatamente gli amministratori del forum.
+    status_type:
+      enabled: attiva
+      disabled: disattivata
+  views:
+    reset_password:
+      two_factor_token_label: Token 2FA
+    two_factor_token:
+      title: Autenticazione a due fattori
+      submit_button: Invia Token
+
+flarum-gdpr:
+  lib:
+    data:
+      twofactordata:
+        export_description: Esporta lo stato 2FA e i codici di backup crittografati.
+        delete_description: Elimina tutti i dati relativi a 2FA.
