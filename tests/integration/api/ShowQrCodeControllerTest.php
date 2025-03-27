@@ -76,7 +76,7 @@ class ShowQrCodeControllerTest extends TestCase
         $response = $this->send(
             $this->request('GET', '/api/users/3/twofactor/qrcode')
         );
-    
+
         $this->assertEquals(401, $response->getStatusCode());
     }
 
@@ -91,7 +91,7 @@ class ShowQrCodeControllerTest extends TestCase
                 'authenticatedAs' => 3,
             ])
         );
-    
+
         $this->assertEquals(403, $response->getStatusCode());
     }
 
@@ -106,8 +106,8 @@ class ShowQrCodeControllerTest extends TestCase
             ])
         );
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode((string)$response->getBody(), true);
-        
+        $data = json_decode((string) $response->getBody(), true);
+
         $twoFactor = TwoFactor::query()->where('user_id', 3)->first();
         $this->assertNotNull($twoFactor);
         $this->assertEquals($data['code'], $twoFactor->secret);
