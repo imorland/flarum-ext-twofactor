@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_active
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * @property string|null $temp_secret
+ * @property \Carbon\Carbon|null $temp_secret_created_at
  */
 class TwoFactor extends AbstractModel
 {
