@@ -7,6 +7,7 @@ import TwoFactorGridItem from './TwoFactorGridItem';
 import Tooltip from 'flarum/common/components/Tooltip';
 import TwoFactorEnableModal from './TwoFactorEnableModal';
 import TwoFactorDisableConfirmModal from './TwoFactorDisableConfirmModal ';
+import TwoFactorChangeDeviceModal from './TwoFactorChangeDeviceModal';
 import type Mithril from 'mithril';
 import User from 'flarum/common/models/User';
 
@@ -65,6 +66,21 @@ export default class TwoFactorGrid extends Component<TwoFactorGridAttrs> {
     // Only continue to add other items if Two Factor Authentication is enabled
     if (!this.twoFactorEnabled) return items;
 
+    // Add change device option
+    items.add(
+      'changeDevice',
+      <TwoFactorGridItem
+        icon="fas fa-mobile-alt"
+        title={app.translator.trans('ianm-twofactor.forum.security.change_device_title')}
+        value={app.translator.trans('ianm-twofactor.forum.security.change_device_description')}
+        action={
+          <Button className="Button" onclick={this.changeDevice.bind(this)}>
+            {app.translator.trans('ianm-twofactor.forum.security.change_device_button')}
+          </Button>
+        }
+      />
+    );
+
     items.add(
       'backupCodes',
       <TwoFactorGridItem
@@ -115,6 +131,19 @@ export default class TwoFactorGrid extends Component<TwoFactorGridAttrs> {
 
   onTwoFactorDisabled() {
     this.twoFactorEnabled = false;
+    m.redraw();
+  }
+
+  changeDevice() {
+    app.modal.show(TwoFactorChangeDeviceModal, { 
+      user: this.user,
+      onDeviceChanged: this.onDeviceChanged.bind(this)
+    });
+  }
+
+  onDeviceChanged() {
+    // Refresh backup codes count if needed
+    this.backupCodesRemaining = this.user.backupCodesRemaining() || 0;
     m.redraw();
   }
 

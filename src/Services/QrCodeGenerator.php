@@ -32,6 +32,13 @@ class QrCodeGenerator
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
     }
 
+    /**
+     * Generate a QR code SVG from the given text.
+     *
+     * @param string $text
+     * @param bool $asDataUri Whether to return a data URI.
+     * @return string
+     */
     public function generate(string $text, bool $asDataUri = false): string
     {
         $builder = $this->buildQrOptions($text);
