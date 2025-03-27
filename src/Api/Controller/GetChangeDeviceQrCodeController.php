@@ -38,14 +38,14 @@ class GetChangeDeviceQrCodeController implements RequestHandlerInterface
         $userId = Arr::get($routeParams, 'id');
 
         // Ensure the actor is the user or has permission to manage users
-        if ($actor->id != $userId && !$actor->hasPermission('ianm-twofactor.manageOthers')) {
+        if ($actor->id != $userId && ! $actor->hasPermission('ianm-twofactor.manageOthers')) {
             throw new \Flarum\User\Exception\PermissionDeniedException();
         }
 
         $user = User::findOrFail($userId);
         $twoFactor = TwoFactor::getForUser($user);
 
-        if (!$twoFactor->secret) {
+        if (! $twoFactor->secret) {
             throw new ValidationException(['token' => 'Two-factor authentication is not enabled']);
         }
 

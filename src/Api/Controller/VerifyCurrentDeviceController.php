@@ -37,7 +37,7 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
 
         $twoFactor = TwoFactor::getForUser($actor);
 
-        if (!$twoFactor->secret) {
+        if (! $twoFactor->secret) {
             throw new ValidationException(['token' => 'Two-factor authentication is not enabled']);
         }
 

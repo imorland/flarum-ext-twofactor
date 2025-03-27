@@ -81,8 +81,8 @@ class TwoFactor extends AbstractModel
     }
 
     /**
-     * Set a temporary secret for device change
-     * 
+     * Set a temporary secret for device change.
+     *
      * @param string $secret
      * @return void
      */
@@ -94,8 +94,8 @@ class TwoFactor extends AbstractModel
     }
 
     /**
-     * Get the temporary secret
-     * 
+     * Get the temporary secret.
+     *
      * @return string|null
      */
     public function getTempSecret(): ?string
@@ -105,23 +105,24 @@ class TwoFactor extends AbstractModel
             $this->temp_secret = null;
             $this->temp_secret_created_at = null;
             $this->save();
+
             return null;
         }
-        
+
         return $this->temp_secret;
     }
 
     /**
-     * Commit the temporary secret as the new primary secret
-     * 
+     * Commit the temporary secret as the new primary secret.
+     *
      * @return void
      */
     public function commitTempSecret(): void
     {
-        if (!$this->temp_secret) {
+        if (! $this->temp_secret) {
             return;
         }
-        
+
         $this->secret = $this->temp_secret;
         $this->temp_secret = null;
         $this->temp_secret_created_at = null;
@@ -129,8 +130,8 @@ class TwoFactor extends AbstractModel
     }
 
     /**
-     * Clear the temporary secret
-     * 
+     * Clear the temporary secret.
+     *
      * @return void
      */
     public function clearTempSecret(): void

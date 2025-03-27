@@ -38,7 +38,7 @@ class VerifyNewDeviceController implements RequestHandlerInterface
         $twoFactor = TwoFactor::getForUser($actor);
         $tempSecret = $twoFactor->getTempSecret();
 
-        if (!$tempSecret) {
+        if (! $tempSecret) {
             throw new ValidationException(['token' => 'No pending device change found']);
         }
 
