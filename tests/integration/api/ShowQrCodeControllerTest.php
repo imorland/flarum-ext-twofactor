@@ -67,4 +67,50 @@ class ShowQrCodeControllerTest extends TestCase
         $this->assertEquals($data['code'], $twoFactor->secret);
         $this->assertFalse($twoFactor->is_active);
     }
+
+    /**
+     * @test
+     */
+    public function unauthenticated_user_cannot_generate_qr_code()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users/3/twofactor/qrcode')
+        );
+    
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_generate_qr_code_for_another_user()
+    {
+        // User 3 is authenticated, but they try to hit the endpoint for user 2 (different user)
+        $response = $this->send(
+            $this->request('GET', '/api/users/2/twofactor/qrcode', [
+                'authenticatedAs' => 3,
+            ])
+        );
+    
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function generating_qr_code_updates_two_factor_record()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users/3/twofactor/qrcode', [
+                'authenticatedAs' => 3,
+            ])
+        );
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode((string)$response->getBody(), true);
+        
+        $twoFactor = TwoFactor::query()->where('user_id', 3)->first();
+        $this->assertNotNull($twoFactor);
+        $this->assertEquals($data['code'], $twoFactor->secret);
+        $this->assertFalse($twoFactor->is_active);
+    }
 }
