@@ -84,11 +84,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
               />
             </div>
             <div className="Form-group">
-              <Button 
-                type="submit" 
-                className="Button Button--primary" 
-                loading={this.loading}
-              >
+              <Button type="submit" className="Button Button--primary" loading={this.loading}>
                 {app.translator.trans('ianm-twofactor.forum.security.verify_button')}
               </Button>
             </div>
@@ -161,11 +157,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
               />
             </div>
             <div className="Form-group">
-              <Button 
-                type="submit" 
-                className="Button Button--primary" 
-                loading={this.loading}
-              >
+              <Button type="submit" className="Button Button--primary" loading={this.loading}>
                 {app.translator.trans('ianm-twofactor.forum.security.verify_button')}
               </Button>
             </div>

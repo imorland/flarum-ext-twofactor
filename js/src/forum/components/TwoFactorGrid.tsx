@@ -135,9 +135,9 @@ export default class TwoFactorGrid extends Component<TwoFactorGridAttrs> {
   }
 
   changeDevice() {
-    app.modal.show(TwoFactorChangeDeviceModal, { 
+    app.modal.show(TwoFactorChangeDeviceModal, {
       user: this.user,
-      onDeviceChanged: this.onDeviceChanged.bind(this)
+      onDeviceChanged: this.onDeviceChanged.bind(this),
     });
   }
 
