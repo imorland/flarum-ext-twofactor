@@ -17,7 +17,7 @@ interface TotpInterface
 {
     public function createSecret(): string;
 
-    public function getProvisioningUri(string $label, string $secret = null): string;
+    public function getProvisioningUri(string $label, ?string $secret = null): string;
 
     public function verify(string $secret, string $inputCode, User $user): bool;
 }

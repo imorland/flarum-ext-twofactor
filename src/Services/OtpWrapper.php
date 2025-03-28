@@ -44,7 +44,7 @@ class OtpWrapper implements TotpInterface
      * @param non-empty-string|null $secret
      * @return string
      */
-    public function getProvisioningUri(string $label, string $secret = null): string
+    public function getProvisioningUri(string $label, ?string $secret = null): string
     {
         if (! empty($secret)) {
             $this->createFromSecret($secret);

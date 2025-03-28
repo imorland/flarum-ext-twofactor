@@ -5,6 +5,7 @@ import Stream from 'flarum/common/utils/Stream';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
+import TwoFactorCodeInput from './TwoFactorCodeInput';
 
 export interface TwoFactorEnableModalAttrs extends IInternalModalAttrs {
   user: User;
@@ -92,7 +93,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             )}
             <div className="tabs">
               <Button
-                className={this.activeTab === 'qrcode' ? 'active' : ''}
+                className={`TwoFactorModal-tab ${this.activeTab === 'qrcode' ? 'active' : ''}`}
                 onclick={() => {
                   this.activeTab = 'qrcode';
                   m.redraw();
@@ -101,7 +102,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
                 {app.translator.trans('ianm-twofactor.forum.security.qr_tab')}
               </Button>
               <Button
-                className={this.activeTab === 'manual' ? 'active' : ''}
+                className={`TwoFactorModal-tab ${this.activeTab === 'manual' ? 'active' : ''}`}
                 onclick={() => {
                   this.activeTab = 'manual';
                   m.redraw();
@@ -128,15 +129,13 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             <div className="Form">
               <form onsubmit={this.onSubmit.bind(this)}>
                 <div className="Form-group">
-                  <input
-                    type="text"
-                    className="FormControl"
-                    name="token"
-                    bidi={this.token}
+                  <TwoFactorCodeInput
                     placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_token')}
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    autocomplete="one-time-code"
+                    initial={this.token()}
+                    onComplete={(code: string) => {
+                      this.token(code);
+                      this.verifyToken();
+                    }}
                   />
                 </div>
                 <div className="Form-group">
@@ -202,8 +201,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
         m.redraw();
       })
       .catch((error) => {
-        //alert('Verification failed. Please try again.');
-        //error.alert.content = 'Verification failed. Please try again.';
+        app.alerts.show({ type: 'error' }, app.translator.trans('ianm-twofactor.forum.security.verification_failed'));
       })
       .finally(() => {
         this.loading = false;

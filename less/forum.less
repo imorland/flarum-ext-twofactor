@@ -8,28 +8,28 @@
     background-color: white;
 }
 
-.TwoFactorEnableModal {
+.TwoFactorModal-tab {
+    padding: 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-right: 10px;
+
+    &:last-child {
+        margin-right: 0;
+    }
+
+    &.active {
+        font-weight: bold;
+        border-bottom-color: @primary-color;
+    }
+}
+
+.TwoFactorEnableModal, .TwoFactorChangeDeviceModal {
     .tabs {
         display: flex;
         margin-bottom: 10px;
-
-        button {
-            padding: 10px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            margin-right: 10px;
-
-            &:last-child {
-                margin-right: 0;
-            }
-
-            &.active {
-                font-weight: bold;
-                border-bottom-color: @primary-color;
-            }
-        }
     }
 
     .manualEntryCode {
