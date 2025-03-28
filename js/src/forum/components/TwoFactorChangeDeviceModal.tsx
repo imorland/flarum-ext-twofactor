@@ -5,6 +5,7 @@ import Stream from 'flarum/common/utils/Stream';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
+import TwoFactorCodeInput from './TwoFactorCodeInput';
 
 export interface TwoFactorChangeDeviceModalAttrs extends IInternalModalAttrs {
   user: User;
@@ -72,15 +73,13 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         <div className="Form">
           <form onsubmit={this.onVerifyCurrentDeviceSubmit.bind(this)}>
             <div className="Form-group">
-              <input
-                type="text"
-                className="FormControl"
-                name="currentToken"
-                bidi={this.currentToken}
+              <TwoFactorCodeInput
                 placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_current_token')}
-                inputmode="numeric"
-                pattern="[0-9]*"
-                autocomplete="one-time-code"
+                initial={this.currentToken()}
+                onComplete={(code: string) => {
+                  this.currentToken(code);
+                  this.verifyCurrentDevice();
+                }}
               />
             </div>
             <div className="Form-group">
@@ -145,15 +144,13 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         <div className="Form">
           <form onsubmit={this.onVerifyNewDeviceSubmit.bind(this)}>
             <div className="Form-group">
-              <input
-                type="text"
-                className="FormControl"
-                name="newToken"
-                bidi={this.newToken}
+              <TwoFactorCodeInput
                 placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_new_token')}
-                inputmode="numeric"
-                pattern="[0-9]*"
-                autocomplete="one-time-code"
+                initial={this.newToken()}
+                onComplete={(code: string) => {
+                  this.newToken(code);
+                  this.verifyNewDevice();
+                }}
               />
             </div>
             <div className="Form-group">
