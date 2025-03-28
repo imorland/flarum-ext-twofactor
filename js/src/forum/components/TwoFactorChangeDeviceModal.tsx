@@ -109,7 +109,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         <p>{app.translator.trans('ianm-twofactor.forum.security.scan_new_device_qr')}</p>
         <div className="tabs">
           <Button
-            className={this.activeTab === 'qrcode' ? 'active' : ''}
+            className={`TwoFactorModal-tab ${this.activeTab === 'qrcode' ? 'active' : ''}`}
             onclick={() => {
               this.activeTab = 'qrcode';
               m.redraw();
@@ -118,7 +118,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
             {app.translator.trans('ianm-twofactor.forum.security.qr_tab')}
           </Button>
           <Button
-            className={this.activeTab === 'manual' ? 'active' : ''}
+            className={`TwoFactorModal-tab ${this.activeTab === 'manual' ? 'active' : ''}`}
             onclick={() => {
               this.activeTab = 'manual';
               m.redraw();

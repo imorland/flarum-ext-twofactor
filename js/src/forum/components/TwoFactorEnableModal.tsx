@@ -92,7 +92,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             )}
             <div className="tabs">
               <Button
-                className={this.activeTab === 'qrcode' ? 'active' : ''}
+                className={`TwoFactorModal-tab ${this.activeTab === 'qrcode' ? 'active' : ''}`}
                 onclick={() => {
                   this.activeTab = 'qrcode';
                   m.redraw();
@@ -101,7 +101,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
                 {app.translator.trans('ianm-twofactor.forum.security.qr_tab')}
               </Button>
               <Button
-                className={this.activeTab === 'manual' ? 'active' : ''}
+                className={`TwoFactorModal-tab ${this.activeTab === 'manual' ? 'active' : ''}`}
                 onclick={() => {
                   this.activeTab = 'manual';
                   m.redraw();
