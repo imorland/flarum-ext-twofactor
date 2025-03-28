@@ -18,5 +18,7 @@ export default class TwoFactorGrid extends Component<TwoFactorGridAttrs> {
     onTwoFactorEnabled(): void;
     disableTwoFactor(): void;
     onTwoFactorDisabled(): void;
+    changeDevice(): void;
+    onDeviceChanged(): void;
     generateBackupCodes(): void;
 }
