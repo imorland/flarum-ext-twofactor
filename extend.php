@@ -24,6 +24,10 @@ use Flarum\User\User;
 use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 
 return [
     (new Extend\Frontend('forum'))
@@ -65,21 +69,27 @@ return [
     (new Extend\Model(User::class))
         ->hasOne('twoFactor', TwoFactor::class, 'user_id'),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attributes(Api\AddCurrentUserAttributes::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(BasicUserSerializer::class))
         ->attributes(Api\AddUserAttributes::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(GroupSerializer::class))
         ->attributes(Api\AddGroupAttributes::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(ForumSerializer::class))
         ->attributes(Api\AddForumAttributes::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiController(ShowUserController::class))
         ->addInclude('twoFactor'),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->hasOne('twoFactor', TwoFactorSerializer::class),
 
@@ -124,4 +134,5 @@ return [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
         ]),
+    new Extend\ApiResource(Api\Resource\TwoFactorResource::class),
 ];
