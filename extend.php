@@ -84,7 +84,7 @@ return [
         ->hasOne('twoFactor', TwoFactorSerializer::class),
 
     (new Extend\Notification())
-        ->type(Notification\TwoFactorStatusChangedBlueprint::class, BasicUserSerializer::class, ['email']),
+        ->type(Notification\TwoFactorStatusChangedBlueprint::class, ['email']),
 
     (new Extend\Event())
         ->subscribe(Listener\QueueNotificationJobs::class)

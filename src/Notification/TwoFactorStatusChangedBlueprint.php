@@ -11,6 +11,7 @@
 
 namespace IanM\TwoFactor\Notification;
 
+use Flarum\Notification\AlertableInterface;
 use Carbon\Carbon;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
@@ -19,23 +20,23 @@ use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Event\Enabled;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInterface
+class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInterface, AlertableInterface
 {
     public function __construct(public Enabled|Disabled $event)
     {
     }
 
-    public function getFromUser()
+    public function getFromUser(): ?\Flarum\User\User
     {
         return $this->event instanceof Enabled ? $this->event->user : $this->event->actor;
     }
 
-    public function getSubject()
+    public function getSubject(): ?\Flarum\Database\AbstractModel
     {
         return $this->event->user;
     }
 
-    public static function getType()
+    public static function getType(): string
     {
         return '2faStatusChanged';
     }
@@ -45,26 +46,26 @@ class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInt
         return $this->event instanceof Enabled ? 'enabled' : 'disabled';
     }
 
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return User::class;
     }
 
-    public function getData()
+    public function getData(): mixed
     {
         return [
             'generated' => Carbon::now()->toIso8601String(),
         ];
     }
 
-    public function getEmailView()
+    public function getEmailViews(): array
     {
         return [
             'text' => 'ianm-two-factor::email.status_changed'
         ];
     }
 
-    public function getEmailSubject(TranslatorInterface $translator): string
+    public function getEmailSubject(\Flarum\Locale\TranslatorInterface $translator): string
     {
         return $translator->trans('ianm-twofactor.email.subject.status_changed', [
             '{type}' => $translator->trans('ianm-twofactor.email.status_type.'.$this->type()),
