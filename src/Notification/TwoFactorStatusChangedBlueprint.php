@@ -61,7 +61,7 @@ class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInt
     public function getEmailViews(): array
     {
         return [
-            'text' => 'ianm-two-factor::email.status_changed'
+            'text' => 'ianm-two-factor::email.plain.status_changed', 'html' => 'ianm-two-factor::email.html.status_changed'
         ];
     }
 
