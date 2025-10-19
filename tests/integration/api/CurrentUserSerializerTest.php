@@ -14,6 +14,8 @@ namespace IanM\TwoFactor\tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
 
 class CurrentUserSerializerTest extends TestCase
 {
@@ -26,7 +28,7 @@ class CurrentUserSerializerTest extends TestCase
         $this->extension('ianm-twofactor');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
             'two_factor' => [
@@ -35,9 +37,7 @@ class CurrentUserSerializerTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_includes_two_factor_properties_in_current_user_attributes()
     {
         $response = $this->send(
@@ -56,9 +56,7 @@ class CurrentUserSerializerTest extends TestCase
         $this->assertArrayHasKey('backupCodesRemaining', $json['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_include_two_factor_properties_in_current_user_attributes_if_user_is_different()
     {
         $response = $this->send(
@@ -77,9 +75,7 @@ class CurrentUserSerializerTest extends TestCase
         $this->assertArrayNotHasKey('backupCodesRemaining', $json['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function two_factor_is_enabled_for_given_user_and_returns_correct_properties()
     {
         $response = $this->send(

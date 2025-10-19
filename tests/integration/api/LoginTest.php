@@ -16,6 +16,8 @@ use Flarum\Extend;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
 
 class LoginTest extends TestCase
 {
@@ -32,7 +34,7 @@ class LoginTest extends TestCase
         $this->extension('ianm-twofactor');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal2', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal2@machine.local', 'is_email_confirmed' => 1,
                 ]
@@ -43,9 +45,7 @@ class LoginTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_require_2fa_token_if_2fa_is_not_enabled()
     {
         $response = $this->send(
@@ -71,9 +71,7 @@ class LoginTest extends TestCase
         $this->assertEquals(3, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_requires_2fa_token_if_2fa_is_enabled()
     {
         $response = $this->send(
