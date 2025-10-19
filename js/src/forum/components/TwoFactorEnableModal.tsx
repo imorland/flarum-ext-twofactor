@@ -1,3 +1,4 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
@@ -83,7 +84,6 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             <p>{app.translator.trans('ianm-twofactor.forum.security.loading_qr')}</p>
           </div>
         )}
-
         {this.status === 'displayQR' && (
           <div>
             {this.attrs.forced && (
@@ -126,7 +126,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
               </div>
             )}
 
-            <div className="Form">
+            <Form>
               <form onsubmit={this.onSubmit.bind(this)}>
                 <div className="Form-group">
                   <TwoFactorCodeInput
@@ -144,10 +144,9 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
                   </Button>
                 </div>
               </form>
-            </div>
+            </Form>
           </div>
         )}
-
         {this.status === 'displayBackupCodes' && (
           <div>
             <p>{app.translator.trans('ianm-twofactor.forum.security.backup_codes')}</p>
@@ -170,7 +169,6 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             </Button>
           </div>
         )}
-
         {this.status === 'final' && (
           <div>
             <p>{app.translator.trans('ianm-twofactor.forum.security.two_factor_enabled_confirmation')}</p>

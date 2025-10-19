@@ -6,7 +6,7 @@ import SettingsPage from './components/SettingsPage';
 export { default as extend } from './extend';
 
 app.initializers.add('ianm/twofactor', () => {
-  app.extensionData
+  app.registry
     .for('ianm-twofactor')
     .registerPage(SettingsPage)
     .registerPermission(

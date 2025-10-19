@@ -1,3 +1,4 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
@@ -70,7 +71,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
     return (
       <div>
         <p>{app.translator.trans('ianm-twofactor.forum.security.verify_current_device_message')}</p>
-        <div className="Form">
+        <Form>
           <form onsubmit={this.onVerifyCurrentDeviceSubmit.bind(this)}>
             <div className="Form-group">
               <TwoFactorCodeInput
@@ -88,7 +89,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
               </Button>
             </div>
           </form>
-        </div>
+        </Form>
       </div>
     );
   }
@@ -126,22 +127,19 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
             {app.translator.trans('ianm-twofactor.forum.security.manual_tab')}
           </Button>
         </div>
-
         {this.activeTab === 'qrcode' && (
           <div className="qrSection">
             <img className="qrImage" src={this.qrCodeUrl} alt={app.translator.trans('ianm-twofactor.forum.security.qr_code_alt')} />
           </div>
         )}
-
         {this.activeTab === 'manual' && (
           <div className="manualEntrySection">
             <code className="manualEntryCode">{this.code}</code>
             <p className="helpText">{app.translator.trans('ianm-twofactor.forum.security.manual_entry_instruction')}</p>
           </div>
         )}
-
         <p>{app.translator.trans('ianm-twofactor.forum.security.verify_new_device_message')}</p>
-        <div className="Form">
+        <Form>
           <form onsubmit={this.onVerifyNewDeviceSubmit.bind(this)}>
             <div className="Form-group">
               <TwoFactorCodeInput
@@ -159,7 +157,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
               </Button>
             </div>
           </form>
-        </div>
+        </Form>
       </div>
     );
   }

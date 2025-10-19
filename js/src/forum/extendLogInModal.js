@@ -1,3 +1,4 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/common/extend';
 import Stream from 'flarum/common/utils/Stream';
@@ -53,7 +54,7 @@ export default function extendLogInModal() {
 
   override('flarum/forum/components/LogInModal', 'body', function (original) {
     if (this.twoFactorRequired) {
-      return <div className="Form Form--centered">{this.fields().toArray()}</div>;
+      return <Form className="Form--centered">{this.fields().toArray()}</Form>;
     }
 
     return original();

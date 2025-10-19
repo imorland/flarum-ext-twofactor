@@ -1,6 +1,6 @@
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Component from 'flarum/common/Component';
 import TwoFactorEnableModal from './components/TwoFactorEnableModal';
 

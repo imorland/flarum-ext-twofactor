@@ -3,7 +3,7 @@ import Component from 'flarum/common/Component';
 import GroupBadge from 'flarum/common/components/GroupBadge';
 import EditGroupModal from 'flarum/admin/components/EditGroupModal';
 import Group from 'flarum/common/models/Group';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 
 /**
  * This is just the group bar from the permissions page, extracted into its own component so it can be used again.
@@ -22,7 +22,7 @@ export default class ExtractedGroupBar extends Component {
             </button>
           ))}
         <button className="Button Group Group--add" onclick={() => app.modal.show(EditGroupModal)}>
-          {icon('fas fa-plus', { className: 'Group-icon' })}
+          <Icon name="fas fa-plus" className="Group-icon" />
           <span className="Group-name">{app.translator.trans('core.admin.permissions.new_group_button')}</span>
         </button>
       </div>
