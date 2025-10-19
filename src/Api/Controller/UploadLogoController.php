@@ -35,6 +35,10 @@ class UploadLogoController extends UploadImageController
 
     protected function makeImage(UploadedFileInterface $file): Image
     {
+        /**
+         * @TODO: confirm if this still works with intervention/image v3
+         *        see: https://image.intervention.io/v3/introduction/upgrade
+         */
         $encodedImage = $this->imageManager
             ->make($file->getStream()->getMetadata('uri'))
             ->heighten(60, fn (Constraint $constraint) => $constraint->upsize())->encode('png');
