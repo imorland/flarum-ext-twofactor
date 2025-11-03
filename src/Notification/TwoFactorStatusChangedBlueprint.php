@@ -11,14 +11,13 @@
 
 namespace IanM\TwoFactor\Notification;
 
-use Flarum\Notification\AlertableInterface;
 use Carbon\Carbon;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\User\User;
 use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Event\Enabled;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInterface, AlertableInterface
 {

@@ -11,26 +11,17 @@
 
 namespace IanM\TwoFactor;
 
-use Flarum\Api\Controller\ShowUserController;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Resource\GroupResource;
+use Flarum\Api\Resource\UserResource;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
 use Flarum\User\User;
-use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
-use Flarum\Api\Context;
-use Flarum\Api\Endpoint;
-use Flarum\Api\Resource;
-use Flarum\Api\Resource\ForumResource;
-use Flarum\Api\Resource\GroupResource;
-use Flarum\Api\Resource\UserResource;
-use Flarum\Api\Schema;
 
 return [
     (new Extend\Frontend('forum'))

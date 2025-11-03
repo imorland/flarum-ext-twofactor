@@ -16,9 +16,9 @@ use Flarum\Extend;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
+use PHPUnit\Framework\Attributes\Test;
 
 class LoginTest extends TestCase
 {

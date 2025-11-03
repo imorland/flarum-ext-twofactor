@@ -14,9 +14,9 @@ namespace IanM\TwoFactor\tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
+use PHPUnit\Framework\Attributes\Test;
 
 class CurrentUserSerializerTest extends TestCase
 {
