@@ -18,7 +18,7 @@ class TwoFactorResource extends Resource\AbstractDatabaseResource
 {
     public function type(): string
     {
-        return 'twofactor';
+        return 'two-factor';
     }
 
     public function model(): string
@@ -40,24 +40,15 @@ class TwoFactorResource extends Resource\AbstractDatabaseResource
     public function fields(): array
     {
         return [
+            Schema\Boolean::make('isActive'),
 
-            /**
-             * @todo migrate logic from old serializer and controllers to this API Resource.
-             * @see https://docs.flarum.org/2.x/extend/api#api-resources
-             */
+            Schema\DateTime::make('createdAt'),
+            Schema\DateTime::make('updatedAt'),
 
-            // Example:
-            Schema\Str::make('name')
-                ->requiredOnCreate()
-                ->minLength(3)
-                ->maxLength(255)
-                ->writable(),
-
-
-            Schema\Relationship\ToOne::make('user')
-                ->includable()
-                // ->inverse('?') // the inverse relationship name if any.
-                ->type('users'), // the serialized type of this relation (type of the relation model's API resource).
+            // Schema\Relationship\ToOne::make('user')
+            //     ->includable()
+            //     // ->inverse('?') // the inverse relationship name if any.
+            //     ->type('users'), // the serialized type of this relation (type of the relation model's API resource).
         ];
     }
 

@@ -17,6 +17,8 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\Constraint;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadLogoController extends UploadImageController
@@ -33,7 +35,7 @@ class UploadLogoController extends UploadImageController
         parent::__construct($settings, $filesystemFactory);
     }
 
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface
     {
         /**
          * @TODO: confirm if this still works with intervention/image v3

@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
+use IanM\TwoFactor\Model\TwoFactor;
 
 class CurrentUserSerializerTest extends TestCase
 {
@@ -31,18 +32,19 @@ class CurrentUserSerializerTest extends TestCase
             User::class => [
                 $this->normalUser(),
             ],
-            'two_factor' => [
-                ['id' => 1, 'user_id' => 1, 'secret' => 'abcdef123456', 'backup_codes' => '["$2y$10$8UDXx3Fbx\/K9uKHs.4wq8OIP3\/q.0PghYhX\/v9ckHmvXwY2yUI.IC","$2y$10$KWw6OT18AMWa\/T1NcS1hjOiMfuzq45L1KKsFUBXAIjKTsvXJcUEOW"]', 'is_active' => true, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+            TwoFactor::class => [
+                ['id' => 1, 'user_id' => 1, 'secret' => 'abcdef123456', 'backup_codes' => '["$2y$10$8UDXx3Fbx\/K9uKHs.4wq8OIP3\/q.0PghYhX\/v9ckHmvXwY2yUI.IC","$2y$10$KWw6OT18AMWa\/T1NcS1hjOiMfuzq45L1KKsFUBXAIjKTsvXJcUEOW"]', 'is_active' => true, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                ['id' => 2, 'user_id' => 2, 'secret' => 'abcdef123456', 'backup_codes' => '["$2y$10$8UDXx3Fbx\/K9uKHs.4wq8OIP3\/q.0PghYhX\/v9ckHmvXwY2yUI.IC","$2y$10$KWw6OT18AMWa\/T1NcS1hjOiMfuzq45L1KKsFUBXAIjKTsvXJcUEOW"]', 'is_active' => true, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
             ]
         ]);
     }
 
     #[Test]
-    public function it_includes_two_factor_properties_in_current_user_attributes()
+    public function it_includes_two_factor_properties_in_current_user_attributes(int $userId = 2)
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 2,
+            $this->request('GET', "/api/users/{$userId}", [
+                'authenticatedAs' => $userId,
             ])
         );
 
@@ -57,11 +59,11 @@ class CurrentUserSerializerTest extends TestCase
     }
 
     #[Test]
-    public function it_does_not_include_two_factor_properties_in_current_user_attributes_if_user_is_different()
+    public function it_does_not_include_two_factor_properties_in_current_user_attributes_if_user_is_different(int $userId = 1, int $actorId = 2)
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/1', [
-                'authenticatedAs' => 2,
+            $this->request('GET', "/api/users/{$userId}", [
+                'authenticatedAs' => $actorId,
             ])
         );
 
@@ -76,11 +78,11 @@ class CurrentUserSerializerTest extends TestCase
     }
 
     #[Test]
-    public function two_factor_is_enabled_for_given_user_and_returns_correct_properties()
+    public function two_factor_is_enabled_for_given_user_and_returns_correct_properties(int $userId = 1)
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/1', [
-                'authenticatedAs' => 1,
+            $this->request('GET', "/api/users/{$userId}", [
+                'authenticatedAs' => $userId,
             ])
         );
 

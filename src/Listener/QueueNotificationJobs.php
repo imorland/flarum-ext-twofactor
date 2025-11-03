@@ -15,9 +15,15 @@ use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Event\Enabled;
 use IanM\TwoFactor\Job;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Queue\Queue;
 
 class QueueNotificationJobs
 {
+    public function __construct(
+        protected Queue $queue
+    ) {
+    }
+
     public function subscribe(Dispatcher $events): void
     {
         $events->listen([Enabled::class, Disabled::class], [$this, 'notify']);
@@ -25,7 +31,7 @@ class QueueNotificationJobs
 
     public function notify(Enabled|Disabled $event)
     {
-        resolve('flarum.queue.connection')->push(
+        $this->queue->push(
             new Job\SendNotifications($event)
         );
     }

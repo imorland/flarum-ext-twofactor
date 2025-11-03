@@ -18,6 +18,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
+use IanM\TwoFactor\Model\TwoFactor;
 
 class LoginTest extends TestCase
 {
@@ -39,7 +40,7 @@ class LoginTest extends TestCase
                 ['id' => 3, 'username' => 'normal2', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal2@machine.local', 'is_email_confirmed' => 1,
                 ]
             ],
-            'two_factor' => [
+            TwoFactor::class => [
                 ['id' => 1, 'user_id' => 2, 'secret' => 'OIZ2R42HL2ZNUJNJU72P4EK26CQSD5JLEC7AVH7BCBJKRCUBUPLHXQ4TCAYVFZPDAGH3QDPHWABLMT36QAKTIFPNL5NKTR2BGVIY3GY', 'backup_codes' => '["$2y$10$8UDXx3Fbx\/K9uKHs.4wq8OIP3\/q.0PghYhX\/v9ckHmvXwY2yUI.IC","$2y$10$KWw6OT18AMWa\/T1NcS1hjOiMfuzq45L1KKsFUBXAIjKTsvXJcUEOW"]', 'is_active' => true, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
             ]
         ]);

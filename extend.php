@@ -27,6 +27,9 @@ use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Resource\GroupResource;
+use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
 
 return [
@@ -42,6 +45,9 @@ return [
 
     (new Extend\Model(Group::class))
         ->cast('tfa_required', 'bool'),
+
+    (new Extend\Model(User::class))
+        ->hasOne('twoFactor', TwoFactor::class, 'user_id'),
 
     (new Extend\Routes('api'))
         ->get('/users/{id}/twofactor/qrcode', 'user.twofactor.get-qr', Api\Controller\ShowQrCodeController::class)
@@ -66,32 +72,17 @@ return [
     (new Extend\ServiceProvider())
         ->register(Provider\TwoFactorServiceProvider::class),
 
-    (new Extend\Model(User::class))
-        ->hasOne('twoFactor', TwoFactor::class, 'user_id'),
+    (new Extend\ApiResource(UserResource::class))
+        ->fields(Api\AddUserAttributes::class)
+        ->endpoint([Endpoint\Show::class, Endpoint\Update::class], function (Endpoint\Show|Endpoint\Update $endpoint) {
+            return $endpoint->addDefaultInclude(['twoFactor']);
+        }),
 
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attributes(Api\AddCurrentUserAttributes::class),
+    (new Extend\ApiResource(GroupResource::class))
+        ->fields(Api\AddGroupAttributes::class),
 
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(BasicUserSerializer::class))
-        ->attributes(Api\AddUserAttributes::class),
-
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(GroupSerializer::class))
-        ->attributes(Api\AddGroupAttributes::class),
-
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attributes(Api\AddForumAttributes::class),
-
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiController(ShowUserController::class))
-        ->addInclude('twoFactor'),
-
-    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->hasOne('twoFactor', TwoFactorSerializer::class),
+    (new Extend\ApiResource(ForumResource::class))
+        ->fields(Api\AddForumAttributes::class),
 
     (new Extend\Notification())
         ->type(Notification\TwoFactorStatusChangedBlueprint::class, ['email']),
@@ -134,5 +125,6 @@ return [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
         ]),
+
     new Extend\ApiResource(Api\Resource\TwoFactorResource::class),
 ];

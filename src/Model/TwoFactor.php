@@ -35,7 +35,7 @@ class TwoFactor extends AbstractModel
      *
      * @var string
      */
-    protected $table = 'two_factor';  // Replace with your actual table name
+    protected $table = 'two_factor';
 
     public $timestamps = true;
 
@@ -44,7 +44,7 @@ class TwoFactor extends AbstractModel
      *
      * @var array<string>
      */
-    protected $fillable = ['user_id', 'secret', 'backup_codes', 'is_active', 'temp_secret', 'temp_secret_created_at'];  // Add other fields as necessary
+    protected $fillable = ['user_id', 'secret', 'backup_codes', 'is_active', 'temp_secret', 'temp_secret_created_at'];
 
     public $casts = [
         'is_active' => 'boolean',
