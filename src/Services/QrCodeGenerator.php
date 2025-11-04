@@ -76,11 +76,46 @@ class QrCodeGenerator
 
     protected function addLogoToBuilder(BuilderInterface $builder): BuilderInterface
     {
-        if ($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr') && $this->getLogoUrl()) {
-            $builder
-                ->logoPath($this->getLogoUrl())
-                ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
-                ->logoPunchoutBackground(true);
+        if (!$this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr')) {
+            return $builder;
+        }
+
+        $logoPath = $this->settings->get('ianm_twofactor_logo_path') ?? $this->settings->get('logo_path');
+
+        if (!$logoPath) {
+            return $builder;
+        }
+
+        try {
+            // Try to get the local filesystem path first (for local storage)
+            $localPath = $this->assetsFilesystem->path($logoPath);
+
+            // Check if file exists locally
+            if (file_exists($localPath)) {
+                $builder
+                    ->logoPath($localPath)
+                    ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
+                    ->logoPunchoutBackground(true);
+            } else {
+                // For remote storage (S3, etc.), read the file content
+                $logoContent = $this->assetsFilesystem->get($logoPath);
+                $builder
+                    ->logoPath('data:image/png;base64,' . base64_encode($logoContent))
+                    ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
+                    ->logoPunchoutBackground(true);
+            }
+        } catch (\Exception) {
+            // If local path doesn't work (remote storage), read file content
+            try {
+                $logoContent = $this->assetsFilesystem->get($logoPath);
+                $builder
+                    ->logoPath('data:image/png;base64,' . base64_encode($logoContent))
+                    ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
+                    ->logoPunchoutBackground(true);
+            } catch (\Exception $e) {
+                // Log and continue without logo
+                $this->logger->warning('[ianm/twofactor] Could not load logo for QR code: ' . $e->getMessage());
+            }
         }
 
         return $builder;
