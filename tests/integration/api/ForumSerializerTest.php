@@ -13,6 +13,8 @@ namespace IanM\TwoFactor\tests\integration\api;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ForumSerializerTest extends TestCase
 {
@@ -25,15 +27,13 @@ class ForumSerializerTest extends TestCase
         $this->extension('ianm-twofactor');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_includes_logo_url_in_forum_attributes_if_user_is_admin()
     {
         $response = $this->send(
@@ -49,9 +49,7 @@ class ForumSerializerTest extends TestCase
         $this->assertArrayHasKey('ianm_twofactor_logoUrl', $json['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_include_logo_url_in_forum_attributes_if_user_is_not_admin()
     {
         $response = $this->send(
@@ -67,9 +65,7 @@ class ForumSerializerTest extends TestCase
         $this->assertArrayNotHasKey('ianm_twofactor_logoUrl', $json['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_include_logo_url_in_forum_attributes_if_user_is_not_authenticated()
     {
         $response = $this->send(

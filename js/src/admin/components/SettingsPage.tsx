@@ -1,6 +1,7 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/admin/app';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
-import UploadImageButton from 'flarum/admin/components/UploadImageButton';
+import UploadImageButton from 'flarum/common/components/UploadImageButton';
 import ExtractedGroupBar from './ExtractedGroupBar';
 
 export default class SettingsPage extends ExtensionPage {
@@ -8,7 +9,7 @@ export default class SettingsPage extends ExtensionPage {
     return (
       <div className="container">
         <div className="TwoFactorSettingsPage">
-          <div className="Form">
+          <Form>
             <div className="Form-group">
               <h3>{app.translator.trans('ianm-twofactor.admin.settings.groups.title')}</h3>
               <p className="helpText">{app.translator.trans('ianm-twofactor.admin.settings.groups.help')}</p>
@@ -23,7 +24,12 @@ export default class SettingsPage extends ExtensionPage {
             <div className="Form-group">
               <label>{app.translator.trans('ianm-twofactor.admin.settings.logo_qr')}</label>
               <div className="helpText">{app.translator.trans('ianm-twofactor.admin.settings.logo_qr_help')}</div>
-              <UploadImageButton name="ianm_twofactor_logo" />
+              <UploadImageButton
+                name="ianm_twofactor_logo"
+                routePath="ianm_twofactor_logo"
+                value={app.data.settings['ianm_twofactor_logo_path']}
+                url={app.forum.attribute('ianm_twofactor_logoUrl')}
+              />
             </div>
             {this.buildSettingComponent({
               setting: 'ianm-twofactor.admin.settings.forum_logo_qr_width',
@@ -54,7 +60,7 @@ export default class SettingsPage extends ExtensionPage {
               help: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens_help'),
             })}
             {this.submitButton()}
-          </div>
+          </Form>
         </div>
       </div>
     );

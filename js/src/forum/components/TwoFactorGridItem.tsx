@@ -1,5 +1,5 @@
 import Component, { ComponentAttrs } from 'flarum/common/Component';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import type Mithril from 'mithril';
 
 export interface TwoFactorGridItemAttrs extends ComponentAttrs {
@@ -16,7 +16,9 @@ export default class TwoFactorGridItem extends Component<TwoFactorGridItemAttrs>
 
     return (
       <li className="TwoFactorGrid-item">
-        <span className="TwoFactorGrid-icon">{icon(iconName)}</span>
+        <span className="TwoFactorGrid-icon">
+          <Icon name={iconName} />
+        </span>
         <div className="TwoFactorGrid-content">
           <span className="TwoFactorGrid-title">{title}</span>
           <span className="TwoFactorGrid-value">{value}</span>

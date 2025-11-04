@@ -11,19 +11,24 @@
 
 namespace IanM\TwoFactor\Api;
 
-use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Schema;
 use Flarum\Group\Group;
 
 class AddGroupAttributes
 {
-    public function __invoke(GroupSerializer $serializer, Group $group, array $attributes): array
+    public function __invoke(): array
     {
-        $actor = $serializer->getActor();
+        return [
+            Schema\Boolean::make('requires2FA')
+                ->get(function (Group $group, Context $context): bool {
+                    return $group->tfa_required;
+                })
+                ->visible(function (Group $group, Context $context): bool {
+                    $actor = $context->getActor();
 
-        if ($actor->can('ianm-twofactor.seeTwoFactorStatus')) {
-            $attributes['requires2FA'] = $group->tfa_required;
-        }
-
-        return $attributes;
+                    return $actor->can('ianm-twofactor.seeTwoFactorStatus');
+                })
+        ];
     }
 }

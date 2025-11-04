@@ -11,21 +11,28 @@
 
 namespace IanM\TwoFactor\Listener;
 
+use IanM\TwoFactor\Event\DeviceChanged;
 use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Event\Enabled;
 use IanM\TwoFactor\Job;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Queue\Queue;
 
 class QueueNotificationJobs
 {
-    public function subscribe(Dispatcher $events): void
-    {
-        $events->listen([Enabled::class, Disabled::class], [$this, 'notify']);
+    public function __construct(
+        protected Queue $queue
+    ) {
     }
 
-    public function notify(Enabled|Disabled $event)
+    public function subscribe(Dispatcher $events): void
     {
-        resolve('flarum.queue.connection')->push(
+        $events->listen([Enabled::class, Disabled::class, DeviceChanged::class], [$this, 'notify']);
+    }
+
+    public function notify(Enabled|Disabled|DeviceChanged $event)
+    {
+        $this->queue->push(
             new Job\SendNotifications($event)
         );
     }

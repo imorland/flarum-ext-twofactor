@@ -19,6 +19,8 @@ use Flarum\Http\AccessToken;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
+use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -35,9 +37,11 @@ class TwoFactorLogInController extends LogInController
         Dispatcher $events,
         Rememberer $rememberer,
         LogInValidator $validator,
+        UrlGenerator $url,
+        TranslatorInterface $translator,
         protected ExtensionManager $extensions
     ) {
-        parent::__construct($users, $apiClient, $authenticator, $events, $rememberer, $validator);
+        parent::__construct($users, $apiClient, $authenticator, $events, $rememberer, $validator, $url, $translator);
     }
 
     public function handle(Request $request): ResponseInterface

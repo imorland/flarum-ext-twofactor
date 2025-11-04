@@ -14,7 +14,9 @@ namespace IanM\TwoFactor\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowQrCodeControllerTest extends TestCase
 {
@@ -27,7 +29,7 @@ class ShowQrCodeControllerTest extends TestCase
         $this->extension('ianm-twofactor');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal2', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal2@machine.local', 'is_email_confirmed' => 1,
                 ]
@@ -38,9 +40,7 @@ class ShowQrCodeControllerTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_generate_qr_code()
     {
         $response = $this->send(
@@ -68,9 +68,7 @@ class ShowQrCodeControllerTest extends TestCase
         $this->assertFalse($twoFactor->is_active);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unauthenticated_user_cannot_generate_qr_code()
     {
         $response = $this->send(
@@ -80,9 +78,7 @@ class ShowQrCodeControllerTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_generate_qr_code_for_another_user()
     {
         // User 3 is authenticated, but they try to hit the endpoint for user 2 (different user)
@@ -95,9 +91,7 @@ class ShowQrCodeControllerTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function generating_qr_code_updates_two_factor_record()
     {
         $response = $this->send(

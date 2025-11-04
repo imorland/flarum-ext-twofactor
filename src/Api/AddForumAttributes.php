@@ -11,7 +11,7 @@
 
 namespace IanM\TwoFactor\Api;
 
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Schema;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -19,30 +19,23 @@ use Illuminate\Contracts\Filesystem\Factory;
 class AddForumAttributes
 {
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var Cloud
      */
     protected $assetsFilesystem;
 
-    public function __construct(Factory $filesystemFactory, SettingsRepositoryInterface $settings)
+    public function __construct(Factory $filesystemFactory, protected SettingsRepositoryInterface $settings)
     {
         $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
-        $this->settings = $settings;
     }
 
-    public function __invoke(ForumSerializer $serializer, $object, array $attributes): array
+    public function __invoke(): array
     {
-        $actor = $serializer->getActor();
-
-        if ($actor->isAdmin()) {
-            $attributes['ianm_twofactor_logoUrl'] = $this->getLogoUrl();
-        }
-
-        return $attributes;
+        return [
+            Schema\Str::make('ianm_twofactor_logoUrl')
+                ->nullable()
+                ->get(fn () => $this->getLogoUrl())
+                ->visible(fn ($_, $context) => $context->getActor()->can('administrate')),
+        ];
     }
 
     protected function getLogoUrl(): ?string

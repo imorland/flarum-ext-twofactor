@@ -11,17 +11,15 @@
 
 namespace IanM\TwoFactor;
 
-use Flarum\Api\Controller\ShowUserController;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Resource\GroupResource;
+use Flarum\Api\Resource\UserResource;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
 use Flarum\User\User;
-use IanM\TwoFactor\Api\Serializer\TwoFactorSerializer;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 
@@ -38,6 +36,9 @@ return [
 
     (new Extend\Model(Group::class))
         ->cast('tfa_required', 'bool'),
+
+    (new Extend\Model(User::class))
+        ->hasOne('twoFactor', TwoFactor::class, 'user_id'),
 
     (new Extend\Routes('api'))
         ->get('/users/{id}/twofactor/qrcode', 'user.twofactor.get-qr', Api\Controller\ShowQrCodeController::class)
@@ -62,29 +63,20 @@ return [
     (new Extend\ServiceProvider())
         ->register(Provider\TwoFactorServiceProvider::class),
 
-    (new Extend\Model(User::class))
-        ->hasOne('twoFactor', TwoFactor::class, 'user_id'),
+    (new Extend\ApiResource(UserResource::class))
+        ->fields(Api\AddUserAttributes::class)
+        ->endpoint([Endpoint\Show::class, Endpoint\Update::class], function (Endpoint\Show|Endpoint\Update $endpoint) {
+            return $endpoint->addDefaultInclude(['twoFactor']);
+        }),
 
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attributes(Api\AddCurrentUserAttributes::class),
+    (new Extend\ApiResource(GroupResource::class))
+        ->fields(Api\AddGroupAttributes::class),
 
-    (new Extend\ApiSerializer(BasicUserSerializer::class))
-        ->attributes(Api\AddUserAttributes::class),
-
-    (new Extend\ApiSerializer(GroupSerializer::class))
-        ->attributes(Api\AddGroupAttributes::class),
-
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attributes(Api\AddForumAttributes::class),
-
-    (new Extend\ApiController(ShowUserController::class))
-        ->addInclude('twoFactor'),
-
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->hasOne('twoFactor', TwoFactorSerializer::class),
+    (new Extend\ApiResource(ForumResource::class))
+        ->fields(Api\AddForumAttributes::class),
 
     (new Extend\Notification())
-        ->type(Notification\TwoFactorStatusChangedBlueprint::class, BasicUserSerializer::class, ['email']),
+        ->type(Notification\TwoFactorStatusChangedBlueprint::class, ['email']),
 
     (new Extend\Event())
         ->subscribe(Listener\QueueNotificationJobs::class)
@@ -124,4 +116,6 @@ return [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
         ]),
+
+    new Extend\ApiResource(Api\Resource\TwoFactorResource::class),
 ];

@@ -3,7 +3,7 @@ import UserListPage from 'flarum/admin/components/UserListPage';
 import ItemList from 'flarum/common/utils/ItemList';
 import User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 
 type ColumnData = {
   /**
@@ -23,7 +23,13 @@ export default function extendUserListPage() {
       {
         name: '2FA',
         content: (user: User) => {
-          return user.twoFactorEnabled() ? <p>{icon('fas fa-shield-alt')}</p> : <p></p>;
+          return user.twoFactorEnabled() ? (
+            <p>
+              <Icon name="fas fa-shield-alt" />
+            </p>
+          ) : (
+            <p></p>
+          );
         },
       },
       82

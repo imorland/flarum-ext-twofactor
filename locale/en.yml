@@ -88,6 +88,7 @@ ianm-twofactor:
     status_type:
       enabled: enabled
       disabled: disabled
+      device_changed: device changed
   views:
     reset_password:
       two_factor_token_label: 2FA Token

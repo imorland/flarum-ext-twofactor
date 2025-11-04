@@ -1,12 +1,11 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import UserSecurityPage from 'flarum/forum/components/UserSecurityPage';
 import TwoFactorSettings from './components/TwoFactorSettings';
 import FieldSet from 'flarum/common/components/FieldSet';
 import LinkButton from 'flarum/common/components/LinkButton';
 
 export default function extendUserSecurityPage() {
-  extend(UserSecurityPage.prototype, 'settingsItems', function (items) {
+  extend('flarum/forum/components/UserSecurityPage', 'settingsItems', function (items) {
     items.add(
       'twoFactor',
       <FieldSet label={app.translator.trans('ianm-twofactor.forum.security.two_factor_heading')}>

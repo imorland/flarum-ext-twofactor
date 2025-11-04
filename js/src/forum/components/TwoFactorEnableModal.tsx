@@ -1,3 +1,4 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
@@ -23,10 +24,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
   code: string | null = null;
   activeTab: string = 'qrcode';
   loading: boolean = false;
-
-  protected static isDismissibleViaCloseButton: boolean = true;
-  protected static isDismissibleViaEscKey: boolean = true;
-  protected static isDismissibleViaBackdropClick: boolean = true;
+  originalHide!: () => void;
 
   oninit(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>) {
     super.oninit(vnode);
@@ -35,11 +33,31 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
 
     this.token = Stream('');
 
+    // Save the original hide method
+    this.originalHide = this.hide.bind(this);
+
+    // Override dismissibility based on forced mode for this instance
     if (this.attrs.forced) {
-      TwoFactorEnableModal.isDismissibleViaCloseButton = false;
-      TwoFactorEnableModal.isDismissibleViaEscKey = false;
-      TwoFactorEnableModal.isDismissibleViaBackdropClick = false;
+      // Override hide to prevent dismissal when forced, unless completed
+      this.hide = () => {
+        // Allow hiding only when completed (status === 'final')
+        if (this.status === 'final') {
+          this.originalHide();
+        }
+      };
     }
+  }
+
+  static get isDismissibleViaCloseButton() {
+    return true;
+  }
+
+  static get isDismissibleViaEscKey() {
+    return true;
+  }
+
+  static get isDismissibleViaBackdropClick() {
+    return true;
   }
 
   className() {
@@ -83,7 +101,6 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             <p>{app.translator.trans('ianm-twofactor.forum.security.loading_qr')}</p>
           </div>
         )}
-
         {this.status === 'displayQR' && (
           <div>
             {this.attrs.forced && (
@@ -126,7 +143,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
               </div>
             )}
 
-            <div className="Form">
+            <Form>
               <form onsubmit={this.onSubmit.bind(this)}>
                 <div className="Form-group">
                   <TwoFactorCodeInput
@@ -144,10 +161,9 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
                   </Button>
                 </div>
               </form>
-            </div>
+            </Form>
           </div>
         )}
-
         {this.status === 'displayBackupCodes' && (
           <div>
             <p>{app.translator.trans('ianm-twofactor.forum.security.backup_codes')}</p>
@@ -170,7 +186,6 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
             </Button>
           </div>
         )}
-
         {this.status === 'final' && (
           <div>
             <p>{app.translator.trans('ianm-twofactor.forum.security.two_factor_enabled_confirmation')}</p>

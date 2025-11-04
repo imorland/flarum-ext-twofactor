@@ -12,33 +12,18 @@
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Api\Controller\UploadImageController;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\Constraint;
-use Intervention\Image\Image;
-use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadLogoController extends UploadImageController
 {
-    protected $filePathSettingKey = 'ianm_twofactor_logo_path';
+    protected string $filePathSettingKey = 'ianm_twofactor_logo_path';
+    protected string $filenamePrefix = 'ianm_twofactor_logo';
 
-    protected $filenamePrefix = 'ianm_twofactor_logo';
-
-    public function __construct(
-        SettingsRepositoryInterface $settings,
-        Factory $filesystemFactory,
-        protected ImageManager $imageManager
-    ) {
-        parent::__construct($settings, $filesystemFactory);
-    }
-
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
-        $encodedImage = $this->imageManager
-            ->make($file->getStream()->getMetadata('uri'))
-            ->heighten(60, fn (Constraint $constraint) => $constraint->upsize())->encode('png');
-
-        return $encodedImage;
+        return $this->imageManager->read($file->getStream()->getMetadata('uri'))
+            ->contain(64, 64)
+            ->toPng();
     }
 }

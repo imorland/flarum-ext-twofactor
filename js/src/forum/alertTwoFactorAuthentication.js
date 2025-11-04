@@ -1,6 +1,6 @@
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Component from 'flarum/common/Component';
 import TwoFactorEnableModal from './components/TwoFactorEnableModal';
 
@@ -43,7 +43,12 @@ export default function alertTwoFactorAuthentication(app) {
     }
   }
 
-  const alertContainer = $('<div className="App-notices"/>').insertBefore('#content')[0];
+  const alertContainer = document.createElement('div');
+  alertContainer.className = 'App-notices';
+  const contentElement = document.getElementById('content');
+  if (contentElement && contentElement.parentNode) {
+    contentElement.parentNode.insertBefore(alertContainer, contentElement);
+  }
 
   m.mount(alertContainer, {
     view: () => (

@@ -13,13 +13,14 @@ namespace IanM\TwoFactor\Job;
 
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Queue\AbstractJob;
+use IanM\TwoFactor\Event\DeviceChanged;
 use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Event\Enabled;
 use IanM\TwoFactor\Notification\TwoFactorStatusChangedBlueprint;
 
 class SendNotifications extends AbstractJob
 {
-    public function __construct(public Enabled|Disabled $event)
+    public function __construct(public Enabled|Disabled|DeviceChanged $event)
     {
     }
 

@@ -1,16 +1,16 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/common/extend';
-import LogInModal from 'flarum/forum/components/LogInModal';
 import Stream from 'flarum/common/utils/Stream';
 
 export default function extendLogInModal() {
-  extend(LogInModal.prototype, 'oninit', function (vnode) {
+  extend('flarum/forum/components/LogInModal', 'oninit', function (vnode) {
     // Initialize the 2FA token stream
     this.twoFactorToken = Stream('');
     this.twoFactorRequired = false;
   });
 
-  extend(LogInModal.prototype, 'fields', function (items) {
+  extend('flarum/forum/components/LogInModal', 'fields', function (items) {
     // Add the 2FA input field to the form
     if (this.twoFactorRequired) {
       items.add(
@@ -45,22 +45,22 @@ export default function extendLogInModal() {
     }
   });
 
-  extend(LogInModal.prototype, 'loginParams', function (data) {
+  extend('flarum/forum/components/LogInModal', 'loginParams', function (data) {
     // Add the twoFactorToken to the login params
     data.twoFactorToken = this.twoFactorToken();
 
     return data;
   });
 
-  override(LogInModal.prototype, 'body', function (original) {
+  override('flarum/forum/components/LogInModal', 'body', function (original) {
     if (this.twoFactorRequired) {
-      return <div className="Form Form--centered">{this.fields().toArray()}</div>;
+      return <Form className="Form--centered">{this.fields().toArray()}</Form>;
     }
 
     return original();
   });
 
-  override(LogInModal.prototype, 'footer', function (original) {
+  override('flarum/forum/components/LogInModal', 'footer', function (original) {
     if (this.twoFactorRequired) {
       return <div />;
     }
@@ -68,7 +68,7 @@ export default function extendLogInModal() {
     return original();
   });
 
-  override(LogInModal.prototype, 'onerror', function (original, error) {
+  override('flarum/forum/components/LogInModal', 'onerror', function (original, error) {
     if (error.status === 422) {
       const errors = error.response && error.response.errors;
       const firstErrorDetail = (errors && errors[0] && errors[0].detail) || '';
