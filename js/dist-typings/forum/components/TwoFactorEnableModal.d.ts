@@ -1,4 +1,3 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Stream from 'flarum/common/utils/Stream';
 import User from 'flarum/common/models/User';
@@ -17,12 +16,13 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
     code: string | null;
     activeTab: string;
     loading: boolean;
-    protected static isDismissibleViaCloseButton: boolean;
-    protected static isDismissibleViaEscKey: boolean;
-    protected static isDismissibleViaBackdropClick: boolean;
+    originalHide: () => void;
     oninit(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>): void;
+    static get isDismissibleViaCloseButton(): boolean;
+    static get isDismissibleViaEscKey(): boolean;
+    static get isDismissibleViaBackdropClick(): boolean;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     oncreate(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>): void;
     onupdate(): void;
     content(): JSX.Element;

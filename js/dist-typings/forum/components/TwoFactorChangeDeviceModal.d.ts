@@ -1,4 +1,3 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Stream from 'flarum/common/utils/Stream';
 import User from 'flarum/common/models/User';
@@ -19,7 +18,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
     loading: boolean;
     oninit(vnode: Mithril.Vnode<TwoFactorChangeDeviceModalAttrs>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     onupdate(): void;
     content(): JSX.Element;
     renderVerifyCurrentDevice(): JSX.Element;
