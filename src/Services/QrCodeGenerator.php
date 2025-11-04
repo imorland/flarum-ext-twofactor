@@ -76,13 +76,13 @@ class QrCodeGenerator
 
     protected function addLogoToBuilder(BuilderInterface $builder): BuilderInterface
     {
-        if (!$this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr')) {
+        if (! $this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr')) {
             return $builder;
         }
 
         $logoPath = $this->settings->get('ianm_twofactor_logo_path') ?? $this->settings->get('logo_path');
 
-        if (!$logoPath) {
+        if (! $logoPath) {
             return $builder;
         }
 
@@ -100,7 +100,7 @@ class QrCodeGenerator
                 // For remote storage (S3, etc.), read the file content
                 $logoContent = $this->assetsFilesystem->get($logoPath);
                 $builder
-                    ->logoPath('data:image/png;base64,' . base64_encode($logoContent))
+                    ->logoPath('data:image/png;base64,'.base64_encode($logoContent))
                     ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
                     ->logoPunchoutBackground(true);
             }
@@ -109,12 +109,12 @@ class QrCodeGenerator
             try {
                 $logoContent = $this->assetsFilesystem->get($logoPath);
                 $builder
-                    ->logoPath('data:image/png;base64,' . base64_encode($logoContent))
+                    ->logoPath('data:image/png;base64,'.base64_encode($logoContent))
                     ->logoResizeToWidth($this->settings->get('ianm-twofactor.admin.settings.forum_logo_qr_width') ?? 100)
                     ->logoPunchoutBackground(true);
             } catch (\Exception $e) {
                 // Log and continue without logo
-                $this->logger->warning('[ianm/twofactor] Could not load logo for QR code: ' . $e->getMessage());
+                $this->logger->warning('[ianm/twofactor] Could not load logo for QR code: '.$e->getMessage());
             }
         }
 
