@@ -14,8 +14,10 @@ namespace IanM\TwoFactor\Api\Controller;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use IanM\TwoFactor\Contracts\TotpInterface;
+use IanM\TwoFactor\Event\DeviceChanged;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Services\BackupCodeGenerator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +28,8 @@ class VerifyNewDeviceController implements RequestHandlerInterface
 {
     public function __construct(
         protected TotpInterface $totp,
-        protected BackupCodeGenerator $backupCodeGenerator
+        protected BackupCodeGenerator $backupCodeGenerator,
+        protected Dispatcher $events
     ) {
     }
 
@@ -48,6 +51,9 @@ class VerifyNewDeviceController implements RequestHandlerInterface
 
             // Generate new backup codes
             $backupCodes = $this->backupCodeGenerator->generate($actor);
+
+            // Dispatch device changed event for notification
+            $this->events->dispatch(new DeviceChanged($actor));
 
             return new JsonResponse([
                 'success' => true,

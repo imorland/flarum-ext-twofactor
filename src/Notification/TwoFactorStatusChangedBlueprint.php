@@ -16,18 +16,23 @@ use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\User\User;
+use IanM\TwoFactor\Event\DeviceChanged;
 use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Event\Enabled;
 
 class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInterface, AlertableInterface
 {
-    public function __construct(public Enabled|Disabled $event)
+    public function __construct(public Enabled|Disabled|DeviceChanged $event)
     {
     }
 
     public function getFromUser(): ?\Flarum\User\User
     {
-        return $this->event instanceof Enabled ? $this->event->user : $this->event->actor;
+        if ($this->event instanceof Enabled || $this->event instanceof DeviceChanged) {
+            return $this->event->user;
+        }
+
+        return $this->event->actor;
     }
 
     public function getSubject(): ?\Flarum\Database\AbstractModel
@@ -42,7 +47,11 @@ class TwoFactorStatusChangedBlueprint implements BlueprintInterface, MailableInt
 
     public function type(): string
     {
-        return $this->event instanceof Enabled ? 'enabled' : 'disabled';
+        return match (true) {
+            $this->event instanceof Enabled => 'enabled',
+            $this->event instanceof Disabled => 'disabled',
+            $this->event instanceof DeviceChanged => 'device_changed',
+        };
     }
 
     public static function getSubjectModel(): string
