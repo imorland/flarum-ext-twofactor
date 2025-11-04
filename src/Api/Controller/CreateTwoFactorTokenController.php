@@ -69,7 +69,7 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
             $token = SessionAccessToken::generate($user->id);
         }
 
-        $token->touch($request);
+        $token->touch(null, $request);
 
         return new JsonResponse([
             'token' => $token->token,

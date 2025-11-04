@@ -38,7 +38,7 @@ class GetChangeDeviceQrCodeController implements RequestHandlerInterface
         $userId = Arr::get($routeParams, 'id');
 
         // Ensure the actor is the user or has permission to manage users
-        if ($actor->id != $userId && ! $actor->hasPermission('ianm-twofactor.manageOthers')) {
+        if ($actor->id != $userId && ! $actor->can('ianm-twofactor.manageOthers')) {
             throw new \Flarum\User\Exception\PermissionDeniedException();
         }
 

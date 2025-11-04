@@ -43,7 +43,12 @@ export default function alertTwoFactorAuthentication(app) {
     }
   }
 
-  const alertContainer = $('<div className="App-notices"/>').insertBefore('#content')[0];
+  const alertContainer = document.createElement('div');
+  alertContainer.className = 'App-notices';
+  const contentElement = document.getElementById('content');
+  if (contentElement && contentElement.parentNode) {
+    contentElement.parentNode.insertBefore(alertContainer, contentElement);
+  }
 
   m.mount(alertContainer, {
     view: () => (

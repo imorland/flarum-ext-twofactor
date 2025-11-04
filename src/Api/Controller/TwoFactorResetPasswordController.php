@@ -16,6 +16,7 @@ use Flarum\Forum\Controller\ResetPasswordController;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -23,12 +24,7 @@ class TwoFactorResetPasswordController extends ResetPasswordController
 {
     use TwoFactorAuthenticationTrait;
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\View
-     * @throws \Flarum\User\Exception\InvalidConfirmationTokenException
-     */
-    public function render(Request $request)
+    public function render(Request $request): View
     {
         $token = Arr::get($request->getQueryParams(), 'token');
 

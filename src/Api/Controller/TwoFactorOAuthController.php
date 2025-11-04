@@ -12,6 +12,7 @@
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
+use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -21,7 +22,7 @@ class TwoFactorOAuthController extends AbstractHtmlController
     {
     }
 
-    protected function render(ServerRequestInterface $request)
+    protected function render(ServerRequestInterface $request): Renderable|string
     {
         return $this->view->make('ianm-two-factor::oauth.verify')
             ->with('csrfToken', $request->getAttribute('session')->token());

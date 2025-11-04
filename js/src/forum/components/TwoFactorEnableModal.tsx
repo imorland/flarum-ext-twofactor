@@ -24,10 +24,7 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
   code: string | null = null;
   activeTab: string = 'qrcode';
   loading: boolean = false;
-
-  protected static isDismissibleViaCloseButton: boolean = true;
-  protected static isDismissibleViaEscKey: boolean = true;
-  protected static isDismissibleViaBackdropClick: boolean = true;
+  originalHide!: () => void;
 
   oninit(vnode: Mithril.Vnode<TwoFactorEnableModalAttrs>) {
     super.oninit(vnode);
@@ -36,11 +33,31 @@ export default class TwoFactorEnableModal extends Modal<TwoFactorEnableModalAttr
 
     this.token = Stream('');
 
+    // Save the original hide method
+    this.originalHide = this.hide.bind(this);
+
+    // Override dismissibility based on forced mode for this instance
     if (this.attrs.forced) {
-      TwoFactorEnableModal.isDismissibleViaCloseButton = false;
-      TwoFactorEnableModal.isDismissibleViaEscKey = false;
-      TwoFactorEnableModal.isDismissibleViaBackdropClick = false;
+      // Override hide to prevent dismissal when forced, unless completed
+      this.hide = () => {
+        // Allow hiding only when completed (status === 'final')
+        if (this.status === 'final') {
+          this.originalHide();
+        }
+      };
     }
+  }
+
+  static get isDismissibleViaCloseButton() {
+    return true;
+  }
+
+  static get isDismissibleViaEscKey() {
+    return true;
+  }
+
+  static get isDismissibleViaBackdropClick() {
+    return true;
   }
 
   className() {

@@ -52,10 +52,9 @@ class TwoFactorResource extends Resource\AbstractDatabaseResource
             Schema\DateTime::make('createdAt'),
             Schema\DateTime::make('updatedAt'),
 
-            // Schema\Relationship\ToOne::make('user')
-            //     ->includable()
-            //     // ->inverse('?') // the inverse relationship name if any.
-            //     ->type('users'), // the serialized type of this relation (type of the relation model's API resource).
+            Schema\Relationship\ToOne::make('user')
+                ->includable()
+                ->type('users'),
         ];
     }
 

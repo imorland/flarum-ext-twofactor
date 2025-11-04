@@ -13,8 +13,10 @@ namespace IanM\TwoFactor\Model;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Group\Group;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -30,6 +32,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class TwoFactor extends AbstractModel
 {
+    use ScopeVisibilityTrait;
+
     /**
      * The table associated with the model.
      *
@@ -42,7 +46,7 @@ class TwoFactor extends AbstractModel
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<string>
+     * @var array<int, string>
      */
     protected $fillable = ['user_id', 'secret', 'backup_codes', 'is_active', 'temp_secret', 'temp_secret_created_at'];
 
@@ -59,6 +63,22 @@ class TwoFactor extends AbstractModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope the query to include only records visible to a user.
+     *
+     * @param Builder $query
+     * @param User $actor
+     * @return Builder
+     */
+    public function scopeWhereVisibleTo(Builder $query, User $actor): Builder
+    {
+        if ($actor->can('ianm-twofactor.manageOthers')) {
+            return $query;
+        }
+
+        return $query->where('user_id', $actor->id);
     }
 
     /**

@@ -1,11 +1,11 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/common/components/Modal';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
 import username from 'flarum/common/helpers/username';
 
-export interface TwoFactorDisableConfirmModalAttrs extends ILoginModalAttrs {
+export interface TwoFactorDisableConfirmModalAttrs extends IInternalModalAttrs {
   user: User;
   onDisabled: () => void;
 }
