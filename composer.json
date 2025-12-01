@@ -17,8 +17,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "flarum/core": "^2.0.0-beta",
+        "flarum/core": "^2.0.0",
         "spomky-labs/otphp": "^11.2",
         "endroid/qr-code": "^4.8"
     },
@@ -92,10 +91,11 @@
         "analyse:phpstan": "Run static analysis"
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0-beta",
+        "flarum/testing": "^2.0.0",
         "fof/oauth": "dev-ds/2.0 as 2.0.0-beta",
-        "flarum/phpstan": "^2.0.0-beta",
-        "flarum/gdpr": "^2.0.0-beta",
-        "sycho/flarum-private-facade": "^v0.2.0"
+        "flarum/phpstan": "^2.0.0",
+        "flarum/gdpr": "^2.0.0",
+        "sycho/flarum-private-facade": "^v0.2.0",
+        "flectar/flarum-turnstile": "*"
     }
 }
