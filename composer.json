@@ -97,6 +97,7 @@
         "flarum/phpstan": "^1.8",
         "flarum/gdpr": "dev-main",
         "sycho/flarum-private-facade": "^0.1.16",
-        "blomstra/turnstile": "*"
+        "blomstra/turnstile": "*",
+        "flectar/flarum-turnstile": "*"
     }
 }

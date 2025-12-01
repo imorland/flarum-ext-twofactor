@@ -44,7 +44,7 @@ class TwoFactorLogInController extends LogInController
     {
         $body = $request->getParsedBody();
 
-        if (! $this->extensions->isEnabled('blomstra-turnstile') && empty(Arr::get($body, 'twoFactorToken'))) {
+        if (! $this->isTurnstileEnabled() && empty(Arr::get($body, 'twoFactorToken'))) {
             $this->validator->assertValid($body);
         }
 
@@ -68,5 +68,10 @@ class TwoFactorLogInController extends LogInController
         }
 
         return $response;
+    }
+
+    protected function isTurnstileEnabled(): bool
+    {
+        return $this->extensions->isEnabled('blomstra-turnstile') || $this->extensions->isEnabled('flectar-turnstile');
     }
 }
