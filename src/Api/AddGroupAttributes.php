@@ -21,13 +21,16 @@ class AddGroupAttributes
     {
         return [
             Schema\Boolean::make('requires2FA')
-                ->get(function (Group $group, Context $context): bool {
-                    return $group->tfa_required;
-                })
+                ->property('tfa_required')
                 ->visible(function (Group $group, Context $context): bool {
                     $actor = $context->getActor();
 
                     return $actor->can('ianm-twofactor.seeTwoFactorStatus');
+                })
+                ->writable(function (Group $group, Context $context): bool {
+                    $actor = $context->getActor();
+
+                    return $actor->isAdmin();
                 })
         ];
     }
