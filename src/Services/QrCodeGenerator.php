@@ -128,7 +128,7 @@ class QrCodeGenerator
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }
 
-    public function getAssetUrl($assetPath): string
+    public function getAssetUrl(string $assetPath): string
     {
         return $this->assetsFilesystem->url($assetPath);
     }

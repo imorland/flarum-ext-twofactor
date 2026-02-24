@@ -31,12 +31,12 @@ class TwoFactorOAuthCheck
     {
     }
 
-    public function __invoke(ServerRequestInterface $request, AccessTokenInterface $token, ResourceOwnerInterface $resourceOwner, string $provider)
+    public function __invoke(ServerRequestInterface $request, AccessTokenInterface $token, ResourceOwnerInterface $resourceOwner, string $provider): ?RedirectResponse
     {
         $user = $this->getUserFromProvider($provider, $resourceOwner);
 
         if (! $user) {
-            return;
+            return null;
         }
 
         /** @var Store */
@@ -58,9 +58,11 @@ class TwoFactorOAuthCheck
                 return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
             }
         }
+
+        return null;
     }
 
-    public function handle2FASubmission(Store $session)
+    public function handle2FASubmission(Store $session): ?RedirectResponse
     {
         $token = $this->retrieveTwoFactorTokenFrom($session->get('twoFactorToken'));
         $oauthData = $session->get('oauth_data');
@@ -74,6 +76,8 @@ class TwoFactorOAuthCheck
         }
 
         $session->remove('oauth_data');
+
+        return null;
     }
 
     protected function getUserFromProvider(string $provider, ResourceOwnerInterface $resourceOwner): ?User
