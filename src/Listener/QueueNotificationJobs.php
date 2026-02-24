@@ -30,7 +30,7 @@ class QueueNotificationJobs
         $events->listen([Enabled::class, Disabled::class, DeviceChanged::class], [$this, 'notify']);
     }
 
-    public function notify(Enabled|Disabled|DeviceChanged $event)
+    public function notify(Enabled|Disabled|DeviceChanged $event): void
     {
         $this->queue->push(
             new Job\SendNotifications($event)

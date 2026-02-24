@@ -21,7 +21,7 @@ class BackupCodeGenerator
     {
     }
 
-    public function generate(User $user, $count = 5)
+    public function generate(User $user, int $count = 5): array
     {
         $codes = [];
         for ($i = 0; $i < $count; $i++) {
@@ -33,12 +33,12 @@ class BackupCodeGenerator
         return $codes;
     }
 
-    protected function generateSingleCode()
+    protected function generateSingleCode(): int
     {
         return mt_rand(100000, 999999);  // Generate a 6-digit code.
     }
 
-    protected function saveBackupCodesToDatabase(User $user, array $codes, bool $alreadyHashed = false)
+    protected function saveBackupCodesToDatabase(User $user, array $codes, bool $alreadyHashed = false): void
     {
         if (! $alreadyHashed) {
             // Hash each backup code

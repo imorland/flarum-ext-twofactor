@@ -46,7 +46,7 @@ class TwoFactor extends AbstractModel
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = ['user_id', 'secret', 'backup_codes', 'is_active', 'temp_secret', 'temp_secret_created_at'];
 

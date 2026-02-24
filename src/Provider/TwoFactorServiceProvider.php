@@ -28,7 +28,7 @@ class TwoFactorServiceProvider extends AbstractServiceProvider
         $this->container->bind(TwoFactorRestrictor::class);
     }
 
-    public function boot()
+    public function boot(): void
     {
     }
 }

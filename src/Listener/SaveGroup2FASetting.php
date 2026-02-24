@@ -19,14 +19,14 @@ class SaveGroup2FASetting
 {
     private string $arrayKey = 'attributes.requires2FA';
 
-    public function __invoke(Saving $event)
+    public function __invoke(Saving $event): void
     {
         if (Arr::has($event->data, $this->arrayKey) && ! $this->isGuardedGroup($event)) {
             $event->group->tfa_required = (bool) Arr::get($event->data, $this->arrayKey);
         }
     }
 
-    private function isGuardedGroup($event): bool
+    private function isGuardedGroup(Saving $event): bool
     {
         if (in_array($event->group->id, TwoFactor::guardedGroups())) {
             return true;

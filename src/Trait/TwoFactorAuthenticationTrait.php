@@ -28,7 +28,7 @@ trait TwoFactorAuthenticationTrait
         /** @var TwoFactor|null $twoFactor */
         $twoFactor = $user->twoFactor;
 
-        return $twoFactor?->is_active ?? false;
+        return $twoFactor !== null && $twoFactor->is_active;
     }
 
     protected function retrieveTwoFactorTokenFrom(?string $source): ?string
