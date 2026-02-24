@@ -35,8 +35,15 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
         $twoFactorToken = Arr::get($request->getParsedBody(), 'twoFactorToken');
 
         if (! empty($twoFactorToken)) {
-            /** @var \Psr\Http\Message\UriInterface */
+            /** @var \Psr\Http\Message\UriInterface|null */
             $oauthUri = Arr::get($session->get('oauth_data'), 'requestUri');
+
+            if ($oauthUri === null) {
+                $session->put('errors', new MessageBag(['twoFactorToken' => app('translator')->trans('ianm-twofactor.views.two_factor_token.oauth_session_expired')]));
+
+                return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
+            }
+
             $session->put('fastTrack', true);
             $session->put('twoFactorToken', $twoFactorToken);
 
