@@ -12,82 +12,39 @@
 namespace IanM\TwoFactor\OAuth;
 
 use Flarum\Http\UrlGenerator;
-use Flarum\User\LoginProvider;
-use Flarum\User\User;
-use IanM\TwoFactor\Contracts\TotpInterface;
-use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
-use Illuminate\Session\Store;
-use Illuminate\Support\MessageBag;
-use Laminas\Diactoros\Response\RedirectResponse;
-use League\OAuth2\Client\Provider\ResourceOwnerInterface;
-use League\OAuth2\Client\Token\AccessTokenInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Laminas\Diactoros\Response\RedirectResponse;
 
-class TwoFactorOAuthCheck
+class TwoFactorOAuthCheck implements MiddlewareInterface
 {
-    use TwoFactorAuthenticationTrait;
+    /**
+     * Cache key used to signal that 2FA has been verified for this session,
+     * so the middleware does not intercept the fast-track resume pass.
+     */
+    public const CACHE_KEY_CLEARED = 'twofa_cleared';
 
-    public function __construct(protected TotpInterface $totp, protected UrlGenerator $url)
+    public function __construct(protected UrlGenerator $url)
     {
     }
 
-    public function __invoke(ServerRequestInterface $request, AccessTokenInterface $token, ResourceOwnerInterface $resourceOwner, string $provider): ?RedirectResponse
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $user = $this->getUserFromProvider($provider, $resourceOwner);
+        $response = $handler->handle($request);
 
-        if (! $user) {
-            return null;
-        }
-
-        /** @var Store */
+        /** @var \Illuminate\Session\Store $session */
         $session = $request->getAttribute('session');
 
-        if ($this->twoFactorActive($user)) {
-            if ($session->has('twoFactorToken')) {
-                return $this->handle2FASubmission($session);
-            } else {
-                $session->put('oauth_data', [
-                    'token' => $token,
-                    'resourceOwner' => $resourceOwner,
-                    'provider' => $provider,
-                    'userId' => $user->id,
-                    'requestUri' => $request->getUri(),
-                ]);
+        // TwoFactorOAuthListener sets this after a successful OAuth exchange when the
+        // user has 2FA enabled. The value is the provider name for the fast-track redirect.
+        $providerName = $session->pull(TwoFactorOAuthListener::SESSION_KEY_INTERCEPT);
 
-                // Redirect to a 2FA form
-                return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
-            }
+        if ($providerName === null) {
+            return $response;
         }
 
-        return null;
-    }
-
-    public function handle2FASubmission(Store $session): ?RedirectResponse
-    {
-        $token = $this->retrieveTwoFactorTokenFrom($session->get('twoFactorToken'));
-        $oauthData = $session->get('oauth_data');
-
-        $user = $this->getUserFromProvider($oauthData['provider'], $oauthData['resourceOwner']);
-
-        if (! $this->isTokenActive($token, $user)) {
-            $session->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
-
-            return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
-        }
-
-        $session->remove('oauth_data');
-
-        return null;
-    }
-
-    protected function getUserFromProvider(string $provider, ResourceOwnerInterface $resourceOwner): ?User
-    {
-        $provider = LoginProvider::where('provider', $provider)->where('identifier', $resourceOwner->getId())->first();
-
-        if ($provider) {
-            return $provider->user;
-        }
-
-        return null;
+        return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
     }
 }
