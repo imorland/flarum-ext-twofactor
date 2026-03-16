@@ -17,16 +17,16 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\LoginProvider;
 use Flarum\User\User;
-use FoF\OAuth\Events\OAuthLoginSuccessful;
 use FoF\OAuth\Controllers\AbstractOAuthController;
-use Illuminate\Contracts\Cache\Store as CacheStore;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Session\Store as SessionStore;
+use FoF\OAuth\Events\OAuthLoginSuccessful;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthListener;
 use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeAccessToken;
 use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeResourceOwner;
+use Illuminate\Contracts\Cache\Store as CacheStore;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Session\Store as SessionStore;
 use Laminas\Diactoros\ServerRequest;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessTokenInterface;
@@ -53,22 +53,22 @@ class OAuthTwoFactorTest extends TestCase
             ],
             TwoFactor::class => [
                 [
-                    'id'           => 1,
-                    'user_id'      => 2,
-                    'secret'       => 'OIZ2R42HL2ZNUJNJU72P4EK26CQSD5JLEC7AVH7BCBJKRCUBUPLHXQ4TCAYVFZPDAGH3QDPHWABLMT36QAKTIFPNL5NKTR2BGVIY3GY',
+                    'id' => 1,
+                    'user_id' => 2,
+                    'secret' => 'OIZ2R42HL2ZNUJNJU72P4EK26CQSD5JLEC7AVH7BCBJKRCUBUPLHXQ4TCAYVFZPDAGH3QDPHWABLMT36QAKTIFPNL5NKTR2BGVIY3GY',
                     'backup_codes' => '[]',
-                    'is_active'    => true,
-                    'created_at'   => Carbon::now(),
-                    'updated_at'   => Carbon::now(),
+                    'is_active' => true,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
                 ],
             ],
             LoginProvider::class => [
                 [
-                    'id'            => 1,
-                    'user_id'       => 2,
-                    'provider'      => 'github',
-                    'identifier'    => 'gh-user-123',
-                    'created_at'    => Carbon::now(),
+                    'id' => 1,
+                    'user_id' => 2,
+                    'provider' => 'github',
+                    'identifier' => 'gh-user-123',
+                    'created_at' => Carbon::now(),
                     'last_login_at' => Carbon::now(),
                 ],
             ],
@@ -221,17 +221,17 @@ class OAuthTwoFactorTest extends TestCase
 
         $cache = $this->app()->getContainer()->make(CacheStore::class);
         $cache->put('oauth_data_'.$sessionId, [
-            'token'         => new FakeAccessToken(),
+            'token' => new FakeAccessToken(),
             'resourceOwner' => new FakeResourceOwner('gh-user-123'),
-            'provider'      => 'github',
-            'userId'        => 2,
+            'provider' => 'github',
+            'userId' => 2,
         ], AbstractOAuthController::$OAUTH_DATA_CACHE_LIFETIME);
 
         // Submit an invalid TOTP (all zeros is virtually guaranteed to be wrong)
         $postResponse = $this->send(
             $this->request('POST', '/twofactor/oauth/verify', [
                 'cookiesFrom' => $getResponse,
-                'json'        => ['twoFactorToken' => '000000'],
+                'json' => ['twoFactorToken' => '000000'],
             ])
         );
 
@@ -249,6 +249,7 @@ class OAuthTwoFactorTest extends TestCase
                 return urldecode($matches[1]);
             }
         }
+
         return null;
     }
 }

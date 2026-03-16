@@ -61,10 +61,10 @@ class TwoFactorOAuthListener
         $this->cache->put(
             $this->cacheKey(AbstractOAuthController::SESSION_OAUTH_DATA, $session),
             [
-                'token'         => $event->token,
+                'token' => $event->token,
                 'resourceOwner' => $event->userResource,
-                'provider'      => $event->providerName,
-                'userId'        => $user->id,
+                'provider' => $event->providerName,
+                'userId' => $user->id,
             ],
             AbstractOAuthController::$OAUTH_DATA_CACHE_LIFETIME
         );
