@@ -16,20 +16,57 @@ use League\OAuth2\Client\Token\AccessTokenInterface;
 
 class FakeAccessToken implements AccessTokenInterface
 {
-    public function getToken(): string { return 'fake-token'; }
-    public function getRefreshToken(): ?string { return null; }
-    public function getExpires(): ?int { return null; }
-    public function hasExpired(): bool { return false; }
-    public function getValues(): array { return []; }
-    public function __toString(): string { return 'fake-token'; }
-    public function jsonSerialize(): mixed { return ['access_token' => 'fake-token']; }
+    public function getToken(): string
+    {
+        return 'fake-token';
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return null;
+    }
+
+    public function getExpires(): ?int
+    {
+        return null;
+    }
+
+    public function hasExpired(): bool
+    {
+        return false;
+    }
+
+    public function getValues(): array
+    {
+        return [];
+    }
+
+    public function __toString(): string
+    {
+        return 'fake-token';
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return ['access_token' => 'fake-token'];
+    }
 }
 
 class FakeResourceOwner implements ResourceOwnerInterface
 {
-    public function __construct(private string $id = 'fake-id') {}
-    public function getId(): string { return $this->id; }
-    public function toArray(): array { return ['id' => $this->id]; }
+    public function __construct(private string $id = 'fake-id')
+    {
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function toArray(): array
+    {
+        return ['id' => $this->id];
+    }
 }
 
 namespace IanM\TwoFactor\Tests\Integration\OAuth;
@@ -45,12 +82,12 @@ use FoF\OAuth\Events\OAuthLoginSuccessful;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthListener;
+use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeAccessToken;
+use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeResourceOwner;
 use Illuminate\Contracts\Cache\Store as CacheStore;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Session\Store as SessionStore;
 use Laminas\Diactoros\ServerRequest;
-use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeAccessToken;
-use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeResourceOwner;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use PHPUnit\Framework\Attributes\Test;
