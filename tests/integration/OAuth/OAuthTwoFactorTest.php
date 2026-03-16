@@ -9,6 +9,29 @@
  * file that was distributed with this source code.
  */
 
+namespace IanM\TwoFactor\Tests\Integration\OAuth\Stubs;
+
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+
+class FakeAccessToken implements AccessTokenInterface
+{
+    public function getToken(): string { return 'fake-token'; }
+    public function getRefreshToken(): ?string { return null; }
+    public function getExpires(): ?int { return null; }
+    public function hasExpired(): bool { return false; }
+    public function getValues(): array { return []; }
+    public function __toString(): string { return 'fake-token'; }
+    public function jsonSerialize(): mixed { return ['access_token' => 'fake-token']; }
+}
+
+class FakeResourceOwner implements ResourceOwnerInterface
+{
+    public function __construct(private string $id = 'fake-id') {}
+    public function getId(): string { return $this->id; }
+    public function toArray(): array { return ['id' => $this->id]; }
+}
+
 namespace IanM\TwoFactor\Tests\Integration\OAuth;
 
 use Carbon\Carbon;
@@ -22,12 +45,12 @@ use FoF\OAuth\Events\OAuthLoginSuccessful;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthListener;
-use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeAccessToken;
-use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeResourceOwner;
 use Illuminate\Contracts\Cache\Store as CacheStore;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Session\Store as SessionStore;
 use Laminas\Diactoros\ServerRequest;
+use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeAccessToken;
+use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeResourceOwner;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -196,7 +219,6 @@ class OAuthTwoFactorTest extends TestCase
     #[Test]
     public function verify_controller_redirects_back_when_oauth_session_has_expired(): void
     {
-        // POST with a token but no oauth_data in cache → session expired error
         $response = $this->send(
             $this->request('POST', '/twofactor/oauth/verify', [
                 'json' => ['twoFactorToken' => '123456'],
@@ -210,12 +232,9 @@ class OAuthTwoFactorTest extends TestCase
     #[Test]
     public function verify_controller_redirects_back_on_invalid_totp(): void
     {
-        // Prime cache with oauth_data for user 2 using the same session as the POST request.
-        // We use cookiesFrom to carry the session across requests.
         $getResponse = $this->send($this->request('GET', '/twofactor/oauth/verify'));
         $this->assertEquals(200, $getResponse->getStatusCode());
 
-        // Parse the session cookie to get the session ID, then write oauth_data to cache.
         $sessionId = $this->extractSessionId($getResponse);
         $this->assertNotNull($sessionId, 'Could not extract session ID from GET response.');
 
@@ -227,7 +246,6 @@ class OAuthTwoFactorTest extends TestCase
             'userId' => 2,
         ], AbstractOAuthController::$OAUTH_DATA_CACHE_LIFETIME);
 
-        // Submit an invalid TOTP (all zeros is virtually guaranteed to be wrong)
         $postResponse = $this->send(
             $this->request('POST', '/twofactor/oauth/verify', [
                 'cookiesFrom' => $getResponse,
@@ -239,9 +257,6 @@ class OAuthTwoFactorTest extends TestCase
         $this->assertStringContainsString('twofactor/oauth/verify', $postResponse->getHeaderLine('Location'));
     }
 
-    /**
-     * Extract the flarum_session cookie value (session ID) from a response's Set-Cookie header.
-     */
     private function extractSessionId(\Psr\Http\Message\ResponseInterface $response): ?string
     {
         foreach ($response->getHeader('Set-Cookie') as $cookie) {
