@@ -22,6 +22,7 @@ use Flarum\Group\Group;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
+use IanM\TwoFactor\OAuth\TwoFactorOAuthListener;
 
 return [
     (new Extend\Frontend('forum'))
@@ -98,8 +99,11 @@ return [
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('fof-oauth', fn () => [
-            (new \FoF\Extend\Extend\OAuthController())
-                ->afterOAuthSuccess(TwoFactorOAuthCheck::class),
+            (new Extend\Middleware('forum'))
+                ->add(TwoFactorOAuthCheck::class),
+
+            (new Extend\Event())
+                ->listen(\FoF\OAuth\Events\OAuthLoginSuccessful::class, TwoFactorOAuthListener::class),
 
             (new Extend\Routes('forum'))
                 ->get('/twofactor/oauth/verify', 'twoFactor.oauth', Api\Controller\TwoFactorOAuthController::class)
