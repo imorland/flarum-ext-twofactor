@@ -27,7 +27,7 @@ class TwoFactor implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend(
             DisabledProviderRegistry::class,
