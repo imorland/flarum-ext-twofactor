@@ -65,6 +65,39 @@ TODO
 
 ##### Admin user list status icon
 ![userlist](https://github.com/imorland/flarum-ext-twofactor/assets/16573496/9c1a58c9-919b-4552-ad1f-f022a5240f17)
+
+## Extensibility
+
+### Disabling 2FA for specific OAuth providers
+
+If you are building an extension that integrates with `fof/oauth` and want certain providers to bypass the 2FA challenge entirely, use the `TwoFactor` extender in your extension's `extend.php`. Wrap it in a `Conditional` so it only activates when `ianm/twofactor` is enabled:
+
+```php
+use Flarum\Extend\Conditional;
+use IanM\TwoFactor\Extend\TwoFactor;
+
+return [
+    // ...
+    (new Conditional())
+        ->whenExtensionEnabled('ianm-twofactor', fn () => [
+            (new TwoFactor())->disable('my-oauth-provider'),
+        ]),
+];
+```
+
+The provider name must match the string identifier used when registering the provider with `fof/oauth` (e.g. `'github'`, `'google'`, `'discord'`). Multiple providers can be chained:
+
+```php
+(new Conditional())
+    ->whenExtensionEnabled('ianm-twofactor', fn () => [
+        (new TwoFactor())
+            ->disable('github')
+            ->disable('google'),
+    ]),
+```
+
+> **Note:** This only bypasses the OAuth 2FA interception. Users who log in directly (username + password) are unaffected and will still be required to complete 2FA if it is enabled on their account.
+
 ## Links
 
 - [Packagist](https://packagist.org/packages/ianm/twofactor)

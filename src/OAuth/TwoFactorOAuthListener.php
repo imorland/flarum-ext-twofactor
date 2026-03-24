@@ -16,6 +16,7 @@ use Flarum\User\User;
 use FoF\OAuth\Controllers\AbstractOAuthController;
 use FoF\OAuth\Events\OAuthLoginSuccessful;
 use IanM\TwoFactor\Contracts\TotpInterface;
+use IanM\TwoFactor\OAuth\DisabledProviderRegistry;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Cache\Store as CacheStore;
 
@@ -30,7 +31,8 @@ class TwoFactorOAuthListener
 
     public function __construct(
         protected TotpInterface $totp,
-        protected CacheStore $cache
+        protected CacheStore $cache,
+        protected DisabledProviderRegistry $disabledProviders,
     ) {
     }
 
@@ -53,7 +55,7 @@ class TwoFactorOAuthListener
 
         $user = $this->getUserFromProvider($event->providerName, $event->identifier);
 
-        if (! $user || ! $this->twoFactorActive($user)) {
+        if (! $user || $this->disabledProviders->isDisabled($event->providerName) || ! $this->twoFactorActive($user)) {
             return;
         }
 
