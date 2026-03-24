@@ -27,8 +27,11 @@ class TwoFactorOAuthCheck
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(protected TotpInterface $totp, protected UrlGenerator $url)
-    {
+    public function __construct(
+        protected TotpInterface $totp,
+        protected UrlGenerator $url,
+        protected DisabledProviderRegistry $disabledProviders,
+    ) {
     }
 
     public function __invoke(ServerRequestInterface $request, AccessTokenInterface $token, ResourceOwnerInterface $resourceOwner, string $provider)
@@ -36,6 +39,10 @@ class TwoFactorOAuthCheck
         $user = $this->getUserFromProvider($provider, $resourceOwner);
 
         if (! $user) {
+            return;
+        }
+
+        if ($this->disabledProviders->isDisabled($provider)) {
             return;
         }
 
