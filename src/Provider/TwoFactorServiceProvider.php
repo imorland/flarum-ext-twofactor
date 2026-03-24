@@ -13,6 +13,7 @@ namespace IanM\TwoFactor\Provider;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use IanM\TwoFactor\Contracts\TotpInterface;
+use IanM\TwoFactor\OAuth\DisabledProviderRegistry;
 use IanM\TwoFactor\Services\BackupCodeGenerator;
 use IanM\TwoFactor\Services\OtpWrapper;
 use IanM\TwoFactor\Services\QrCodeGenerator;
@@ -26,6 +27,7 @@ class TwoFactorServiceProvider extends AbstractServiceProvider
         $this->container->bind(QrCodeGenerator::class);
         $this->container->bind(BackupCodeGenerator::class);
         $this->container->bind(TwoFactorRestrictor::class);
+        $this->container->singleton(DisabledProviderRegistry::class);
     }
 
     public function boot()
