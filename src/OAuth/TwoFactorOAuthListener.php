@@ -30,7 +30,8 @@ class TwoFactorOAuthListener
 
     public function __construct(
         protected TotpInterface $totp,
-        protected CacheStore $cache
+        protected CacheStore $cache,
+        protected DisabledProviderRegistry $disabledProviders,
     ) {
     }
 
@@ -53,7 +54,7 @@ class TwoFactorOAuthListener
 
         $user = $this->getUserFromProvider($event->providerName, $event->identifier);
 
-        if (! $user || ! $this->twoFactorActive($user)) {
+        if (! $user || $this->disabledProviders->isDisabled($event->providerName) || ! $this->twoFactorActive($user)) {
             return;
         }
 
