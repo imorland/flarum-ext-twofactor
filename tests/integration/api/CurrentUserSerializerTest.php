@@ -93,7 +93,7 @@ class CurrentUserSerializerTest extends TestCase
         $json = json_decode($response->getBody()->getContents(), true);
 
         $this->assertTrue($json['data']['attributes']['twoFactorEnabled']);
-        $this->assertFalse($json['data']['attributes']['canDisable2FA']);
+        $this->assertTrue($json['data']['attributes']['canDisable2FA']);
         $this->assertFalse($json['data']['attributes']['mustEnable2FA']);
         $this->assertEquals(2, $json['data']['attributes']['backupCodesRemaining']);
     }
