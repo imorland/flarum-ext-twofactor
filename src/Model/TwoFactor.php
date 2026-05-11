@@ -99,7 +99,7 @@ class TwoFactor extends AbstractModel
      */
     public static function guardedGroups(): array
     {
-        return [Group::ADMINISTRATOR_ID, Group::GUEST_ID];
+        return [Group::GUEST_ID];
     }
 
     /**
