@@ -3,7 +3,6 @@ ianm-twofactor:
     edit_group:
       2fa_label: 2FA required
       2fa_help: Require members of this group to enable Two-Factor Authentication (2FA) for their account.
-      admin_2fa_help: "{adminName} members must always have 2FA enabled."
     permissions:
       see_two_factor_status_label: View 2FA status of other users
       manage_others_label: Manage 2FA for other users

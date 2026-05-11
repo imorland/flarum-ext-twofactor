@@ -10,7 +10,6 @@ This extension requires a minimum of PHP 8.1, due to a 3rd party library constra
 
 ## Features
 
-- Enforces `admin` accounts to have 2FA enabled for increased security
 - Configure which additional user groups should also be enforced
 - Supports all common authentication apps
 - Protects `login`, `forgot password` endpoints
