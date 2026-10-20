@@ -92,7 +92,7 @@
         "analyse:phpstan": "Run static analysis"
     },
     "require-dev": {
-        "flarum/core": "2.x-dev",
+        "flarum/core": "^2.0.0",
         "flarum/testing": "^2.0.0",
         "fof/oauth": "^2.0.0",
         "flarum/phpstan": "^2.0.0",
