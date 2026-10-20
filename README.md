@@ -19,6 +19,7 @@ This extension requires a minimum of PHP 8.1, due to a 3rd party library constra
 - 2FA Status page
 - Backup/recovery codes
 - Option to revoke dormant access tokens after X days of no usage
+- Records 2FA activity in the audit log when `flarum/audit` is enabled
 
 ## Permissions
 
@@ -51,6 +52,15 @@ php flarum twofactor:kill-inactive-tokens
 ![cli](https://private-user-images.githubusercontent.com/16573496/339968512-ef914d1e-cc65-4621-9484-4b8eeb7642f9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTg0NDE1ODQsIm5iZiI6MTcxODQ0MTI4NCwicGF0aCI6Ii8xNjU3MzQ5Ni8zMzk5Njg1MTItZWY5MTRkMWUtY2M2NS00NjIxLTk0ODQtNGI4ZWViNzY0MmY5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA2MTUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNjE1VDA4NDgwNFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTYyMjA5NmMzMzg1ZjJhMzdjMDRmNGI1ZGQyNDVjM2U4NjRlYjIxZWE3NDQ2ODI5NDkyNzk0ZjE4YjE4NWI0ZTMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.Bb8Wgml7ohvCF7m89EXhRhNBS7zo95tDx777g5gj8vg)
 
 TODO
+
+### Audit log
+When [`flarum/audit`](https://docs.flarum.org/extensions/audit) is enabled, these actions are recorded:
+
+- `user.two_factor_enabled`: a user enabled 2FA
+- `user.two_factor_disabled`: 2FA was disabled, by the user or by someone allowed to manage 2FA for others
+- `user.two_factor_device_changed`: a user moved 2FA to a new device
+- `user.two_factor_backup_code_used`: a backup code was used (payload includes how many remain)
+- `group.two_factor_required` / `group.two_factor_not_required`: an admin changed whether a group requires 2FA
 
 ## Screenshots
 ##### QR Code setup

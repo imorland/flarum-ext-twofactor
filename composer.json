@@ -44,7 +44,8 @@
             },
             "optional-dependencies": [
                 "flectar/flarum-turnstile",
-                "fof/oauth"
+                "fof/oauth",
+                "flarum/audit"
             ]
         },
         "flarum-cli": {
@@ -97,6 +98,7 @@
         "fof/oauth": "^2.0.0",
         "flarum/phpstan": "^2.0.0",
         "flarum/gdpr": "^2.0.0",
+        "flarum/audit": "^2.0.2",
         "sycho/flarum-private-facade": "^v0.2.0",
         "flectar/flarum-turnstile": "*"
     }

@@ -15,6 +15,7 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Resource\GroupResource;
 use Flarum\Api\Resource\UserResource;
+use Flarum\Audit\Extend\Audit;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Group\Event\Saving as GroupSaving;
@@ -121,6 +122,30 @@ return [
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new Audit())
+                ->listen(Event\Enabled::class, 'user.two_factor_enabled', fn (Event\Enabled $event) => [
+                    'user_id' => $event->user->id,
+                ])
+                ->listen(Event\Disabled::class, 'user.two_factor_disabled', fn (Event\Disabled $event) => [
+                    'user_id' => $event->user->id,
+                ])
+                ->listen(Event\DeviceChanged::class, 'user.two_factor_device_changed', fn (Event\DeviceChanged $event) => [
+                    'user_id' => $event->user->id,
+                ])
+                ->listen(Event\BackupCodeUsed::class, 'user.two_factor_backup_code_used', fn (Event\BackupCodeUsed $event) => [
+                    'user_id' => $event->user->id,
+                    'remaining' => $event->remaining,
+                ])
+                ->listen(Event\GroupRequirementChanged::class, 'group.two_factor_required', fn (Event\GroupRequirementChanged $event) => $event->required ? [
+                    'group_id' => $event->group->id,
+                    'name' => $event->group->name_singular,
+                ] : null)
+                ->listen(Event\GroupRequirementChanged::class, 'group.two_factor_not_required', fn (Event\GroupRequirementChanged $event) => $event->required ? null : [
+                    'group_id' => $event->group->id,
+                    'name' => $event->group->name_singular,
+                ]),
         ]),
 
     new Extend\ApiResource(Api\Resource\TwoFactorResource::class),

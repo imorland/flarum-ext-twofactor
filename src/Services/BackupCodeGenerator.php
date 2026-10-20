@@ -12,12 +12,14 @@
 namespace IanM\TwoFactor\Services;
 
 use Flarum\User\User;
+use IanM\TwoFactor\Event\BackupCodeUsed;
 use IanM\TwoFactor\Model\TwoFactor;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Hashing\Hasher;
 
 class BackupCodeGenerator
 {
-    public function __construct(protected Hasher $hash)
+    public function __construct(protected Hasher $hash, protected Dispatcher $events)
     {
     }
 
@@ -65,6 +67,8 @@ class BackupCodeGenerator
 
                 // Update the backup codes in the database.
                 $this->saveBackupCodesToDatabase($user, $hashedBackupCodes, true);
+
+                $this->events->dispatch(new BackupCodeUsed($user, count($hashedBackupCodes)));
 
                 return true;
             }
