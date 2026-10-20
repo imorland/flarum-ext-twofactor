@@ -98,6 +98,7 @@ return [
 
     (new Extend\Console())
         ->command(Console\KillInactiveTokensCommand::class)
+        ->command(Console\DisableTwoFactorCommand::class)
         ->schedule(Console\KillInactiveTokensCommand::class, Console\InactiveTokensSchedule::class),
 
     (new Extend\Conditional())

@@ -15,7 +15,10 @@ use Flarum\User\User;
 
 class Disabled
 {
-    public function __construct(public User $user, public User $actor)
+    /**
+     * @param User|null $actor Null when 2FA was disabled from the console.
+     */
+    public function __construct(public User $user, public ?User $actor)
     {
     }
 }
