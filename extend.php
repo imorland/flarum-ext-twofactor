@@ -56,6 +56,8 @@ return [
     (new Extend\Routes('forum'))
         ->remove('login')
         ->post('/login', 'login', Api\Controller\TwoFactorLogInController::class)
+        ->remove('maintenance.login')
+        ->get('/maintenance/login', 'maintenance.login', Api\Controller\TwoFactorLogInViewController::class)
         ->remove('savePassword')
         ->post('/reset', 'savePassword', Api\Controller\TwoFactorSavePasswordController::class)
         ->remove('resetPassword')

@@ -90,6 +90,10 @@ ianm-twofactor:
       disabled: disabled
       device_changed: device changed
   views:
+    log_in:
+      two_factor_token_placeholder: 2FA token (if enabled on your account)
+      two_factor_required_message: Two-factor authentication is enabled on this account. Enter the token from your authenticator app, or a backup code.
+      two_factor_incorrect_message: The 2FA token is incorrect. Please try again.
     reset_password:
       two_factor_token_label: 2FA Token
     two_factor_token:
