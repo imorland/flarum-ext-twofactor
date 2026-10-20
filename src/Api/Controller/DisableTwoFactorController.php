@@ -45,16 +45,10 @@ class DisableTwoFactorController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertRegistered();
 
-        // Check if the actor can disable 2FA
-        if (! $this->restrictor->canDisable2FA($actor)) {
-            // Return a response indicating that this user cannot disable 2FA
-            throw new PermissionDeniedException('You are not allowed to disable 2FA.');
-        }
+        $user = User::findOrFail(Arr::get($request->getQueryParams(), 'id'));
 
-        $user = User::find(Arr::get($request->getQueryParams(), 'id'));
-
-        if ($user->id !== $actor->id && $actor->cannot('ianm-twofactor.manageOthers')) {
-            throw new PermissionDeniedException('You cannot manage 2FA for another user.');
+        if (! $this->restrictor->canDisable2FAFor($actor, $user)) {
+            throw new PermissionDeniedException('You are not allowed to disable 2FA for this user.');
         }
 
         if (! $this->twoFactorActive($user)) {
