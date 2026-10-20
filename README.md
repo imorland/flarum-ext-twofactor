@@ -53,6 +53,15 @@ php flarum twofactor:kill-inactive-tokens
 
 TODO
 
+#### Recovering a locked-out account
+If a user, for example an admin, loses both their authentication device and their backup codes, disable 2FA for them from the CLI. Pass a username, email address or user ID:
+```bash
+php flarum twofactor:disable <user>
+```
+Add `--force` to skip the confirmation prompt. The user is notified, and if one of their groups requires 2FA they will be asked to set it up again.
+
+Users with the "Manage 2FA for other users" permission can also disable 2FA for another user from that user's security page, including users whose groups require 2FA.
+
 ### Audit log
 When [`flarum/audit`](https://docs.flarum.org/extensions/audit) is enabled, these actions are recorded:
 

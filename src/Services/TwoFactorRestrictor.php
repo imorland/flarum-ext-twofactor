@@ -31,6 +31,22 @@ class TwoFactorRestrictor
     }
 
     /**
+     * Determines if the actor can disable 2FA for the given user.
+     *
+     * A group's 2FA requirement only restricts users disabling their own 2FA.
+     * Anyone allowed to manage 2FA for others may disable it for any user, so
+     * that a locked-out account can be recovered.
+     */
+    public function canDisable2FAFor(User $actor, User $user): bool
+    {
+        if ($actor->id === $user->id) {
+            return $this->canDisable2FA($user);
+        }
+
+        return $actor->can('ianm-twofactor.manageOthers');
+    }
+
+    /**
      * Determines if the given user has a restricted group that cannot disable 2FA.
      *
      * @param User $user

@@ -43,10 +43,10 @@ class AddUserAttributes
                     return $context->getActor()->can('ianm-twofactor.seeTwoFactorStatus') || $user->id === $context->getActor()->id;
                 }),
 
-            // Check if the user can disable 2FA. We don't use a permission for this, so that we can restrict admin users too.
+            // Whether the actor can disable this user's 2FA. A group's 2FA requirement only stops users disabling their own.
             Schema\Boolean::make('canDisable2FA')
-                ->get(function (User $user): bool {
-                    return $this->restrictor->canDisable2FA($user);
+                ->get(function (User $user, Context $context): bool {
+                    return $this->restrictor->canDisable2FAFor($context->getActor(), $user);
                 })
                 ->visible(function (User $user, Context $context): bool {
                     return $user->id === $context->getActor()->id || $context->getActor()->can('ianm-twofactor.manageOthers');
