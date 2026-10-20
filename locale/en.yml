@@ -75,6 +75,7 @@ ianm-twofactor:
     log_in:
       two_factor_placeholder: "2FA Token, e.g., 123456"
       two_factor_required_message: "A valid 2FA token is required to continue."
+      two_factor_incorrect_message: "The 2FA token is incorrect. Please try again."
   email:
     subject:
       status_changed: Two-Factor Authentication {type} for your account

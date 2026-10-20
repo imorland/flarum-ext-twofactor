@@ -30,8 +30,10 @@ export default function extendLogInModal() {
             oninput={(e) => {
               this.twoFactorToken(e.currentTarget.value);
 
-              if (e.target.value.length === 6) {
-                this.onsubmit(new Event('submit')); // Trigger the onsubmit method
+              // Submit automatically once a full token is entered, unless a captcha
+              // still has to be completed (its token is sent with the login params).
+              if (e.target.value.length === 6 && !captchaPending(this.loginParams())) {
+                this.onsubmit(new Event('submit'));
               }
             }}
           />
@@ -69,22 +71,32 @@ export default function extendLogInModal() {
   });
 
   override('flarum/forum/components/LogInModal', 'onerror', function (original, error) {
-    if (error.status === 422) {
-      const errors = error.response && error.response.errors;
-      const firstErrorDetail = (errors && errors[0] && errors[0].detail) || '';
+    const detail = error.status === 422 ? error.response?.errors?.[0]?.detail : null;
 
-      if (firstErrorDetail.includes('two_factor_required')) {
-        // If the error indicates that 2FA is required, show the 2FA input field
-        this.twoFactorRequired = true;
-      } else {
-        // Handle other types of 422 errors here
-        error.alert.content = app.translator.trans('core.forum.log_in.invalid_login_message');
-        this.alertAttrs = error.alert;
+    if (detail === 'two_factor_required') {
+      // Not an error to show: ask for the token instead. Render the field now so
+      // the original handler can focus it.
+      this.twoFactorRequired = true;
+      error.alert = null;
+      m.redraw.sync();
+    } else if (detail === 'two_factor_incorrect') {
+      this.twoFactorToken('');
+
+      if (error.alert) {
+        error.alert.content = app.translator.trans('ianm-twofactor.forum.log_in.two_factor_incorrect_message');
       }
-      m.redraw();
-      this.onready();
-    } else {
-      original(error);
     }
+
+    // Always hand on to the original handler, so core's messages are shown and
+    // other extensions' hooks still run (a captcha resets its widget there).
+    original(error);
   });
+}
+
+/**
+ * Whether the login params include a captcha response (e.g. `turnstileToken`)
+ * that has not been completed yet.
+ */
+function captchaPending(params) {
+  return Object.keys(params).some((key) => /captcha|turnstile/i.test(key) && !params[key]);
 }
