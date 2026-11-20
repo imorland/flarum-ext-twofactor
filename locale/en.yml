@@ -120,3 +120,9 @@ flarum-audit:
       group:
         two_factor_required: Required two-factor authentication for group {name}
         two_factor_not_required: Stopped requiring two-factor authentication for group {name}
+
+core:
+  email:
+    notification:
+      types:
+        '2faStatusChanged': Changes to your two-factor authentication
