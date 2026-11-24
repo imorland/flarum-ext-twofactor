@@ -20,6 +20,7 @@ use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Services\CodeVerificationThrottler;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Tests\integration\GeneratesTwoFactorCodes;
 use Illuminate\Contracts\Cache\Repository;
 use Laminas\Diactoros\ServerRequest;
@@ -296,10 +297,13 @@ class CodeVerificationThrottleTest extends TestCase
 
     protected function sendApiCode(string $path, string $code, int $userId, string $ip = '127.0.0.1'): ResponseInterface
     {
-        $request = $this->requestWithJsonBody(
-            new ServerRequest(['REMOTE_ADDR' => $ip], [], $path, 'POST'),
-            ['token' => $code, 'reVerify' => true]
-        );
+        $body = ['token' => $code, 'reVerify' => true];
+
+        if (str_contains($path, 'change-device')) {
+            $body['changeToken'] = $this->app()->getContainer()->make(DeviceChangeGrant::class)->issue(User::find($userId));
+        }
+
+        $request = $this->requestWithJsonBody(new ServerRequest(['REMOTE_ADDR' => $ip], [], $path, 'POST'), $body);
 
         return $this->send($this->requestAsUser($request, $userId));
     }

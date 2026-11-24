@@ -17,6 +17,7 @@ use Flarum\Post\Exception\FloodingException;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Services\CodeVerificationThrottler;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -28,7 +29,7 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(protected TotpInterface $totp, protected CodeVerificationThrottler $throttler)
+    public function __construct(protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected DeviceChangeGrant $grant)
     {
     }
 
@@ -53,7 +54,8 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
             $this->throttler->succeeded($actor, $request);
 
             return new JsonResponse([
-                'success' => true
+                'success' => true,
+                'changeToken' => $this->grant->issue($actor),
             ]);
         } else {
             throw new ValidationException(['token' => 'The token is invalid.']);

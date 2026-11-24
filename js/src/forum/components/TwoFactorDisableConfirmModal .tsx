@@ -4,6 +4,7 @@ import Button from 'flarum/common/components/Button';
 import User from 'flarum/common/models/User';
 import type Mithril from 'mithril';
 import username from 'flarum/common/helpers/username';
+import Stream from 'flarum/common/utils/Stream';
 
 export interface TwoFactorDisableConfirmModalAttrs extends IInternalModalAttrs {
   user: User;
@@ -15,6 +16,13 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
     super.oninit(vnode);
 
     this.loading = false;
+    this.token = Stream('');
+  }
+
+  token!: Stream<string>;
+
+  isSelf(): boolean {
+    return app.session.user?.id() === this.attrs.user.id();
   }
 
   className() {
@@ -26,7 +34,7 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
   }
 
   content() {
-    const isSelf = app.session.user?.id() === this.attrs.user.id();
+    const isSelf = this.isSelf();
     const thisUser = this.attrs.user;
     return (
       <div className="Modal-body">
@@ -36,6 +44,20 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
             { username: username(thisUser) }
           )}
         </p>
+        {isSelf && (
+          <div className="Form-group">
+            <input
+              className="FormControl"
+              name="token"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_current_token')}
+              bidi={this.token}
+              disabled={this.loading}
+            />
+          </div>
+        )}
         <div className="Form-group">
           <Button className="Button Button--danger" onclick={this.disable.bind(this)} loading={this.loading}>
             {app.translator.trans('ianm-twofactor.forum.security.disable_2fa_button')}
@@ -56,14 +78,17 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
       .request({
         method: 'DELETE',
         url: app.forum.attribute('apiUrl') + `/users/${userId}/twofactor/disable`,
+        body: this.isSelf() ? { token: this.token() } : undefined,
       })
       .then(() => {
         this.loading = false;
         this.attrs.onDisabled();
         this.hide();
       })
-      .catch((error) => {
-        // Handle any errors.
+      .catch(() => {
+        this.loading = false;
+        this.token('');
+        m.redraw();
       });
   }
 }

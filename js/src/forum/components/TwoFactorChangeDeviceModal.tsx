@@ -22,6 +22,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
   currentToken: Stream<string>;
   newToken: Stream<string>;
   code: string | null = null;
+  changeToken: string | null = null;
   activeTab: string = 'qrcode';
   loading: boolean = false;
 
@@ -214,7 +215,8 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
           token: this.currentToken(),
         },
       })
-      .then(() => {
+      .then((response: any) => {
+        this.changeToken = response.changeToken;
         this.status = 'loadingQR';
         m.redraw();
         this.loadQrCode();
@@ -231,6 +233,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
       .request({
         method: 'GET',
         url: app.forum.attribute('apiUrl') + `/users/${userId}/twofactor/change-device/qrcode`,
+        params: { changeToken: this.changeToken },
       })
       .then((response: any) => {
         this.qrCodeUrl = response.svg;
@@ -259,6 +262,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         url: app.forum.attribute('apiUrl') + '/users/twofactor/change-device/verify',
         body: {
           token: this.newToken(),
+          changeToken: this.changeToken,
         },
       })
       .then((response: any) => {

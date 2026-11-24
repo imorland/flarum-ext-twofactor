@@ -20,6 +20,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use OTPHP\TOTP;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -90,7 +91,10 @@ class AuditTest extends TestCase
     public function disabling_own_2fa_is_logged()
     {
         $response = $this->send(
-            $this->request('DELETE', '/api/users/2/twofactor/disable', ['authenticatedAs' => 2])
+            $this->request('DELETE', '/api/users/2/twofactor/disable', [
+                'authenticatedAs' => 2,
+                'json' => ['token' => TOTP::createFromSecret(self::SECRET)->now()],
+            ])
         );
 
         $this->assertEquals(204, $response->getStatusCode());
@@ -114,7 +118,10 @@ class AuditTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/users/twofactor/change-device/verify', [
                 'authenticatedAs' => 2,
-                'json' => ['token' => TOTP::create(self::NEW_SECRET)->now()],
+                'json' => [
+                    'token' => TOTP::create(self::NEW_SECRET)->now(),
+                    'changeToken' => $this->app()->getContainer()->make(DeviceChangeGrant::class)->issue(User::find(2)),
+                ],
             ])
         );
 

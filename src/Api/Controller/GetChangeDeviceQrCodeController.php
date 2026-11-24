@@ -16,6 +16,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Services\QrCodeGenerator;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -27,7 +28,8 @@ class GetChangeDeviceQrCodeController implements RequestHandlerInterface
 {
     public function __construct(
         protected TotpInterface $totp,
-        protected QrCodeGenerator $qrCodeGenerator
+        protected QrCodeGenerator $qrCodeGenerator,
+        protected DeviceChangeGrant $grant
     ) {
     }
 
@@ -43,6 +45,10 @@ class GetChangeDeviceQrCodeController implements RequestHandlerInterface
         }
 
         $user = User::findOrFail($userId);
+
+        if ($actor->id == $user->id && ! $this->grant->check($user, Arr::get($request->getQueryParams(), 'changeToken'))) {
+            throw new \Flarum\User\Exception\PermissionDeniedException();
+        }
         $twoFactor = TwoFactor::getForUser($user);
 
         if (! $twoFactor->secret) {
