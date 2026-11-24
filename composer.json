@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0",
+        "flarum/core": "2.x-dev",
         "spomky-labs/otphp": "^11.2",
         "endroid/qr-code": "^4.8"
     },
@@ -34,6 +34,9 @@
         }
     },
     "extra": {
+        "branch-alias": {
+            "dev-2.x": "2.x-dev"
+        },
         "flarum-extension": {
             "title": "2FA",
             "category": "feature",
@@ -45,7 +48,8 @@
             "optional-dependencies": [
                 "flectar/flarum-turnstile",
                 "fof/oauth",
-                "flarum/audit"
+                "flarum/audit",
+                "flarum/oauth-provider"
             ]
         },
         "flarum-cli": {
@@ -80,7 +84,9 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:unit:filter": "phpunit -c tests/phpunit.unit.xml --filter",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:integration:filter": "phpunit -c tests/phpunit.integration.xml --filter",
         "test:setup": "@php tests/integration/setup.php",
         "analyse:phpstan": "phpstan analyse",
         "clear-cache:phpstan": "phpstan clear-result-cache"
@@ -88,18 +94,21 @@
     "scripts-descriptions": {
         "test": "Runs all tests.",
         "test:unit": "Runs all unit tests.",
+        "test:unit:filter": "Runs unit tests whose name matches: composer test:unit:filter -- ClassName",
         "test:integration": "Runs all integration tests.",
+        "test:integration:filter": "Runs integration tests whose name matches: composer test:integration:filter -- ClassName",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once.",
         "analyse:phpstan": "Run static analysis"
     },
     "require-dev": {
-        "flarum/core": "^2.0.0",
-        "flarum/testing": "^2.0.0",
+        "flarum/core": "2.x-dev",
+        "flarum/testing": "^2.1.0-beta.1",
         "fof/oauth": "^2.0.0",
-        "flarum/phpstan": "^2.0.0",
-        "flarum/gdpr": "^2.0.0",
-        "flarum/audit": "^2.0.2",
+        "flarum/phpstan": "^2.1.0-beta.1",
+        "flarum/gdpr": "^2.1.0-beta.1",
+        "flarum/audit": "^2.1.0-beta.1",
         "sycho/flarum-private-facade": "^v0.2.0",
-        "flectar/flarum-turnstile": "*"
+        "flectar/flarum-turnstile": "*",
+        "flarum/oauth-provider": "^2.1.0-beta.1"
     }
 }
