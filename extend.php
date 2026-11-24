@@ -18,6 +18,7 @@ use Flarum\Api\Resource\UserResource;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
+use Flarum\Mcp\Extend\Mcp;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
 use Flarum\User\User;
@@ -123,6 +124,10 @@ return [
         ->whenExtensionEnabled('flarum-oauth-provider', fn () => [
             (new Extend\Policy())
                 ->globalPolicy(Access\OAuthProviderPolicy::class),
+        ])
+        ->whenExtensionEnabled('flarum-mcp', fn () => [
+            (new Mcp())
+                ->hide('two-factor'),
         ])
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())

@@ -49,7 +49,8 @@
                 "flectar/flarum-turnstile",
                 "fof/oauth",
                 "flarum/audit",
-                "flarum/oauth-provider"
+                "flarum/oauth-provider",
+                "flarum/mcp"
             ]
         },
         "flarum-cli": {
@@ -109,6 +110,7 @@
         "flarum/audit": "^2.1.0-beta.1",
         "sycho/flarum-private-facade": "^v0.2.0",
         "flectar/flarum-turnstile": "*",
-        "flarum/oauth-provider": "^2.1.0-beta.1"
+        "flarum/oauth-provider": "^2.1.0-beta.1",
+        "flarum/mcp": "^2.1.0-beta.1"
     }
 }
