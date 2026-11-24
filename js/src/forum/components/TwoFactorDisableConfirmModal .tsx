@@ -44,28 +44,35 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
             { username: username(thisUser) }
           )}
         </p>
-        {isSelf && (
+        <form
+          onsubmit={(e: SubmitEvent) => {
+            e.preventDefault();
+            this.disable();
+          }}
+        >
+          {isSelf && (
+            <div className="Form-group">
+              <input
+                className="FormControl"
+                name="token"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_current_token')}
+                bidi={this.token}
+                disabled={this.loading}
+              />
+            </div>
+          )}
           <div className="Form-group">
-            <input
-              className="FormControl"
-              name="token"
-              type="text"
-              inputmode="numeric"
-              autocomplete="one-time-code"
-              placeholder={app.translator.trans('ianm-twofactor.forum.security.enter_current_token')}
-              bidi={this.token}
-              disabled={this.loading}
-            />
+            <Button type="submit" className="Button Button--danger" loading={this.loading}>
+              {app.translator.trans('ianm-twofactor.forum.security.disable_2fa_button')}
+            </Button>
+            <Button type="button" className="Button Button--cancel" onclick={this.hide.bind(this)}>
+              {app.translator.trans('ianm-twofactor.forum.security.cancel_button')}
+            </Button>
           </div>
-        )}
-        <div className="Form-group">
-          <Button className="Button Button--danger" onclick={this.disable.bind(this)} loading={this.loading}>
-            {app.translator.trans('ianm-twofactor.forum.security.disable_2fa_button')}
-          </Button>
-          <Button className="Button Button--cancel" onclick={this.hide.bind(this)}>
-            {app.translator.trans('ianm-twofactor.forum.security.cancel_button')}
-          </Button>
-        </div>
+        </form>
       </div>
     );
   }

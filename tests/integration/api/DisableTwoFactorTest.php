@@ -17,12 +17,15 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Tests\integration\GeneratesTwoFactorCodes;
+use Illuminate\Contracts\Cache\Repository;
 use OTPHP\TOTP;
 use PHPUnit\Framework\Attributes\Test;
 
 class DisableTwoFactorTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use GeneratesTwoFactorCodes;
 
     private const SECRET = 'OIZ2R42HL2ZNUJNJU72P4EK26CQSD5JLEC7AVH7BCBJKRCUBUPLHXQ4TCAYVFZPDAGH3QDPHWABLMT36QAKTIFPNL5NKTR2BGVIY3GY';
 
@@ -50,6 +53,13 @@ class DisableTwoFactorTest extends TestCase
         ]);
     }
 
+    protected function tearDown(): void
+    {
+        $this->app()->getContainer()->make(Repository::class)->clear();
+
+        parent::tearDown();
+    }
+
     #[Test]
     public function user_can_disable_their_own_2fa_with_a_current_code()
     {
@@ -63,7 +73,18 @@ class DisableTwoFactorTest extends TestCase
     public function user_cannot_disable_their_own_2fa_without_a_current_code()
     {
         $this->assertEquals(422, $this->disable(2, 2)->getStatusCode());
-        $this->assertEquals(422, $this->disable(2, 2, '000000' === TOTP::createFromSecret(self::SECRET)->now() ? '111111' : '000000')->getStatusCode());
+        $this->assertEquals(422, $this->disable(2, 2, $this->wrongCode(self::SECRET))->getStatusCode());
+        $this->assertTrue($this->twoFactorActive(2));
+    }
+
+    #[Test]
+    public function wrong_codes_are_limited()
+    {
+        foreach (range(1, 5) as $attempt) {
+            $this->assertEquals(422, $this->disable(2, 2, $this->wrongCode(self::SECRET))->getStatusCode(), "Attempt $attempt");
+        }
+
+        $this->assertEquals(429, $this->disable(2, 2, TOTP::createFromSecret(self::SECRET)->now())->getStatusCode());
         $this->assertTrue($this->twoFactorActive(2));
     }
 

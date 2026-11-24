@@ -11,6 +11,7 @@
 
 namespace IanM\TwoFactor\Tests\integration\mcp;
 
+use Flarum\Mcp\Capability\CapabilityRegistry;
 use Flarum\Mcp\Testing\McpTestCase;
 use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
@@ -37,5 +38,6 @@ class McpTest extends McpTestCase
 
         $this->assertContains('users', $types);
         $this->assertNotContains('two-factor', $types);
+        $this->assertTrue($this->app()->getContainer()->make(CapabilityRegistry::class)->isHidden('two-factor'));
     }
 }
