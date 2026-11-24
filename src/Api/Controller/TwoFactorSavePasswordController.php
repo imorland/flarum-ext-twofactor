@@ -43,7 +43,7 @@ class TwoFactorSavePasswordController extends SavePasswordController
     {
         $input = $request->getParsedBody();
 
-        $token = PasswordToken::findOrFail(Arr::get($input, 'passwordToken'));
+        $token = PasswordToken::validOrFail((string) Arr::get($input, 'passwordToken'));
 
         $password = Arr::get($input, 'password');
 
@@ -66,16 +66,17 @@ class TwoFactorSavePasswordController extends SavePasswordController
 
         $twoFactorToken = $this->retrieveTwoFactorTokenFrom(Arr::get($input, 'twoFactorToken'));
 
-        // Check if the user has 2FA enabled
-        if ($this->twoFactorActive($token->user)) {
-            if ($this->throttler->tooManyAttempts($token->user, $request)) {
+        $user = $token->user;
+
+        if ($this->twoFactorActive($user)) {
+            if ($this->throttler->tooManyAttempts($user, $request)) {
                 $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => $this->translator->trans('ianm-twofactor.views.two_factor_token.too_many_attempts_message')]));
 
                 return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));
             }
 
-            if (! $this->isTokenActive($twoFactorToken, $token->user)) {
-                $this->throttler->recordFailure($token->user, $request);
+            if (! $this->isTokenActive($twoFactorToken, $user)) {
+                $this->throttler->recordFailure($user, $request);
 
                 $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
 

@@ -17,12 +17,9 @@ use Illuminate\Cache\RateLimiter;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Limits incorrect second-factor codes checked outside the login route.
- *
- * Failures are counted per user, from any address, and per address, with the
- * limits of core's LoginThrottler. Counting per user is safe here, unlike for
- * logins: only someone who already holds that user's session, reset link or
- * first OAuth factor can submit a code for them.
+ * Counting per user, from any address, is safe here, unlike core's login
+ * throttle: only someone who already holds the user's password, session, reset
+ * link or first OAuth factor can submit a code for them.
  */
 class CodeVerificationThrottler
 {

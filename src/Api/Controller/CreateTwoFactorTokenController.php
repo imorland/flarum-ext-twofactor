@@ -12,12 +12,14 @@
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
+use Flarum\Post\Exception\FloodingException;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\UserRepository;
 use IanM\TwoFactor\Contracts\TotpInterface;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
@@ -36,7 +38,8 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
         protected UserRepository $users,
         protected BusDispatcher $bus,
         protected EventDispatcher $events,
-        protected LoginThrottler $throttler
+        protected LoginThrottler $throttler,
+        protected CodeVerificationThrottler $codeThrottler
     ) {
     }
 
@@ -62,12 +65,20 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
                 throw new ValidationException(['twoFactorToken' => 'two_factor_required']);
             }
 
+            // Core's login throttle has no per-account limit, since anyone can fail a
+            // password; only someone holding this password can get to the code.
+            if ($this->codeThrottler->tooManyAttempts($user, $request)) {
+                throw new FloodingException();
+            }
+
             if (! $this->isTokenActive($token, $user)) {
                 // Core's RecordFailedLogins counts only NotAuthenticatedException,
                 // which would lose the reason the login modal needs to show.
                 if (! $request->getAttribute('bypassThrottling')) {
                     $this->throttler->recordFailure($request);
                 }
+
+                $this->codeThrottler->recordFailure($user, $request);
 
                 throw new ValidationException(['twoFactorToken' => 'two_factor_incorrect']);
             }

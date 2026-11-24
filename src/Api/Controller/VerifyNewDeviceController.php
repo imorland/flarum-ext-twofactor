@@ -39,6 +39,8 @@ class VerifyNewDeviceController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
+        $actor->assertRegistered();
+
         $token = Arr::get($request->getParsedBody(), 'token', '');
 
         $twoFactor = TwoFactor::getForUser($actor);
@@ -67,7 +69,9 @@ class VerifyNewDeviceController implements RequestHandlerInterface
                 'backupCodes' => $backupCodes
             ]);
         } else {
-            $this->throttler->recordFailure($actor, $request);
+            if ((string) $token !== '') {
+                $this->throttler->recordFailure($actor, $request);
+            }
 
             throw new ValidationException(['token' => 'The token is invalid.']);
         }

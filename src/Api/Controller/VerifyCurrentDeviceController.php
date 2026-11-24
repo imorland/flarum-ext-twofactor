@@ -35,6 +35,8 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
+        $actor->assertRegistered();
+
         $token = Arr::get($request->getParsedBody(), 'token', '');
 
         $twoFactor = TwoFactor::getForUser($actor);
@@ -52,7 +54,9 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
                 'success' => true
             ]);
         } else {
-            $this->throttler->recordFailure($actor, $request);
+            if ((string) $token !== '') {
+                $this->throttler->recordFailure($actor, $request);
+            }
 
             throw new ValidationException(['token' => 'The token is invalid.']);
         }

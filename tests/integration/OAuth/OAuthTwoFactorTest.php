@@ -315,7 +315,7 @@ class OAuthTwoFactorTest extends TestCase
     #[Test]
     public function verify_controller_limits_wrong_codes(): void
     {
-        [$getResponse, $sessionId] = $this->startOAuthVerification();
+        [$getResponse] = $this->startOAuthVerification();
 
         foreach (range(1, 5) as $attempt) {
             $response = $this->sendOAuthCode($getResponse, $this->wrongCode());

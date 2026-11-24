@@ -22,9 +22,6 @@ use IanM\TwoFactor\Tests\integration\GeneratesTwoFactorCodes;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * A group's 2FA requirement, for applications connected through flarum/oauth-provider.
- */
 class OAuthProviderTest extends TestCase
 {
     use RetrievesAuthorizedUsers;

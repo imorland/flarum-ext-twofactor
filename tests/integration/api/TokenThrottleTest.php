@@ -129,9 +129,21 @@ class TokenThrottleTest extends TestCase
     }
 
     #[Test]
-    public function the_same_account_can_log_in_from_another_address()
+    public function wrong_codes_are_limited_for_the_account_from_every_address()
     {
-        $this->failCodes(5);
+        foreach (['192.0.2.1', '192.0.2.2', '192.0.2.3', '192.0.2.4', '192.0.2.5'] as $ip) {
+            $this->assertEquals(422, $this->logIn($this->wrongCode(), ip: $ip)->getStatusCode());
+        }
+
+        $this->assertEquals(429, $this->logIn($this->correctCode(), ip: '192.0.2.6')->getStatusCode());
+    }
+
+    #[Test]
+    public function wrong_passwords_from_another_address_do_not_limit_the_account()
+    {
+        foreach (range(1, 5) as $attempt) {
+            $this->assertEquals(401, $this->send($this->logInRequest(['password' => 'incorrect'], ip: '192.0.2.1'))->getStatusCode());
+        }
 
         $this->assertEquals(200, $this->logIn($this->correctCode(), ip: '192.0.2.2')->getStatusCode());
     }

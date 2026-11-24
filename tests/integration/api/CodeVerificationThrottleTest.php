@@ -26,9 +26,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Second-factor codes checked outside the login (token) route.
- */
 class CodeVerificationThrottleTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
@@ -41,7 +38,11 @@ class CodeVerificationThrottleTest extends TestCase
         parent::setUp();
 
         $this->extend(
-            (new Extend\Csrf())->exemptRoute('savePassword')
+            (new Extend\Csrf())
+                ->exemptRoute('savePassword')
+                ->exemptRoute('user.twofactor.verify')
+                ->exemptRoute('user.twofactor.verify-current')
+                ->exemptRoute('user.twofactor.change-device.verify')
         );
 
         $this->extension('ianm-twofactor');
@@ -141,7 +142,6 @@ class CodeVerificationThrottleTest extends TestCase
             $this->failApiCodes($path, false, 5, $userId);
         }
 
-        // 30 failures from one address: an untouched user is refused there, but not elsewhere.
         $this->assertEquals(429, $this->sendApiCode($path, $this->correctCode(), 8)->getStatusCode());
         $this->assertEquals(200, $this->sendApiCode($path, $this->correctCode(), 8, '192.0.2.2')->getStatusCode());
     }
@@ -212,6 +212,49 @@ class CodeVerificationThrottleTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('<html class="guest-user"', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function an_empty_code_is_not_counted()
+    {
+        foreach (range(1, 8) as $attempt) {
+            $this->assertEquals(422, $this->sendApiCode('/api/users/twofactor/verify-current', '', 2)->getStatusCode());
+        }
+
+        $this->assertEquals(200, $this->sendApiCode('/api/users/twofactor/verify-current', $this->correctCode(), 2)->getStatusCode());
+    }
+
+    #[Test]
+    #[DataProvider('apiEndpoints')]
+    public function guests_are_refused(string $path, bool $newDevice)
+    {
+        $response = $this->send($this->request('POST', $path, ['json' => ['token' => '000000']]));
+
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function an_expired_password_reset_link_is_refused()
+    {
+        $this->prepareDatabase([
+            PasswordToken::class => [
+                ['token' => 'oldtoken', 'user_id' => 3, 'created_at' => Carbon::now()->subDays(2)],
+            ],
+        ]);
+
+        $response = $this->send(
+            (new ServerRequest(['REMOTE_ADDR' => '127.0.0.1'], [], '/reset', 'POST'))
+                ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
+                ->withParsedBody([
+                    'passwordToken' => 'oldtoken',
+                    'password' => 'new-password-123',
+                    'password_confirmation' => 'new-password-123',
+                    'twoFactorToken' => $this->correctCode(),
+                ])
+        );
+
+        $this->assertNotEquals(302, $response->getStatusCode());
+        $this->assertTrue(User::find(3)->checkPassword('too-obscure'));
     }
 
     protected function failApiCodes(string $path, bool $newDevice, int $times, int $userId, string $ip = '127.0.0.1'): void
