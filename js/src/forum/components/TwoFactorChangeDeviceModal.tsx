@@ -234,6 +234,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         method: 'POST',
         url: app.forum.attribute('apiUrl') + `/users/${userId}/twofactor/change-device/qrcode`,
         body: { changeToken: this.changeToken },
+        errorHandler: this.grantErrorHandler,
       })
       .then((response: any) => {
         this.qrCodeUrl = response.svg;
@@ -242,10 +243,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         this.loading = false;
         m.redraw();
       })
-      .catch(() => {
-        this.loading = false;
-        m.redraw();
-      });
+      .catch(() => this.restart());
   }
 
   onVerifyNewDeviceSubmit(e: Event) {
@@ -264,6 +262,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
           token: this.newToken(),
           changeToken: this.changeToken,
         },
+        errorHandler: this.grantErrorHandler,
       })
       .then((response: any) => {
         const { backupCodes } = response as { backupCodes: string[] };
@@ -273,18 +272,32 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         m.redraw();
       })
       .catch((error) => {
-        this.loading = false;
-
-        // The verification of the current device has expired: start over.
         if (error?.status === 403) {
-          this.changeToken = null;
-          this.currentToken('');
-          this.newToken('');
-          this.status = 'verifyCurrentDevice';
+          this.restart();
+        } else {
+          this.loading = false;
+          m.redraw();
         }
-
-        m.redraw();
       });
+  }
+
+  /**
+   * The server no longer accepts the code given from the current device, for
+   * however long or whatever reason, so it has to be given again.
+   */
+  grantErrorHandler = (error: any): false | void => {
+    if (error?.status !== 403) return false;
+
+    app.alerts.show({ type: 'warning' }, app.translator.trans('ianm-twofactor.forum.security.current_token_required'));
+  };
+
+  restart() {
+    this.loading = false;
+    this.changeToken = null;
+    this.currentToken('');
+    this.newToken('');
+    this.status = 'verifyCurrentDevice';
+    m.redraw();
   }
 
   finish() {

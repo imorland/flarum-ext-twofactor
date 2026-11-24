@@ -18,7 +18,8 @@ use Illuminate\Support\Str;
 /**
  * Proof that a user gave a code from their current device, which setting up a
  * new device requires. It goes to the client that gave the code, not to every
- * session of the user, and expires ten minutes after the code was given.
+ * session of the user, expires ten minutes after the code was given, and is
+ * only good while that device is still the one enrolled.
  */
 class DeviceChangeGrant
 {
@@ -33,7 +34,7 @@ class DeviceChangeGrant
     {
         $token = Str::random(40);
 
-        $this->cache->put($this->key($user), hash('sha256', $token), self::TTL_SECONDS);
+        $this->cache->put($this->key($user), $this->hash($user, $token), self::TTL_SECONDS);
 
         return $token;
     }
@@ -42,12 +43,17 @@ class DeviceChangeGrant
     {
         $hash = $this->cache->get($this->key($user));
 
-        return is_string($token) && $token !== '' && is_string($hash) && hash_equals($hash, hash('sha256', $token));
+        return is_string($token) && $token !== '' && is_string($hash) && hash_equals($hash, $this->hash($user, $token));
     }
 
     public function revoke(User $user): void
     {
         $this->cache->forget($this->key($user));
+    }
+
+    protected function hash(User $user, string $token): string
+    {
+        return hash_hmac('sha256', $token, (string) $user->twoFactor?->secret);
     }
 
     protected function key(User $user): string

@@ -125,6 +125,19 @@ class DeviceChangeTest extends TestCase
     }
 
     #[Test]
+    public function a_verification_is_only_good_for_the_device_it_came_from()
+    {
+        $changeToken = $this->verifyCurrent($this->correctCode());
+
+        // As twofactor:disable does, then enrolling again.
+        $this->app();
+        TwoFactor::query()->where('user_id', 2)->delete();
+        TwoFactor::query()->insert($this->twoFactorRow(2, 50, 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'));
+
+        $this->assertEquals(403, $this->qrCode($changeToken)->getStatusCode());
+    }
+
+    #[Test]
     public function a_wrong_current_code_gives_no_verification()
     {
         $response = $this->send($this->request('POST', '/api/users/twofactor/verify-current', [
