@@ -96,6 +96,26 @@ class TwoFactorUserFilterTest extends TestCase
     }
 
     #[Test]
+    public function the_user_list_shows_2fa_status_to_those_who_may_see_it()
+    {
+        $users = $this->users(5);
+
+        $this->assertTrue($users['3']['attributes']['twoFactorEnabled']);
+        $this->assertArrayHasKey('backupCodesRemaining', $users['3']['attributes']);
+        $this->assertFalse($users['4']['attributes']['twoFactorEnabled']);
+        $this->assertFalse($users['8']['attributes']['twoFactorEnabled']);
+    }
+
+    #[Test]
+    public function the_2fa_record_is_only_included_for_those_who_may_see_2fa_status()
+    {
+        $this->assertNotNull($this->twoFactorLinkage(3, 3));
+        $this->assertNotNull($this->twoFactorLinkage(5, 3));
+        $this->assertNotNull($this->twoFactorLinkage(1, 3));
+        $this->assertNull($this->twoFactorLinkage(2, 3));
+    }
+
+    #[Test]
     public function the_forum_says_who_may_use_the_filter()
     {
         $this->assertTrue($this->forumAttribute(5, 'canSeeTwoFactorStatus'));
@@ -115,6 +135,26 @@ class TwoFactorUserFilterTest extends TestCase
         sort($ids);
 
         return $ids;
+    }
+
+    protected function twoFactorLinkage(int $actorId, int $userId): ?array
+    {
+        $response = $this->send(
+            $this->request('GET', "/api/users/$userId", ['authenticatedAs' => $actorId])
+        );
+
+        return json_decode((string) $response->getBody(), true)['data']['relationships']['twoFactor']['data'] ?? null;
+    }
+
+    protected function users(int $actorId): array
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/users', ['authenticatedAs' => $actorId])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        return array_column(json_decode((string) $response->getBody(), true)['data'], null, 'id');
     }
 
     protected function forumAttribute(int $actorId, string $name): mixed

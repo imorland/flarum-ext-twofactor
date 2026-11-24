@@ -33,15 +33,18 @@ class AddUserAttributes
         return [
             Schema\Relationship\ToOne::make('twoFactor')
                 ->type('two-factor')
-                ->includable(),
+                ->includable()
+                // The status attributes below read the relation, so it is loaded in full.
+                ->withoutRelatedScope()
+                ->get(function (User $user, Context $context) {
+                    return $this->canSeeStatus($user, $context) || $context->getActor()->can('ianm-twofactor.manageOthers') ? $user->twoFactor : null;
+                }),
 
             Schema\Boolean::make('twoFactorEnabled')
                 ->get(function (User $user): bool {
                     return $this->twoFactorActive($user);
                 })
-                ->visible(function (User $user, Context $context): bool {
-                    return $context->getActor()->can('ianm-twofactor.seeTwoFactorStatus') || $user->id === $context->getActor()->id;
-                }),
+                ->visible(fn (User $user, Context $context): bool => $this->canSeeStatus($user, $context)),
 
             // Whether the actor can disable this user's 2FA. A group's 2FA requirement only stops users disabling their own.
             Schema\Boolean::make('canDisable2FA')
@@ -64,9 +67,14 @@ class AddUserAttributes
                 ->get(function (User $user): int {
                     return $this->backupCodeGenerator->getRemainingBackupCodes($user);
                 })
-                ->visible(function (User $user, Context $context): bool {
-                    return $context->getActor()->can('ianm-twofactor.seeTwoFactorStatus') || $user->id === $context->getActor()->id;
-                }),
+                ->visible(fn (User $user, Context $context): bool => $this->canSeeStatus($user, $context)),
         ];
+    }
+
+    protected function canSeeStatus(User $user, Context $context): bool
+    {
+        $actor = $context->getActor();
+
+        return $user->id === $actor->id || $actor->can('ianm-twofactor.seeTwoFactorStatus');
     }
 }
