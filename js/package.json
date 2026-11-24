@@ -5,7 +5,7 @@
   "type": "module",
   "devDependencies": {
     "flarum-webpack-config": "^3.1.1",
-    "webpack": "^5.65.0",
+    "webpack": "^5.104.1",
     "webpack-cli": "^5.0",
     "prettier": "^3.0.3",
     "@flarum/prettier-config": "^1.0.0",
