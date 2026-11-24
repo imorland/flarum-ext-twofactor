@@ -22,6 +22,7 @@ use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Tests\integration\GeneratesTwoFactorCodes;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Contracts\Cache\Repository;
 use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -74,6 +75,7 @@ class CodeVerificationThrottleTest extends TestCase
         $this->app()->getContainer()->make(Repository::class)->clear();
 
         LoginThrottler::$decaySeconds = 60;
+        Carbon::setTestNow();
 
         parent::tearDown();
     }
@@ -158,7 +160,7 @@ class CodeVerificationThrottleTest extends TestCase
         $this->failApiCodes($path, false, 5, 2);
         $this->assertEquals(429, $this->sendApiCode($path, $this->correctCode(), 2)->getStatusCode());
 
-        sleep(4);
+        Carbon::setTestNow(Carbon::now()->addSeconds(4));
 
         $this->assertEquals(200, $this->sendApiCode($path, $this->correctCode(), 2)->getStatusCode());
     }
@@ -216,12 +218,8 @@ class CodeVerificationThrottleTest extends TestCase
         $this->assertStringContainsString('<html class="guest-user"', (string) $response->getBody());
     }
 
-    /**
-     * Requests that are still checking their codes hold their places, so a burst
-     * of simultaneous guesses can't all get past the limit.
-     */
     #[Test]
-    public function attempts_in_progress_count_towards_the_limit()
+    public function attempts_are_counted_before_the_code_is_checked()
     {
         $throttler = $this->app()->getContainer()->make(CodeVerificationThrottler::class);
         $user = User::find(2);
@@ -236,6 +234,45 @@ class CodeVerificationThrottleTest extends TestCase
         $throttler->succeeded($user, $request);
 
         $this->assertTrue($throttler->attempt($user, $request));
+    }
+
+    #[Test]
+    public function an_attempt_is_refused_while_another_holds_the_lock()
+    {
+        $container = $this->app()->getContainer();
+        $throttler = $container->make(CodeVerificationThrottler::class);
+        $lock = $container->make(Repository::class)->getStore()->lock('twofactor-code-attempts:2:lock', 10);
+        $this->assertTrue($lock->get());
+
+        try {
+            $this->assertFalse($throttler->attempt(User::find(2), (new ServerRequest())->withAttribute('ipAddress', '127.0.0.1')));
+        } finally {
+            $lock->release();
+        }
+    }
+
+    #[Test]
+    public function a_success_only_refunds_the_window_that_counted_it()
+    {
+        $limiter = $this->app()->getContainer()->make(RateLimiter::class);
+        $throttler = $this->app()->getContainer()->make(CodeVerificationThrottler::class);
+        $user = User::find(2);
+        $request = (new ServerRequest())->withAttribute('ipAddress', '127.0.0.1');
+        $keys = ['twofactor-code-attempts:2', 'twofactor-code-attempts-ip:'.sha1('127.0.0.1')];
+
+        $this->assertTrue($throttler->attempt($user, $request));
+
+        // The window ends while the code is checked, and another attempt starts the next.
+        Carbon::setTestNow(Carbon::now()->addSeconds(LoginThrottler::$ipDecaySeconds + 1));
+        foreach ($keys as $key) {
+            $limiter->clear($key);
+        }
+        $limiter->hit($keys[0], LoginThrottler::$decaySeconds);
+
+        $throttler->succeeded($user, $request);
+
+        $this->assertSame(1, (int) $limiter->attempts($keys[0]));
+        $this->assertSame(0, (int) $limiter->attempts($keys[1]));
     }
 
     #[Test]

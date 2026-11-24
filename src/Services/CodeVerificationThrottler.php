@@ -26,6 +26,13 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class CodeVerificationThrottler
 {
+    /**
+     * When each window that counted this request's attempt ends.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $counted = [];
+
     public function __construct(
         protected RateLimiter $limiter,
         protected Repository $cache
@@ -50,10 +57,13 @@ class CodeVerificationThrottler
                 $ipAttempts = $this->limiter->hit($ipKey, LoginThrottler::$ipDecaySeconds);
 
                 if ($userAttempts > LoginThrottler::$maxAttempts || $ipAttempts > LoginThrottler::$maxAttemptsPerIp) {
-                    $this->forget($userKey, $ipKey);
+                    $this->limiter->decrement($userKey, LoginThrottler::$decaySeconds);
+                    $this->limiter->decrement($ipKey, LoginThrottler::$ipDecaySeconds);
 
                     return false;
                 }
+
+                $this->counted = [$userKey => $this->windowEnd($userKey), $ipKey => $this->windowEnd($ipKey)];
 
                 return true;
             });
@@ -71,16 +81,28 @@ class CodeVerificationThrottler
         [$userKey, $ipKey] = $this->keys($user, $request);
 
         try {
-            $this->locked([$userKey, $ipKey], fn () => $this->forget($userKey, $ipKey));
+            $this->locked([$userKey, $ipKey], function () use ($userKey, $ipKey) {
+                $this->refund($userKey, LoginThrottler::$decaySeconds);
+                $this->refund($ipKey, LoginThrottler::$ipDecaySeconds);
+            });
         } catch (LockTimeoutException) {
             // Leaving the attempt counted only errs on the safe side.
         }
     }
 
-    protected function forget(string $userKey, string $ipKey): void
+    protected function refund(string $key, int $decaySeconds): void
     {
-        $this->limiter->decrement($userKey, LoginThrottler::$decaySeconds);
-        $this->limiter->decrement($ipKey, LoginThrottler::$ipDecaySeconds);
+        // A window that has ended since took the attempt with it.
+        if (isset($this->counted[$key]) && $this->windowEnd($key) === $this->counted[$key]) {
+            $this->limiter->decrement($key, $decaySeconds);
+        }
+
+        unset($this->counted[$key]);
+    }
+
+    protected function windowEnd(string $key): mixed
+    {
+        return $this->cache->get("$key:timer");
     }
 
     /**
