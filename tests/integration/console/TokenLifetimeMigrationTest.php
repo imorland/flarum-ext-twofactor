@@ -69,6 +69,6 @@ class TokenLifetimeMigrationTest extends TestCase
 
         $this->assertSame($after, $value('session.tokens.session_remember'));
         $this->assertSame($developer, $value('ianm-twofactor.also_kill_developer_tokens'));
-        $this->assertNull($value('ianm-twofactor.kill_inactive_tokens'));
+        $this->assertSame($old['kill_inactive_tokens'] ?? null, $value('ianm-twofactor.kill_inactive_tokens'));
     }
 }

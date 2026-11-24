@@ -17,6 +17,7 @@ use Flarum\Testing\integration\ConsoleTestCase;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\User\User;
 use Illuminate\Console\Scheduling\Schedule;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
 class KillInactiveTokensCommandTest extends ConsoleTestCase
@@ -63,6 +64,23 @@ class KillInactiveTokensCommandTest extends ConsoleTestCase
         $this->runCommand(['command' => 'twofactor:kill-inactive-tokens']);
 
         $this->assertCount(6, $this->tokens());
+    }
+
+    #[Test]
+    #[DataProvider('unusableAges')]
+    public function it_deletes_nothing_without_a_usable_age(string $age)
+    {
+        $this->setting('ianm-twofactor.also_kill_developer_tokens', '1');
+        $this->setting('ianm-twofactor.kill_inactive_tokens_age_days', $age);
+
+        $this->runCommand(['command' => 'twofactor:kill-inactive-tokens']);
+
+        $this->assertCount(6, $this->tokens());
+    }
+
+    public static function unusableAges(): array
+    {
+        return ['empty' => [''], 'zero' => ['0'], 'negative' => ['-5'], 'not a number' => ['abc']];
     }
 
     #[Test]

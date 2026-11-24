@@ -43,7 +43,7 @@ return [
             $set('ianm-twofactor.also_kill_developer_tokens', '0');
         }
 
-        $db->table('settings')->where('key', 'ianm-twofactor.kill_inactive_tokens')->delete();
+        // ianm-twofactor.kill_inactive_tokens is left in place for earlier releases, should the extension be downgraded.
     },
 
     'down' => function (Builder $schema) {

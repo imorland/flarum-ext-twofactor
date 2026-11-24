@@ -41,6 +41,12 @@ class KillInactiveTokensCommand extends Command
 
         $age = (int) $this->settings->get('ianm-twofactor.kill_inactive_tokens_age_days');
 
+        if ($age < 1) {
+            $this->error('Set how many days a developer token may go unused before it is deleted.');
+
+            return;
+        }
+
         $cutoff = Carbon::now()->subDays($age);
 
         $count = DeveloperAccessToken::query()
