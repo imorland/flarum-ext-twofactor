@@ -79,9 +79,9 @@ class BackupCodeGenerator
 
     public function getRemainingBackupCodes(User $user): int
     {
-        $twoFactor = $user->twoFactor ?? TwoFactor::getForUser($user);
+        $twoFactor = $user->twoFactor;
 
-        if ($twoFactor->backup_codes === null) {
+        if ($twoFactor === null || $twoFactor->backup_codes === null) {
             return 0;
         }
 

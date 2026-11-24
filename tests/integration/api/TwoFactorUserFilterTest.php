@@ -36,10 +36,16 @@ class TwoFactorUserFilterTest extends TestCase
                 ['id' => 3, 'username' => 'enrolled', 'email' => 'enrolled@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'pending', 'email' => 'pending@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 5, 'username' => 'watcher', 'email' => 'watcher@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 6, 'username' => 'enrolled2', 'email' => 'enrolled2@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 7, 'username' => 'enrolled3', 'email' => 'enrolled3@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 8, 'username' => 'plain1', 'email' => 'plain1@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 9, 'username' => 'plain2', 'email' => 'plain2@machine.local', 'is_email_confirmed' => 1],
             ],
             TwoFactor::class => [
                 $this->twoFactorRow(3),
                 ['is_active' => false] + $this->twoFactorRow(4),
+                $this->twoFactorRow(6),
+                $this->twoFactorRow(7),
             ],
             'group_user' => [
                 ['user_id' => 5, 'group_id' => 5],
@@ -58,26 +64,35 @@ class TwoFactorUserFilterTest extends TestCase
     #[Test]
     public function users_with_2fa_enabled_can_be_listed()
     {
-        $this->assertEquals(['3'], $this->userIds(1, ['twofactor' => '']));
+        $this->assertEquals(['3', '6', '7'], $this->userIds(1, ['twofactor' => '']));
     }
 
     #[Test]
     public function users_without_2fa_enabled_can_be_listed()
     {
-        $this->assertEquals(['1', '2', '4', '5'], $this->userIds(1, ['-twofactor' => '']));
+        $this->assertEquals(['1', '2', '4', '5', '8', '9'], $this->userIds(1, ['-twofactor' => '']));
     }
 
     #[Test]
     public function the_filter_works_for_anyone_who_may_see_2fa_status()
     {
-        $this->assertEquals(['3'], $this->userIds(5, ['twofactor' => '']));
+        $this->assertEquals(['3', '6', '7'], $this->userIds(5, ['twofactor' => '']));
     }
 
     #[Test]
     public function the_filter_is_ignored_for_users_who_may_not_see_2fa_status()
     {
-        $this->assertEquals(['1', '2', '3', '4', '5'], $this->userIds(2, ['twofactor' => '']));
-        $this->assertEquals(['1', '2', '3', '4', '5'], $this->userIds(2, ['-twofactor' => '']));
+        $all = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        $this->assertEquals($all, $this->userIds(2, ['twofactor' => '']));
+        $this->assertEquals($all, $this->userIds(2, ['-twofactor' => '']));
+    }
+
+    #[Test]
+    public function listing_users_does_not_create_2fa_records()
+    {
+        $this->userIds(1, []);
+
+        $this->assertEquals(4, TwoFactor::query()->count());
     }
 
     #[Test]
