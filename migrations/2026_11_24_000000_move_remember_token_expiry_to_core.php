@@ -12,10 +12,8 @@
 use Illuminate\Database\Schema\Builder;
 
 /*
- * Inactive session and "remember me" tokens used to be deleted here, by default
- * after 30 days. Core now expires them itself (#4918), so carry that expiry over
- * to core's "remember me" lifetime rather than leaving it at core's five years.
- * Session tokens already expire within hours in core.
+ * Upgrades keep the "remember me" expiry this extension used to enforce, rather
+ * than falling back to core's five years. First installs leave core's alone.
  */
 return [
     'up' => function (Builder $schema) {
@@ -23,9 +21,12 @@ return [
         $get = fn (string $key) => $db->table('settings')->where('key', $key)->value('value');
         $set = fn (string $key, string $value) => $db->table('settings')->updateOrInsert(['key' => $key], ['value' => $value]);
 
+        $upgrading = $db->table('two_factor')->exists()
+            || $db->table('settings')->where('key', 'like', 'ianm-twofactor.%')->exists();
+
         $enabled = $get('ianm-twofactor.kill_inactive_tokens');
 
-        if ($enabled === null || (bool) $enabled) {
+        if ($upgrading && ($enabled === null || (bool) $enabled)) {
             $days = $get('ianm-twofactor.kill_inactive_tokens_age_days');
             $lifetime = (is_numeric($days) && (int) $days > 0 ? (int) $days : 30) * 24 * 60 * 60;
 
@@ -37,8 +38,8 @@ return [
             }
 
             $set('session.tokens.session_remember', (string) $lifetime);
-        } else {
-            // The developer token cleanup only ran while the whole cleanup was on.
+        } elseif ($enabled !== null) {
+            // An admin who turned the cleanup off didn't ask for developer tokens to go.
             $set('ianm-twofactor.also_kill_developer_tokens', '0');
         }
 

@@ -28,8 +28,8 @@ class KillInactiveTokensCommand extends Command
     }
 
     /**
-     * Core expires every other token type itself, with lifetimes set on the
-     * Advanced page. Developer tokens are left to never expire there on purpose.
+     * Core expires session and "remember me" tokens itself. It leaves developer
+     * tokens to never expire on purpose.
      */
     public function handle(): void
     {
@@ -41,9 +41,15 @@ class KillInactiveTokensCommand extends Command
 
         $age = (int) $this->settings->get('ianm-twofactor.kill_inactive_tokens_age_days');
 
+        $cutoff = Carbon::now()->subDays($age);
+
         $count = DeveloperAccessToken::query()
             ->where('type', DeveloperAccessToken::$type)
-            ->where('last_activity_at', '<', Carbon::now()->subDays($age))
+            ->where(function ($query) use ($cutoff) {
+                $query->where('last_activity_at', '<', $cutoff)
+                    // Tokens created through the API start with no activity.
+                    ->orWhere(fn ($query) => $query->whereNull('last_activity_at')->where('created_at', '<', $cutoff));
+            })
             ->delete();
 
         $this->info("Deleted $count developer tokens which have not been used in $age+ days.");

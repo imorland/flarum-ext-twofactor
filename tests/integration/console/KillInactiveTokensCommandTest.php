@@ -16,6 +16,7 @@ use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\User\User;
+use Illuminate\Console\Scheduling\Schedule;
 use PHPUnit\Framework\Attributes\Test;
 
 class KillInactiveTokensCommandTest extends ConsoleTestCase
@@ -37,6 +38,8 @@ class KillInactiveTokensCommandTest extends ConsoleTestCase
                 ['token' => 'oldsession', 'user_id' => 2, 'type' => 'session', 'created_at' => $old, 'last_activity_at' => $old],
                 ['token' => 'oldremember', 'user_id' => 2, 'type' => 'session_remember', 'created_at' => $old, 'last_activity_at' => $old],
                 ['token' => 'olddeveloper', 'user_id' => 2, 'type' => 'developer', 'created_at' => $old, 'last_activity_at' => $old],
+                ['token' => 'unuseddeveloper', 'user_id' => 2, 'type' => 'developer', 'created_at' => $old, 'last_activity_at' => null],
+                ['token' => 'newdeveloper', 'user_id' => 2, 'type' => 'developer', 'created_at' => $recent, 'last_activity_at' => null],
                 ['token' => 'recentdeveloper', 'user_id' => 2, 'type' => 'developer', 'created_at' => $recent, 'last_activity_at' => $recent],
             ],
         ]);
@@ -49,7 +52,7 @@ class KillInactiveTokensCommandTest extends ConsoleTestCase
 
         $this->runCommand(['command' => 'twofactor:kill-inactive-tokens']);
 
-        $this->assertEquals(['oldremember', 'oldsession', 'recentdeveloper'], $this->tokens());
+        $this->assertEquals(['newdeveloper', 'oldremember', 'oldsession', 'recentdeveloper'], $this->tokens());
     }
 
     #[Test]
@@ -59,7 +62,21 @@ class KillInactiveTokensCommandTest extends ConsoleTestCase
 
         $this->runCommand(['command' => 'twofactor:kill-inactive-tokens']);
 
-        $this->assertCount(4, $this->tokens());
+        $this->assertCount(6, $this->tokens());
+    }
+
+    #[Test]
+    public function it_is_scheduled_twice_a_day_and_runs_only_while_turned_on()
+    {
+        $this->setting('ianm-twofactor.also_kill_developer_tokens', '0');
+
+        $this->app();
+        $schedule = $this->app()->getContainer()->make(Schedule::class);
+        $event = collect($schedule->events())->first(fn ($event) => str_contains((string) $event->command, 'twofactor:kill-inactive-tokens'));
+
+        $this->assertNotNull($event);
+        $this->assertSame('0 1,13 * * *', $event->expression);
+        $this->assertFalse($event->filtersPass($this->app()->getContainer()));
     }
 
     protected function tokens(): array

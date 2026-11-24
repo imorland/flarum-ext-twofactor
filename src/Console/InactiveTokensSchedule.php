@@ -23,10 +23,8 @@ class InactiveTokensSchedule
 
     public function __invoke(Event $event): void
     {
-        if (! (bool) $this->settings->get('ianm-twofactor.also_kill_developer_tokens')) {
-            return;
-        }
-
-        $event->twiceDaily();
+        // Without a frequency an event runs every minute, so set one even when off.
+        $event->twiceDaily()
+            ->when(fn () => (bool) $this->settings->get('ianm-twofactor.also_kill_developer_tokens'));
     }
 }
