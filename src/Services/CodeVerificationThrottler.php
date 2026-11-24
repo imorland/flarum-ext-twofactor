@@ -14,6 +14,9 @@ namespace IanM\TwoFactor\Services;
 use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\User;
 use Illuminate\Cache\RateLimiter;
+use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -24,7 +27,8 @@ use Psr\Http\Message\ServerRequestInterface;
 class CodeVerificationThrottler
 {
     public function __construct(
-        protected RateLimiter $limiter
+        protected RateLimiter $limiter,
+        protected Repository $cache
     ) {
     }
 
@@ -40,25 +44,36 @@ class CodeVerificationThrottler
 
         [$userKey, $ipKey] = $this->keys($user, $request);
 
-        $userAttempts = $this->limiter->hit($userKey, LoginThrottler::$decaySeconds);
-        $ipAttempts = $this->limiter->hit($ipKey, LoginThrottler::$ipDecaySeconds);
+        try {
+            return $this->locked([$userKey, $ipKey], function () use ($userKey, $ipKey) {
+                $userAttempts = $this->limiter->hit($userKey, LoginThrottler::$decaySeconds);
+                $ipAttempts = $this->limiter->hit($ipKey, LoginThrottler::$ipDecaySeconds);
 
-        if ($userAttempts > LoginThrottler::$maxAttempts || $ipAttempts > LoginThrottler::$maxAttemptsPerIp) {
-            $this->forget($userKey, $ipKey);
+                if ($userAttempts > LoginThrottler::$maxAttempts || $ipAttempts > LoginThrottler::$maxAttemptsPerIp) {
+                    $this->forget($userKey, $ipKey);
 
+                    return false;
+                }
+
+                return true;
+            });
+        } catch (LockTimeoutException) {
             return false;
         }
-
-        return true;
     }
 
-    /**
-     * Uncounts an attempt whose code was correct.
-     */
     public function succeeded(User $user, ServerRequestInterface $request): void
     {
-        if (! $request->getAttribute('bypassThrottling')) {
-            $this->forget(...$this->keys($user, $request));
+        if ($request->getAttribute('bypassThrottling')) {
+            return;
+        }
+
+        [$userKey, $ipKey] = $this->keys($user, $request);
+
+        try {
+            $this->locked([$userKey, $ipKey], fn () => $this->forget($userKey, $ipKey));
+        } catch (LockTimeoutException) {
+            // Leaving the attempt counted only errs on the safe side.
         }
     }
 
@@ -66,6 +81,41 @@ class CodeVerificationThrottler
     {
         $this->limiter->decrement($userKey, LoginThrottler::$decaySeconds);
         $this->limiter->decrement($ipKey, LoginThrottler::$ipDecaySeconds);
+    }
+
+    /**
+     * Some stores, such as the default file store, read and write a counter in
+     * separate steps, so concurrent increments could otherwise be lost.
+     *
+     * @template T
+     * @param string[] $keys
+     * @param callable(): T $callback
+     * @return T
+     */
+    protected function locked(array $keys, callable $callback): mixed
+    {
+        $store = $this->cache->getStore();
+
+        if (! $store instanceof LockProvider) {
+            return $callback();
+        }
+
+        $locks = [];
+
+        try {
+            // Always taken in the same order, so two requests can't wait on each other.
+            foreach ($keys as $key) {
+                $lock = $store->lock("$key:lock", 10);
+                $lock->block(5);
+                $locks[] = $lock;
+            }
+
+            return $callback();
+        } finally {
+            foreach (array_reverse($locks) as $lock) {
+                $lock->release();
+            }
+        }
     }
 
     /**
