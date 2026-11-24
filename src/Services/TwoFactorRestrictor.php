@@ -54,10 +54,7 @@ class TwoFactorRestrictor
      */
     protected function hasRestrictedGroup(User $user): bool
     {
-        // Query the `Group` model to get the IDs of any groups that should restrict 2FA, based on the `2fa_required` column.
-        $restrictedGroups = Group::query()->where('tfa_required', true)->get()->pluck('id')->toArray();
-
-        return $user->groups->whereIn('id', $restrictedGroups)->isNotEmpty();
+        return $user->groups->contains(fn (Group $group) => (bool) $group->tfa_required);
     }
 
     /**
