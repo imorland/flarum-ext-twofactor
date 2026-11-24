@@ -49,7 +49,7 @@ class VerifyTwoFactorController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'Two-factor authentication has not been set up']);
         }
 
-        // Enabling again would hand out new backup codes for a session alone.
+        // Setting up must not double as a way to replace the backup codes.
         if ($twoFactor->is_active && ! $reVerify) {
             throw new ValidationException(['token' => 'Two-factor authentication is already enabled']);
         }

@@ -65,7 +65,7 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
             </div>
           )}
           <div className="Form-group">
-            <Button type="submit" className="Button Button--danger" loading={this.loading}>
+            <Button type="submit" className="Button Button--danger" loading={this.loading} disabled={this.loading}>
               {app.translator.trans('ianm-twofactor.forum.security.disable_2fa_button')}
             </Button>
             <Button type="button" className="Button Button--cancel" onclick={this.hide.bind(this)}>
@@ -78,6 +78,8 @@ export default class TwoFactorDisableConfirmModal extends Modal<TwoFactorDisable
   }
 
   disable() {
+    if (this.loading) return;
+
     this.loading = true;
     const userId = this.attrs.user.id();
 
