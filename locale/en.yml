@@ -57,6 +57,7 @@ ianm-twofactor:
       change_device_button: Change Device
       verify_current_device_message: Please enter a token from your current authentication device to verify your identity.
       enter_current_token: Enter token from current device
+      current_token_required: Enter a token from your current device to continue.
       scan_new_device_qr: Scan this QR code with your new authentication device.
       verify_new_device_message: Now enter a token from your new device to complete the change.
       enter_new_token: Enter token from new device

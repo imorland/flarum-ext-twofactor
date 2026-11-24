@@ -13,6 +13,7 @@ namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\Exception\FloodingException;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
@@ -33,7 +34,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor, protected TotpInterface $totp, protected CodeVerificationThrottler $throttler)
+    public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor, protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected TranslatorInterface $translator)
     {
     }
 
@@ -77,7 +78,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
         $code = (string) Arr::get((array) $request->getParsedBody(), 'token', '');
 
         if ($code === '') {
-            throw new ValidationException(['token' => 'two_factor_required']);
+            throw new ValidationException(['token' => $this->translator->trans('ianm-twofactor.forum.security.current_token_required')]);
         }
 
         if (! $this->throttler->attempt($user, $request)) {
@@ -85,7 +86,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
         }
 
         if (! $this->isTokenActive($code, $user)) {
-            throw new ValidationException(['token' => 'two_factor_incorrect']);
+            throw new ValidationException(['token' => $this->translator->trans('ianm-twofactor.forum.log_in.two_factor_incorrect_message')]);
         }
 
         $this->throttler->succeeded($user, $request);
