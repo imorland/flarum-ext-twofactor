@@ -12,14 +12,14 @@
 namespace IanM\TwoFactor\Console;
 
 use Carbon\Carbon;
-use Flarum\Http\AccessToken;
+use Flarum\Http\DeveloperAccessToken;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 
 class KillInactiveTokensCommand extends Command
 {
     protected $signature = 'twofactor:kill-inactive-tokens';
-    protected $description = 'Kill all inactive tokens';
+    protected $description = 'Delete developer tokens that have not been used for the configured number of days';
 
     public function __construct(
         protected SettingsRepositoryInterface $settings
@@ -27,33 +27,25 @@ class KillInactiveTokensCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * Core expires every other token type itself, with lifetimes set on the
+     * Advanced page. Developer tokens are left to never expire there on purpose.
+     */
     public function handle(): void
     {
-        $age = (int) $this->settings->get('ianm-twofactor.kill_inactive_tokens_age_days');
-        $maxAge = Carbon::now()->subDays($age);
-
-        $query = AccessToken::query()
-            ->where('last_activity_at', '<', $maxAge);
-
         if (! (bool) $this->settings->get('ianm-twofactor.also_kill_developer_tokens')) {
-            $this->info('Not deleting any developer tokens.');
-            $query->where('type', '!=', 'developer');
-        }
-
-        $count = $query->count();
-
-        if ($count === 0) {
-            $this->info("No tokens found which have not been used in $age+ days.");
+            $this->info('Deleting unused developer tokens is turned off.');
 
             return;
         }
 
-        $this->info("Found $count tokens which have not been used in $age+ days. Deleting...");
+        $age = (int) $this->settings->get('ianm-twofactor.kill_inactive_tokens_age_days');
 
-        $this->output->progressStart($count);
+        $count = DeveloperAccessToken::query()
+            ->where('type', DeveloperAccessToken::$type)
+            ->where('last_activity_at', '<', Carbon::now()->subDays($age))
+            ->delete();
 
-        $query->delete();
-
-        $this->output->progressFinish();
+        $this->info("Deleted $count developer tokens which have not been used in $age+ days.");
     }
 }

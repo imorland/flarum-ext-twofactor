@@ -18,14 +18,12 @@ ianm-twofactor:
       logo_qr: Logo on QR Code
       logo_qr_help: If logo has been uploaded, this logo will be embedded on the QR code. Leave blank to use the forum logo.
       tokens:
-        heading: Access Tokens
-        help: For extended security, you can manage additional behaviour here related to access tokens.
-        kill_inactive_tokens: Kill Inactive Tokens
-        kill_inactive_tokens_help: Automatically kill access tokens that have been inactive for a specified period of time.
-        kill_inactive_tokens_age_days: Kill Inactive Tokens After (Days)
-        kill_inactive_tokens_age_days_help: The number of days of inactivity after which access tokens will be deleted.
-        also_kill_developer_tokens: Also Kill Developer Tokens
-        also_kill_developer_tokens_help: Also kill developer access tokens that have been inactive for the specified period of time.
+        heading: Developer Tokens
+        help: "Sign-in and \"remember me\" lengths are set on the Advanced page, under Sessions. Developer tokens never expire there, so they can be cleaned up here instead."
+        kill_inactive_tokens_age_days: Delete Developer Tokens After (Days)
+        kill_inactive_tokens_age_days_help: The number of days a developer token may go unused before it is deleted.
+        also_kill_developer_tokens: Delete Unused Developer Tokens
+        also_kill_developer_tokens_help: Delete developer access tokens that have not been used for the number of days below. Scripts and integrations using one will stop working.
 
 
   forum:

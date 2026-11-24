@@ -23,7 +23,7 @@ class InactiveTokensSchedule
 
     public function __invoke(Event $event): void
     {
-        if (! (bool) $this->settings->get('ianm-twofactor.kill_inactive_tokens')) {
+        if (! (bool) $this->settings->get('ianm-twofactor.also_kill_developer_tokens')) {
             return;
         }
 

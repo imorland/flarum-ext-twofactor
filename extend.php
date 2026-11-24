@@ -98,7 +98,6 @@ return [
     (new Extend\Settings())
         ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
         ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100)
-        ->default('ianm-twofactor.kill_inactive_tokens', true)
         ->default('ianm-twofactor.kill_inactive_tokens_age_days', 30)
         ->default('ianm-twofactor.also_kill_developer_tokens', false),
 
