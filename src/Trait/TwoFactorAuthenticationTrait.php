@@ -14,6 +14,8 @@ namespace IanM\TwoFactor\Trait;
 use Flarum\User\User;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Model\TwoFactor;
+use Illuminate\Support\Arr;
+use Psr\Http\Message\ServerRequestInterface;
 
 trait TwoFactorAuthenticationTrait
 {
@@ -29,6 +31,13 @@ trait TwoFactorAuthenticationTrait
         $twoFactor = $user->twoFactor;
 
         return $twoFactor !== null && $twoFactor->is_active;
+    }
+
+    protected function codeFrom(ServerRequestInterface $request, string $key = 'token'): string
+    {
+        $code = Arr::get((array) $request->getParsedBody(), $key);
+
+        return is_string($code) ? $code : '';
     }
 
     protected function retrieveTwoFactorTokenFrom(?string $source): ?string

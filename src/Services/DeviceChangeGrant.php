@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 /**
  * Proof that a user gave a code from their current device, which setting up a
  * new device requires. It goes to the client that gave the code, not to every
- * session of the user, and lasts as long as a pending new secret does.
+ * session of the user, and expires ten minutes after the code was given.
  */
 class DeviceChangeGrant
 {

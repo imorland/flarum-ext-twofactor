@@ -21,15 +21,19 @@ use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Services\BackupCodeGenerator;
 use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Services\DeviceChangeGrant;
+use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
+use OTPHP\TOTP;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class VerifyNewDeviceController implements RequestHandlerInterface
 {
+    use TwoFactorAuthenticationTrait;
+
     public function __construct(
         protected TotpInterface $totp,
         protected BackupCodeGenerator $backupCodeGenerator,
@@ -44,9 +48,9 @@ class VerifyNewDeviceController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertRegistered();
 
-        $token = Arr::get($request->getParsedBody(), 'token', '');
+        $token = $this->codeFrom($request);
 
-        if (! $this->grant->check($actor, Arr::get($request->getParsedBody(), 'changeToken'))) {
+        if (! $this->grant->check($actor, $this->codeFrom($request, 'changeToken'))) {
             throw new PermissionDeniedException();
         }
 
@@ -57,11 +61,12 @@ class VerifyNewDeviceController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'No pending device change found']);
         }
 
-        if ((string) $token !== '' && ! $this->throttler->attempt($actor, $request)) {
+        if ($token !== '' && ! $this->throttler->attempt($actor, $request)) {
             throw new FloodingException();
         }
 
-        if ($this->totp->verify($tempSecret, $token, $actor)) {
+        // Only the new authenticator proves it was set up: not a backup code.
+        if ($token !== '' && TOTP::createFromSecret($tempSecret)->verify($token, null, 10)) {
             $this->throttler->succeeded($actor, $request);
 
             // Token is valid, commit the new secret

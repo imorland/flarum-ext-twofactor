@@ -231,9 +231,9 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
     const userId = this.user.id();
     app
       .request({
-        method: 'GET',
+        method: 'POST',
         url: app.forum.attribute('apiUrl') + `/users/${userId}/twofactor/change-device/qrcode`,
-        params: { changeToken: this.changeToken },
+        body: { changeToken: this.changeToken },
       })
       .then((response: any) => {
         this.qrCodeUrl = response.svg;
@@ -272,8 +272,17 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
         this.loading = false;
         m.redraw();
       })
-      .catch(() => {
+      .catch((error) => {
         this.loading = false;
+
+        // The verification of the current device has expired: start over.
+        if (error?.status === 403) {
+          this.changeToken = null;
+          this.currentToken('');
+          this.newToken('');
+          this.status = 'verifyCurrentDevice';
+        }
+
         m.redraw();
       });
   }

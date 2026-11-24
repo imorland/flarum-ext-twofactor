@@ -43,6 +43,11 @@ class ShowQrCodeController implements RequestHandlerInterface
         }
 
         $twoFactor = TwoFactor::getForUser($user);
+
+        // Showing the secret again would let a session alone produce codes.
+        if ($twoFactor->is_active) {
+            throw new PermissionDeniedException('Two-factor authentication is already enabled.');
+        }
         if (empty($twoFactor->secret)) {
             $twoFactor->secret = $this->totp->createSecret();
             $twoFactor->save();

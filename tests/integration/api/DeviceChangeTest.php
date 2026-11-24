@@ -90,6 +90,41 @@ class DeviceChangeTest extends TestCase
     }
 
     #[Test]
+    public function someone_else_cannot_start_a_device_change()
+    {
+        $this->prepareDatabase([User::class => [['id' => 3, 'username' => 'other', 'email' => 'other@machine.local', 'is_email_confirmed' => 1]]]);
+
+        $response = $this->send($this->request('POST', '/api/users/2/twofactor/change-device/qrcode', ['authenticatedAs' => 1]));
+
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function a_backup_code_does_not_confirm_a_new_device()
+    {
+        $this->app();
+        TwoFactor::query()->where('user_id', 2)->update(['backup_codes' => json_encode([password_hash('246810', PASSWORD_BCRYPT)])]);
+
+        $changeToken = $this->verifyCurrent($this->correctCode());
+        $this->qrCode($changeToken);
+
+        $this->assertEquals(422, $this->verifyNew('246810', $changeToken)->getStatusCode());
+        $this->assertEquals($this->secret, TwoFactor::query()->where('user_id', 2)->value('secret'));
+    }
+
+    #[Test]
+    public function turning_2fa_off_withdraws_a_pending_verification()
+    {
+        $changeToken = $this->verifyCurrent($this->correctCode());
+
+        $this->send($this->request('DELETE', '/api/users/2/twofactor/disable', ['authenticatedAs' => 2, 'json' => ['token' => $this->correctCode()]]));
+        $this->app();
+        TwoFactor::query()->insert($this->twoFactorRow(2, 50, 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'));
+
+        $this->assertEquals(403, $this->qrCode($changeToken)->getStatusCode());
+    }
+
+    #[Test]
     public function a_wrong_current_code_gives_no_verification()
     {
         $response = $this->send($this->request('POST', '/api/users/twofactor/verify-current', [
@@ -115,10 +150,10 @@ class DeviceChangeTest extends TestCase
 
     protected function qrCode(?string $changeToken): ResponseInterface
     {
-        return $this->send(
-            $this->request('GET', '/api/users/2/twofactor/change-device/qrcode', ['authenticatedAs' => 2])
-                ->withQueryParams(array_filter(['changeToken' => $changeToken]))
-        );
+        return $this->send($this->request('POST', '/api/users/2/twofactor/change-device/qrcode', [
+            'authenticatedAs' => 2,
+            'json' => array_filter(['changeToken' => $changeToken]),
+        ]));
     }
 
     protected function verifyNew(string $code, ?string $changeToken): ResponseInterface

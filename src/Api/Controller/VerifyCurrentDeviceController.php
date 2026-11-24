@@ -38,7 +38,7 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertRegistered();
 
-        $token = Arr::get($request->getParsedBody(), 'token', '');
+        $token = $this->codeFrom($request);
 
         $twoFactor = TwoFactor::getForUser($actor);
 
@@ -46,7 +46,7 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'Two-factor authentication is not enabled']);
         }
 
-        if ((string) $token !== '' && ! $this->throttler->attempt($actor, $request)) {
+        if ($token !== '' && ! $this->throttler->attempt($actor, $request)) {
             throw new FloodingException();
         }
 

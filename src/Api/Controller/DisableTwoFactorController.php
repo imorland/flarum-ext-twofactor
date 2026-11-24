@@ -20,6 +20,7 @@ use Flarum\User\User;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Event\Disabled;
 use IanM\TwoFactor\Services\CodeVerificationThrottler;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Services\TwoFactorRestrictor;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -34,7 +35,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor, protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected TranslatorInterface $translator)
+    public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor, protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected TranslatorInterface $translator, protected DeviceChangeGrant $grant)
     {
     }
 
@@ -67,6 +68,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
         }
 
         $user->twoFactor->delete();
+        $this->grant->revoke($user);
 
         $this->events->dispatch(new Disabled($user, $actor));
 
@@ -75,7 +77,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
 
     protected function assertCurrentCode(User $user, ServerRequestInterface $request): void
     {
-        $code = (string) Arr::get((array) $request->getParsedBody(), 'token', '');
+        $code = $this->codeFrom($request);
 
         if ($code === '') {
             throw new ValidationException(['token' => $this->translator->trans('ianm-twofactor.forum.security.current_token_required')]);

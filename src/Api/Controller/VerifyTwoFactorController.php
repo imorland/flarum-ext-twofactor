@@ -40,12 +40,21 @@ class VerifyTwoFactorController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertRegistered();
 
-        $token = Arr::get($request->getParsedBody(), 'token', '');
+        $token = $this->codeFrom($request);
         $reVerify = (bool) Arr::get($request->getParsedBody(), 'reVerify', false);
 
         $twoFactor = TwoFactor::getForUser($actor);
 
-        if ((string) $token !== '' && ! $this->throttler->attempt($actor, $request)) {
+        if (! $twoFactor->secret) {
+            throw new ValidationException(['token' => 'Two-factor authentication has not been set up']);
+        }
+
+        // Enabling again would hand out new backup codes for a session alone.
+        if ($twoFactor->is_active && ! $reVerify) {
+            throw new ValidationException(['token' => 'Two-factor authentication is already enabled']);
+        }
+
+        if ($token !== '' && ! $this->throttler->attempt($actor, $request)) {
             throw new FloodingException();
         }
 
