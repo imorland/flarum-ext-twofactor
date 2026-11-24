@@ -69,19 +69,19 @@ class TwoFactorSavePasswordController extends SavePasswordController
         $user = $token->user;
 
         if ($this->twoFactorActive($user)) {
-            if ($this->throttler->tooManyAttempts($user, $request)) {
+            if ($twoFactorToken !== null && ! $this->throttler->attempt($user, $request)) {
                 $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => $this->translator->trans('ianm-twofactor.views.two_factor_token.too_many_attempts_message')]));
 
                 return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));
             }
 
             if (! $this->isTokenActive($twoFactorToken, $user)) {
-                $this->throttler->recordFailure($user, $request);
-
                 $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
 
                 return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));
             }
+
+            $this->throttler->succeeded($user, $request);
         }
 
         $token->user->changePassword($password);

@@ -28,28 +28,44 @@ class CodeVerificationThrottler
     ) {
     }
 
-    public function tooManyAttempts(User $user, ServerRequestInterface $request): bool
+    /**
+     * Counts an attempt before the code is checked, so that concurrent requests
+     * can't all pass the limit. Returns false, without counting, when over it.
+     */
+    public function attempt(User $user, ServerRequestInterface $request): bool
     {
         if ($request->getAttribute('bypassThrottling')) {
+            return true;
+        }
+
+        [$userKey, $ipKey] = $this->keys($user, $request);
+
+        $userAttempts = $this->limiter->hit($userKey, LoginThrottler::$decaySeconds);
+        $ipAttempts = $this->limiter->hit($ipKey, LoginThrottler::$ipDecaySeconds);
+
+        if ($userAttempts > LoginThrottler::$maxAttempts || $ipAttempts > LoginThrottler::$maxAttemptsPerIp) {
+            $this->forget($userKey, $ipKey);
+
             return false;
         }
 
-        [$userKey, $ipKey] = $this->keys($user, $request);
-
-        return $this->limiter->tooManyAttempts($userKey, LoginThrottler::$maxAttempts)
-            || $this->limiter->tooManyAttempts($ipKey, LoginThrottler::$maxAttemptsPerIp);
+        return true;
     }
 
-    public function recordFailure(User $user, ServerRequestInterface $request): void
+    /**
+     * Uncounts an attempt whose code was correct.
+     */
+    public function succeeded(User $user, ServerRequestInterface $request): void
     {
-        if ($request->getAttribute('bypassThrottling')) {
-            return;
+        if (! $request->getAttribute('bypassThrottling')) {
+            $this->forget(...$this->keys($user, $request));
         }
+    }
 
-        [$userKey, $ipKey] = $this->keys($user, $request);
-
-        $this->limiter->hit($userKey, LoginThrottler::$decaySeconds);
-        $this->limiter->hit($ipKey, LoginThrottler::$ipDecaySeconds);
+    protected function forget(string $userKey, string $ipKey): void
+    {
+        $this->limiter->decrement($userKey, LoginThrottler::$decaySeconds);
+        $this->limiter->decrement($ipKey, LoginThrottler::$ipDecaySeconds);
     }
 
     /**

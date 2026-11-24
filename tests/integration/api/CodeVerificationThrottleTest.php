@@ -19,6 +19,7 @@ use Flarum\User\PasswordToken;
 use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Tests\integration\GeneratesTwoFactorCodes;
 use Illuminate\Contracts\Cache\Repository;
 use Laminas\Diactoros\ServerRequest;
@@ -212,6 +213,28 @@ class CodeVerificationThrottleTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('<html class="guest-user"', (string) $response->getBody());
+    }
+
+    /**
+     * Requests that are still checking their codes hold their places, so a burst
+     * of simultaneous guesses can't all get past the limit.
+     */
+    #[Test]
+    public function attempts_in_progress_count_towards_the_limit()
+    {
+        $throttler = $this->app()->getContainer()->make(CodeVerificationThrottler::class);
+        $user = User::find(2);
+        $request = (new ServerRequest())->withAttribute('ipAddress', '127.0.0.1');
+
+        foreach (range(1, 5) as $attempt) {
+            $this->assertTrue($throttler->attempt($user, $request), "Attempt $attempt");
+        }
+
+        $this->assertFalse($throttler->attempt($user, $request));
+
+        $throttler->succeeded($user, $request);
+
+        $this->assertTrue($throttler->attempt($user, $request));
     }
 
     #[Test]

@@ -45,11 +45,13 @@ class VerifyTwoFactorController implements RequestHandlerInterface
 
         $twoFactor = TwoFactor::getForUser($actor);
 
-        if ($this->throttler->tooManyAttempts($actor, $request)) {
+        if ((string) $token !== '' && ! $this->throttler->attempt($actor, $request)) {
             throw new FloodingException();
         }
 
         if ($this->isTokenActive($token, $actor)) {
+            $this->throttler->succeeded($actor, $request);
+
             $backupCodes = [];
             if (! $reVerify) {
                 $twoFactor->is_active = true;
@@ -65,10 +67,6 @@ class VerifyTwoFactorController implements RequestHandlerInterface
                 'backupCodes' => $backupCodes
             ]);
         } else {
-            if ((string) $token !== '') {
-                $this->throttler->recordFailure($actor, $request);
-            }
-
             throw new ValidationException(['token' => 'The token is invalid.']);
         }
     }

@@ -69,7 +69,7 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
             return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
         }
 
-        if ($this->throttler->tooManyAttempts($user, $request)) {
+        if (! $this->throttler->attempt($user, $request)) {
             $session->put('errors', new MessageBag(['twoFactorToken' => app('translator')->trans('ianm-twofactor.views.two_factor_token.too_many_attempts_message')]));
 
             return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
@@ -78,12 +78,12 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
         $token = $this->retrieveTwoFactorTokenFrom($twoFactorToken);
 
         if (! $this->isTokenActive($token, $user)) {
-            $this->throttler->recordFailure($user, $request);
-
             $session->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
 
             return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
         }
+
+        $this->throttler->succeeded($user, $request);
 
         // Mark 2FA as verified in the session so the middleware allows the fast-track
         // resume to complete. Using the session (not cache) so the flag survives session

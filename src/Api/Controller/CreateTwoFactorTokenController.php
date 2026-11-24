@@ -67,7 +67,7 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
 
             // Core's login throttle has no per-account limit, since anyone can fail a
             // password; only someone holding this password can get to the code.
-            if ($this->codeThrottler->tooManyAttempts($user, $request)) {
+            if (! $this->codeThrottler->attempt($user, $request)) {
                 throw new FloodingException();
             }
 
@@ -78,10 +78,10 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
                     $this->throttler->recordFailure($request);
                 }
 
-                $this->codeThrottler->recordFailure($user, $request);
-
                 throw new ValidationException(['twoFactorToken' => 'two_factor_incorrect']);
             }
+
+            $this->codeThrottler->succeeded($user, $request);
         }
 
         if (Arr::get($body, 'remember')) {

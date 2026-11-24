@@ -50,11 +50,13 @@ class VerifyNewDeviceController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'No pending device change found']);
         }
 
-        if ($this->throttler->tooManyAttempts($actor, $request)) {
+        if ((string) $token !== '' && ! $this->throttler->attempt($actor, $request)) {
             throw new FloodingException();
         }
 
         if ($this->totp->verify($tempSecret, $token, $actor)) {
+            $this->throttler->succeeded($actor, $request);
+
             // Token is valid, commit the new secret
             $twoFactor->commitTempSecret();
 
@@ -69,10 +71,6 @@ class VerifyNewDeviceController implements RequestHandlerInterface
                 'backupCodes' => $backupCodes
             ]);
         } else {
-            if ((string) $token !== '') {
-                $this->throttler->recordFailure($actor, $request);
-            }
-
             throw new ValidationException(['token' => 'The token is invalid.']);
         }
     }

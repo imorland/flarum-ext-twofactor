@@ -45,19 +45,17 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'Two-factor authentication is not enabled']);
         }
 
-        if ($this->throttler->tooManyAttempts($actor, $request)) {
+        if ((string) $token !== '' && ! $this->throttler->attempt($actor, $request)) {
             throw new FloodingException();
         }
 
         if ($this->isTokenActive($token, $actor)) {
+            $this->throttler->succeeded($actor, $request);
+
             return new JsonResponse([
                 'success' => true
             ]);
         } else {
-            if ((string) $token !== '') {
-                $this->throttler->recordFailure($actor, $request);
-            }
-
             throw new ValidationException(['token' => 'The token is invalid.']);
         }
     }
