@@ -13,8 +13,10 @@ namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
+use Flarum\Post\Exception\FloodingException;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -26,7 +28,7 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(protected TotpInterface $totp)
+    public function __construct(protected TotpInterface $totp, protected CodeVerificationThrottler $throttler)
     {
     }
 
@@ -41,12 +43,17 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'Two-factor authentication is not enabled']);
         }
 
+        if ($this->throttler->tooManyAttempts($actor, $request)) {
+            throw new FloodingException();
+        }
+
         if ($this->isTokenActive($token, $actor)) {
             return new JsonResponse([
                 'success' => true
             ]);
         } else {
-            // Token is invalid
+            $this->throttler->recordFailure($actor, $request);
+
             throw new ValidationException(['token' => 'The token is invalid.']);
         }
     }

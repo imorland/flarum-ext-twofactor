@@ -15,9 +15,11 @@ use Flarum\Forum\Controller\SavePasswordController;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserValidator;
 use IanM\TwoFactor\Contracts\TotpInterface;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
@@ -32,7 +34,7 @@ class TwoFactorSavePasswordController extends SavePasswordController
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(protected TotpInterface $totp, UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory, Dispatcher $events)
+    public function __construct(protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected TranslatorInterface $translator, UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory, Dispatcher $events)
     {
         parent::__construct($url, $authenticator, $validator, $validatorFactory, $events);
     }
@@ -66,7 +68,15 @@ class TwoFactorSavePasswordController extends SavePasswordController
 
         // Check if the user has 2FA enabled
         if ($this->twoFactorActive($token->user)) {
+            if ($this->throttler->tooManyAttempts($token->user, $request)) {
+                $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => $this->translator->trans('ianm-twofactor.views.two_factor_token.too_many_attempts_message')]));
+
+                return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));
+            }
+
             if (! $this->isTokenActive($twoFactorToken, $token->user)) {
+                $this->throttler->recordFailure($token->user, $request);
+
                 $request->getAttribute('session')->put('errors', new MessageBag(['twoFactorToken' => 'Invalid 2FA token']));
 
                 return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));

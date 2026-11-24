@@ -15,6 +15,7 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\UserRepository;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
@@ -34,7 +35,8 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
         protected TotpInterface $totp,
         protected UserRepository $users,
         protected BusDispatcher $bus,
-        protected EventDispatcher $events
+        protected EventDispatcher $events,
+        protected LoginThrottler $throttler
     ) {
     }
 
@@ -45,7 +47,9 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
         $identification = Arr::get($body, 'identification');
         $password = Arr::get($body, 'password');
 
-        $user = $this->users->findByIdentification($identification);
+        $user = $identification
+            ? $this->users->findByIdentification($identification)
+            : null;
 
         if (! $user || ! $user->checkPassword($password)) {
             throw new NotAuthenticatedException();
@@ -59,6 +63,12 @@ class CreateTwoFactorTokenController implements RequestHandlerInterface
             }
 
             if (! $this->isTokenActive($token, $user)) {
+                // Core's RecordFailedLogins counts only NotAuthenticatedException,
+                // which would lose the reason the login modal needs to show.
+                if (! $request->getAttribute('bypassThrottling')) {
+                    $this->throttler->recordFailure($request);
+                }
+
                 throw new ValidationException(['twoFactorToken' => 'two_factor_incorrect']);
             }
         }
