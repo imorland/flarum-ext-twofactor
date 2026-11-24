@@ -120,6 +120,10 @@ return [
                         ->addBackendRouteExclusion('twoFactor.oauth.verify')
                 ]),
         ])
+        ->whenExtensionEnabled('flarum-oauth-provider', fn () => [
+            (new Extend\Policy())
+                ->globalPolicy(Access\OAuthProviderPolicy::class),
+        ])
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\TwoFactorData::class),
