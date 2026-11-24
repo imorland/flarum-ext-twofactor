@@ -13,6 +13,7 @@ namespace IanM\TwoFactor\Api\Controller;
 
 use DateTime;
 use Flarum\Forum\Controller\ResetPasswordController;
+use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
@@ -39,6 +40,7 @@ class TwoFactorResetPasswordController extends ResetPasswordController
         return $this->view->make('ianm-two-factor::reset-password')
             ->with('passwordToken', $token->token)
             ->with('csrfToken', $request->getAttribute('session')->token())
-            ->with('hasTwoFactorEnabled', $hasTwoFactorEnabled);
+            ->with('hasTwoFactorEnabled', $hasTwoFactorEnabled)
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }

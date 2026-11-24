@@ -12,6 +12,7 @@
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Forum\Controller\LogInViewController;
+use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\View\View;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -24,6 +25,7 @@ class TwoFactorLogInViewController extends LogInViewController
     {
         return $this->view
             ->make('ianm-two-factor::log-in')
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->getAttribute('session')->token())
+            ->with('actorClass', RequestUtil::getActorHtmlClass($request));
     }
 }

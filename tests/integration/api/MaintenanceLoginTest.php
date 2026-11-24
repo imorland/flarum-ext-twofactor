@@ -58,6 +58,16 @@ class MaintenanceLoginTest extends TestCase
     }
 
     #[Test]
+    public function login_page_marks_the_visitor_as_a_guest()
+    {
+        $response = $this->send(
+            $this->htmlRequest('GET', '/maintenance/login')
+        );
+
+        $this->assertStringContainsString('<html class="guest-user"', (string) $response->getBody());
+    }
+
+    #[Test]
     public function login_page_has_a_2fa_token_field()
     {
         $response = $this->send(
