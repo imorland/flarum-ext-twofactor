@@ -18,9 +18,11 @@ use Flarum\Api\Resource\UserResource;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Mcp\Extend\Mcp;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
@@ -79,6 +81,9 @@ return [
 
     (new Extend\ApiResource(ForumResource::class))
         ->fields(Api\AddForumAttributes::class),
+
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(UserSearcher::class, Search\TwoFactorFilter::class),
 
     (new Extend\Notification())
         ->type(Notification\TwoFactorStatusChangedBlueprint::class, ['email']),

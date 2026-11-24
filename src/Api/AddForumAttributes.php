@@ -35,6 +35,9 @@ class AddForumAttributes
                 ->nullable()
                 ->get(fn () => $this->getLogoUrl())
                 ->visible(fn ($_, $context) => $context->getActor()->can('administrate')),
+
+            Schema\Boolean::make('canSeeTwoFactorStatus')
+                ->get(fn ($_, $context) => $context->getActor()->can('ianm-twofactor.seeTwoFactorStatus')),
         ];
     }
 

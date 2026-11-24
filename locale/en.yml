@@ -103,6 +103,13 @@ ianm-twofactor:
       oauth_session_expired: OAuth session expired. Please try signing in again.
       too_many_attempts_message: Too many incorrect 2FA codes. Please wait a few minutes, then try again.
 
+  # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+  lib:
+    gambits:
+      users:
+        twofactor:
+          key: 2fa
+
 flarum-gdpr:
   lib:
     data:

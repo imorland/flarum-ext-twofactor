@@ -2,6 +2,7 @@ import Extend from 'flarum/common/extenders';
 import Group from 'flarum/common/models/Group';
 import User from 'flarum/common/models/User';
 import TwoFactor from './models/TwoFactor';
+import TwoFactorGambit from './query/users/TwoFactorGambit';
 
 export default [
   new Extend.Store() //
@@ -15,4 +16,7 @@ export default [
 
   new Extend.Model(Group) //
     .attribute<boolean>('requires2FA'),
+
+  new Extend.Search() //
+    .gambit('users', TwoFactorGambit),
 ];
