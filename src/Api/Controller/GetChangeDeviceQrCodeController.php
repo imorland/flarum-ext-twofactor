@@ -13,9 +13,11 @@ namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Services\QrCodeGenerator;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -27,7 +29,8 @@ class GetChangeDeviceQrCodeController implements RequestHandlerInterface
 {
     public function __construct(
         protected TotpInterface $totp,
-        protected QrCodeGenerator $qrCodeGenerator
+        protected QrCodeGenerator $qrCodeGenerator,
+        protected DeviceChangeGrant $grant
     ) {
     }
 
@@ -37,12 +40,17 @@ class GetChangeDeviceQrCodeController implements RequestHandlerInterface
         $routeParams = $request->getAttribute('routeParameters', []);
         $userId = Arr::get($routeParams, 'id');
 
-        // Ensure the actor is the user or has permission to manage users
-        if ($actor->id != $userId && ! $actor->can('ianm-twofactor.manageOthers')) {
-            throw new \Flarum\User\Exception\PermissionDeniedException();
+        // Only the user can finish a device change, so only they may start one.
+        if ($actor->isGuest() || $actor->id != $userId) {
+            throw new PermissionDeniedException();
         }
 
         $user = User::findOrFail($userId);
+        $changeToken = Arr::get((array) $request->getParsedBody(), 'changeToken');
+
+        if (! $this->grant->check($user, is_string($changeToken) ? $changeToken : null)) {
+            throw new PermissionDeniedException();
+        }
         $twoFactor = TwoFactor::getForUser($user);
 
         if (! $twoFactor->secret) {

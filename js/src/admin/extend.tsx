@@ -70,10 +70,10 @@ export default [
     )
     .setting(
       () => ({
-        setting: 'ianm-twofactor.kill_inactive_tokens',
+        setting: 'ianm-twofactor.also_kill_developer_tokens',
         type: 'boolean',
-        label: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens'),
-        help: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens_help'),
+        label: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens'),
+        help: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens_help'),
       }),
       50
     )
@@ -86,15 +86,6 @@ export default [
         help: app.translator.trans('ianm-twofactor.admin.settings.tokens.kill_inactive_tokens_age_days_help'),
       }),
       40
-    )
-    .setting(
-      () => ({
-        setting: 'ianm-twofactor.also_kill_developer_tokens',
-        type: 'boolean',
-        label: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens'),
-        help: app.translator.trans('ianm-twofactor.admin.settings.tokens.also_kill_developer_tokens_help'),
-      }),
-      30
     )
     .generalIndexItems('settings', () => [
       {

@@ -20,6 +20,9 @@ use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Group\Event\Saving as GroupSaving;
 use Flarum\Group\Group;
+use Flarum\Mcp\Extend\Mcp;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
@@ -47,7 +50,7 @@ return [
         ->post('/users/twofactor/verify', 'user.twofactor.verify', Api\Controller\VerifyTwoFactorController::class)
         ->delete('/users/{id}/twofactor/disable', 'user.twofactor.disable', Api\Controller\DisableTwoFactorController::class)
         ->post('/users/twofactor/verify-current', 'user.twofactor.verify-current', Api\Controller\VerifyCurrentDeviceController::class)
-        ->get('/users/{id}/twofactor/change-device/qrcode', 'user.twofactor.change-device.qrcode', Api\Controller\GetChangeDeviceQrCodeController::class)
+        ->post('/users/{id}/twofactor/change-device/qrcode', 'user.twofactor.change-device.qrcode', Api\Controller\GetChangeDeviceQrCodeController::class)
         ->post('/users/twofactor/change-device/verify', 'user.twofactor.change-device.verify', Api\Controller\VerifyNewDeviceController::class)
         ->remove('token')
         ->post('/token', 'token', Api\Controller\CreateTwoFactorTokenController::class)
@@ -71,6 +74,9 @@ return [
         ->fields(Api\AddUserAttributes::class)
         ->endpoint([Endpoint\Show::class, Endpoint\Update::class], function (Endpoint\Show|Endpoint\Update $endpoint) {
             return $endpoint->addDefaultInclude(['twoFactor']);
+        })
+        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
+            return $endpoint->eagerLoad('twoFactor');
         }),
 
     (new Extend\ApiResource(GroupResource::class))
@@ -78,6 +84,9 @@ return [
 
     (new Extend\ApiResource(ForumResource::class))
         ->fields(Api\AddForumAttributes::class),
+
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(UserSearcher::class, Search\TwoFactorFilter::class),
 
     (new Extend\Notification())
         ->type(Notification\TwoFactorStatusChangedBlueprint::class, ['email']),
@@ -92,7 +101,6 @@ return [
     (new Extend\Settings())
         ->default('ianm-twofactor.admin.settings.forum_logo_qr', true)
         ->default('ianm-twofactor.admin.settings.forum_logo_qr_width', 100)
-        ->default('ianm-twofactor.kill_inactive_tokens', true)
         ->default('ianm-twofactor.kill_inactive_tokens_age_days', 30)
         ->default('ianm-twofactor.also_kill_developer_tokens', false),
 
@@ -119,6 +127,14 @@ return [
                         ->addBackendRouteExclusion('twoFactor.oauth')
                         ->addBackendRouteExclusion('twoFactor.oauth.verify')
                 ]),
+        ])
+        ->whenExtensionEnabled('flarum-oauth-provider', fn () => [
+            (new Extend\Policy())
+                ->globalPolicy(Access\OAuthProviderPolicy::class),
+        ])
+        ->whenExtensionEnabled('flarum-mcp', fn () => [
+            (new Mcp())
+                ->hide('two-factor'),
         ])
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())

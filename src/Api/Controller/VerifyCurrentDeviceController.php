@@ -13,10 +13,12 @@ namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
+use Flarum\Post\Exception\FloodingException;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Model\TwoFactor;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,14 +28,16 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(protected TotpInterface $totp)
+    public function __construct(protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected DeviceChangeGrant $grant)
     {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $token = Arr::get($request->getParsedBody(), 'token', '');
+        $actor->assertRegistered();
+
+        $token = $this->codeFrom($request);
 
         $twoFactor = TwoFactor::getForUser($actor);
 
@@ -41,12 +45,18 @@ class VerifyCurrentDeviceController implements RequestHandlerInterface
             throw new ValidationException(['token' => 'Two-factor authentication is not enabled']);
         }
 
+        if ($token !== '' && ! $this->throttler->attempt($actor, $request)) {
+            throw new FloodingException();
+        }
+
         if ($this->isTokenActive($token, $actor)) {
+            $this->throttler->succeeded($actor, $request);
+
             return new JsonResponse([
-                'success' => true
+                'success' => true,
+                'changeToken' => $this->grant->issue($actor),
             ]);
         } else {
-            // Token is invalid
             throw new ValidationException(['token' => 'The token is invalid.']);
         }
     }

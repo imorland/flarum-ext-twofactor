@@ -11,10 +11,16 @@
 
 namespace IanM\TwoFactor\Api\Controller;
 
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
+use Flarum\Post\Exception\FloodingException;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
+use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\Event\Disabled;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
+use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Services\TwoFactorRestrictor;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -29,7 +35,7 @@ class DisableTwoFactorController implements RequestHandlerInterface
 {
     use TwoFactorAuthenticationTrait;
 
-    public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor)
+    public function __construct(public Dispatcher $events, public TwoFactorRestrictor $restrictor, protected TotpInterface $totp, protected CodeVerificationThrottler $throttler, protected TranslatorInterface $translator, protected DeviceChangeGrant $grant)
     {
     }
 
@@ -55,10 +61,36 @@ class DisableTwoFactorController implements RequestHandlerInterface
             throw new ModelNotFoundException();
         }
 
+        // Someone holding only a session must not be able to turn it off. Recovering
+        // another user's account (manageOthers) has no code to give.
+        if ($actor->id === $user->id) {
+            $this->assertCurrentCode($user, $request);
+        }
+
         $user->twoFactor->delete();
+        $this->grant->revoke($user);
 
         $this->events->dispatch(new Disabled($user, $actor));
 
         return new EmptyResponse(204);
+    }
+
+    protected function assertCurrentCode(User $user, ServerRequestInterface $request): void
+    {
+        $code = $this->codeFrom($request);
+
+        if ($code === '') {
+            throw new ValidationException(['token' => $this->translator->trans('ianm-twofactor.forum.security.current_token_required')]);
+        }
+
+        if (! $this->throttler->attempt($user, $request)) {
+            throw new FloodingException();
+        }
+
+        if (! $this->isTokenActive($code, $user)) {
+            throw new ValidationException(['token' => $this->translator->trans('ianm-twofactor.forum.log_in.two_factor_incorrect_message')]);
+        }
+
+        $this->throttler->succeeded($user, $request);
     }
 }

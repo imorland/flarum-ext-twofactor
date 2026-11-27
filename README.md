@@ -18,7 +18,9 @@ This extension requires a minimum of PHP 8.1, due to a 3rd party library constra
 - 2FA Enabled/Disabled notifications
 - 2FA Status page
 - Backup/recovery codes
-- Option to revoke dormant access tokens after X days of no usage
+- Option to delete developer access tokens after X days of no usage
+- Applies group 2FA requirements to applications connected through `flarum/oauth-provider`
+- `is:2fa` filter on the admin user list for those who may see 2FA status
 - Records 2FA activity in the audit log when `flarum/audit` is enabled
 
 ## Permissions
@@ -44,12 +46,12 @@ php flarum cache:clear
 ## Usage
 
 ### CLI
-Independantly of the setting, you may remove dormant access tokens using the CLI. The days setting defaults to 30 days, and the CLI will still respect this value from the extension settings, as well as the developer token setting:
+Sign-in and "remember me" token lengths are set in core, on the Advanced page under Sessions. Developer tokens never expire there, so this extension can delete unused ones. While that setting is on, you may also run it from the CLI, which uses the number of days from the extension settings:
 ```bash
 php flarum twofactor:kill-inactive-tokens
 ```
 
-![cli](https://private-user-images.githubusercontent.com/16573496/339968512-ef914d1e-cc65-4621-9484-4b8eeb7642f9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTg0NDE1ODQsIm5iZiI6MTcxODQ0MTI4NCwicGF0aCI6Ii8xNjU3MzQ5Ni8zMzk5Njg1MTItZWY5MTRkMWUtY2M2NS00NjIxLTk0ODQtNGI4ZWViNzY0MmY5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA2MTUlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNjE1VDA4NDgwNFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTYyMjA5NmMzMzg1ZjJhMzdjMDRmNGI1ZGQyNDVjM2U4NjRlYjIxZWE3NDQ2ODI5NDkyNzk0ZjE4YjE4NWI0ZTMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.Bb8Wgml7ohvCF7m89EXhRhNBS7zo95tDx777g5gj8vg)
+Before Flarum 2.1, this extension also deleted inactive session and "remember me" tokens (after 30 days by default). Updating moves that limit to core's "remember me" length, unless core's is already shorter.
 
 TODO
 

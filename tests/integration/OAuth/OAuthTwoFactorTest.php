@@ -82,8 +82,10 @@ use FoF\OAuth\Events\OAuthLoginSuccessful;
 use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthListener;
+use IanM\TwoFactor\Tests\integration\GeneratesTwoFactorCodes;
 use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeAccessToken;
 use IanM\TwoFactor\Tests\Integration\OAuth\Stubs\FakeResourceOwner;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store as CacheStore;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Session\Store as SessionStore;
@@ -95,6 +97,7 @@ use PHPUnit\Framework\Attributes\Test;
 class OAuthTwoFactorTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
+    use GeneratesTwoFactorCodes;
 
     protected function setUp(): void
     {
@@ -133,6 +136,13 @@ class OAuthTwoFactorTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->app()->getContainer()->make(Repository::class)->clear();
+
+        parent::tearDown();
     }
 
     private function makeOAuthEvent(string $provider = 'github', string $identifier = 'gh-user-123'): OAuthLoginSuccessful
@@ -292,6 +302,78 @@ class OAuthTwoFactorTest extends TestCase
 
         $this->assertEquals(302, $postResponse->getStatusCode());
         $this->assertStringContainsString('twofactor/oauth/verify', $postResponse->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function verify_page_marks_the_visitor_as_a_guest(): void
+    {
+        $response = $this->send($this->request('GET', '/twofactor/oauth/verify'));
+
+        $this->assertStringContainsString('<html class="guest-user"', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function verify_controller_limits_wrong_codes(): void
+    {
+        [$getResponse] = $this->startOAuthVerification();
+
+        foreach (range(1, 5) as $attempt) {
+            $response = $this->sendOAuthCode($getResponse, $this->wrongCode());
+
+            $this->assertStringContainsString('twofactor/oauth/verify', $response->getHeaderLine('Location'), "Attempt $attempt");
+        }
+
+        $response = $this->sendOAuthCode($getResponse, $this->correctCode());
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringContainsString('twofactor/oauth/verify', $response->getHeaderLine('Location'));
+
+        $page = $this->send($this->request('GET', '/twofactor/oauth/verify', ['cookiesFrom' => $getResponse]));
+        $this->assertStringContainsString('Too many incorrect', (string) $page->getBody());
+    }
+
+    #[Test]
+    public function verify_controller_accepts_the_right_code_below_the_limit(): void
+    {
+        [$getResponse] = $this->startOAuthVerification();
+
+        foreach (range(1, 4) as $attempt) {
+            $this->sendOAuthCode($getResponse, $this->wrongCode());
+        }
+
+        $response = $this->sendOAuthCode($getResponse, $this->correctCode());
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringContainsString('/auth/github', $response->getHeaderLine('Location'));
+    }
+
+    /**
+     * @return array{\Psr\Http\Message\ResponseInterface, string}
+     */
+    private function startOAuthVerification(): array
+    {
+        $getResponse = $this->send($this->request('GET', '/twofactor/oauth/verify'));
+        $sessionId = $this->extractSessionId($getResponse);
+        $this->assertNotNull($sessionId);
+
+        $this->app()->getContainer()->make(CacheStore::class)->put('oauth_data_'.$sessionId, [
+            'token' => new FakeAccessToken(),
+            'resourceOwner' => new FakeResourceOwner('gh-user-123'),
+            'provider' => 'github',
+            'userId' => 2,
+        ], AbstractOAuthController::$OAUTH_DATA_CACHE_LIFETIME);
+
+        return [$getResponse, $sessionId];
+    }
+
+    private function sendOAuthCode(\Psr\Http\Message\ResponseInterface $getResponse, string $code): \Psr\Http\Message\ResponseInterface
+    {
+        return $this->send(
+            $this->request('POST', '/twofactor/oauth/verify', [
+                'cookiesFrom' => $getResponse,
+                'json' => ['twoFactorToken' => $code],
+            ])
+        );
     }
 
     private function extractSessionId(\Psr\Http\Message\ResponseInterface $response): ?string

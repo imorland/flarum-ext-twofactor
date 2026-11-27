@@ -32,7 +32,9 @@ class TwoFactorData extends Type
 
     protected function sanitize(TwoFactor $twoFactor): array
     {
-        return Arr::except($twoFactor->toArray(), ['id', 'user_id', 'secret']);
+        // Anyone with the user's session can request an export, and the secrets
+        // and backup code hashes would let them make or crack a code.
+        return Arr::only($twoFactor->toArray(), ['is_active', 'created_at', 'updated_at']);
     }
 
     public static function anonymizeDescription(): string

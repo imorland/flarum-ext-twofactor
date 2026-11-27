@@ -16,6 +16,7 @@ use Flarum\User\User;
 use FoF\OAuth\Controllers\AbstractOAuthController;
 use IanM\TwoFactor\Contracts\TotpInterface;
 use IanM\TwoFactor\OAuth\TwoFactorOAuthCheck;
+use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Cache\Store as CacheStore;
 use Illuminate\Session\Store;
@@ -33,7 +34,8 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
     public function __construct(
         protected UrlGenerator $url,
         protected TotpInterface $totp,
-        protected CacheStore $cache
+        protected CacheStore $cache,
+        protected CodeVerificationThrottler $throttler
     ) {
     }
 
@@ -67,6 +69,12 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
             return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
         }
 
+        if (! $this->throttler->attempt($user, $request)) {
+            $session->put('errors', new MessageBag(['twoFactorToken' => app('translator')->trans('ianm-twofactor.views.two_factor_token.too_many_attempts_message')]));
+
+            return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
+        }
+
         $token = $this->retrieveTwoFactorTokenFrom($twoFactorToken);
 
         if (! $this->isTokenActive($token, $user)) {
@@ -74,6 +82,8 @@ class TwoFactorOAuthVerifyController implements RequestHandlerInterface
 
             return new RedirectResponse($this->url->to('forum')->route('twoFactor.oauth'));
         }
+
+        $this->throttler->succeeded($user, $request);
 
         // Mark 2FA as verified in the session so the middleware allows the fast-track
         // resume to complete. Using the session (not cache) so the flag survives session
