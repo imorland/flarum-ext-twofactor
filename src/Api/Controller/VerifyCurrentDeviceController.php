@@ -19,7 +19,6 @@ use IanM\TwoFactor\Model\TwoFactor;
 use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

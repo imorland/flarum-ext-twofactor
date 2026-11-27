@@ -45,7 +45,7 @@ trait GeneratesTwoFactorCodes
         $now = time();
         $valid = [$totp->at($now - 30), $totp->at($now), $totp->at($now + 30)];
 
-        for ($candidate = 0; ; $candidate++) {
+        for ($candidate = 0;; $candidate++) {
             $code = str_pad((string) $candidate, 6, '0', STR_PAD_LEFT);
 
             if (! in_array($code, $valid, true)) {

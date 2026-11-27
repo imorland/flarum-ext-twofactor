@@ -12,9 +12,9 @@
 namespace IanM\TwoFactor\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
-use Flarum\Post\Exception\FloodingException;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
+use Flarum\Post\Exception\FloodingException;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Throttler\LoginThrottler;
 use Flarum\User\UserRepository;

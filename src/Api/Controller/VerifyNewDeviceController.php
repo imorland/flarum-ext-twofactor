@@ -23,7 +23,6 @@ use IanM\TwoFactor\Services\CodeVerificationThrottler;
 use IanM\TwoFactor\Services\DeviceChangeGrant;
 use IanM\TwoFactor\Trait\TwoFactorAuthenticationTrait;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use OTPHP\TOTP;
 use Psr\Http\Message\ResponseInterface;
