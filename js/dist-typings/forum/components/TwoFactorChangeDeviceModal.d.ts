@@ -14,6 +14,7 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
     currentToken: Stream<string>;
     newToken: Stream<string>;
     code: string | null;
+    changeToken: string | null;
     activeTab: string;
     loading: boolean;
     oninit(vnode: Mithril.Vnode<TwoFactorChangeDeviceModalAttrs>): void;
@@ -31,5 +32,11 @@ export default class TwoFactorChangeDeviceModal extends Modal<TwoFactorChangeDev
     loadQrCode(): void;
     onVerifyNewDeviceSubmit(e: Event): void;
     verifyNewDevice(): void;
+    /**
+     * The server no longer accepts the code given from the current device, for
+     * however long or whatever reason, so it has to be given again.
+     */
+    grantErrorHandler: (error: any) => false | void;
+    restart(): void;
     finish(): void;
 }
